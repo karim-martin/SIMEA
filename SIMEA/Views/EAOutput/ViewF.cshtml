@@ -1,0 +1,626 @@
+@model SIMEA.Models.ViewModels.DataFlowDiagramViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Data Flow Diagram Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This diagram visualizes how data flows between applications and systems in the enterprise architecture.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Flow Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Data Flow Diagram</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.DataFlows != null && Model.DataFlows.Any())
+                    {
+                        <div id="data-flow-chart" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Flow Details -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Data Flow Details</h6>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-flow-type="all">All</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-flow-type="batch">Batch</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-flow-type="realtime">Real-time</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-flow-type="event">Event-driven</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataFlowTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Destination</th>
+                                    <th>Data Type</th>
+                                    <th>Flow Type</th>
+                                    <th>Frequency</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.DataFlows != null && Model.DataFlows.Any())
+                                {
+                                    foreach (var flow in Model.DataFlows)
+                                    {
+                                        var flowFrequency = flow.Frequency ?? "Unknown";
+                                        <tr class="flow-row" data-flow-type="@(flowFrequency.ToLower())">
+                                            <td>@flow.DataSource</td>
+                                            <td>@flow.DataDestination</td>
+                                            <td>@("Data")</td>
+                                            <td>
+                                                <span class="badge 
+                                                    @(flowFrequency == "Real-time" ? "badge-success" : 
+                                                    flowFrequency == "Batch" ? "badge-primary" : 
+                                                    flowFrequency == "Event-driven" ? "badge-info" : 
+                                                    "badge-secondary")">
+                                                    @flowFrequency
+                                                </span>
+                                            </td>
+                                            <td>@flow.Frequency</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(flow.DataFlowDescription))
+                                                {
+                                                    @(flow.DataFlowDescription.Length > 50 
+                                                        ? flow.DataFlowDescription.Substring(0, 50) + "..." 
+                                                        : flow.DataFlowDescription)
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">No data flow information available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Entities and References -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Logical Data Entities</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataEntitiesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Entity Name</th>
+                                    <th>Description</th>
+                                    <th>Attributes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.LogicalDataModels != null && Model.LogicalDataModels.Any())
+                                {
+                                    foreach (var entity in Model.LogicalDataModels)
+                                    {
+                                        <tr>
+                                            <td>@entity.EntityName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(entity.Description))
+                                                {
+                                                    @(entity.Description.Length > 50 
+                                                        ? entity.Description.Substring(0, 50) + "..." 
+                                                        : entity.Description)
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (entity.Attributes != null && entity.Attributes.Any())
+                                                {
+                                                    <span>@string.Join(", ", entity.Attributes.Take(3))</span>
+                                                    @if (entity.Attributes.Count > 3)
+                                                    {
+                                                        <span>...</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None specified</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No logical data entities available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application-Data References</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="appDataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Application</th>
+                                    <th>Data Entity</th>
+                                    <th>Usage Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.AppDataReferences != null && Model.AppDataReferences.Any())
+                                {
+                                    foreach (var refItem in Model.AppDataReferences)
+                                    {
+                                        <tr>
+                                            <td>@refItem.ApplicationName</td>
+                                            <td>@refItem.DataEntity</td>
+                                            <td>
+                                                <span class="badge 
+                                                    @(refItem.DataUsage == "Create" ? "badge-success" : 
+                                                    refItem.DataUsage == "Read" ? "badge-primary" : 
+                                                    refItem.DataUsage == "Update" ? "badge-warning" : 
+                                                    refItem.DataUsage == "Delete" ? "badge-danger" : 
+                                                    "badge-secondary")">
+                                                    @(refItem.DataUsage ?? "Unknown")
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No application-data references available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Data References -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">System-Data References</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="systemDataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>System</th>
+                                    <th>Data Entity</th>
+                                    <th>Usage Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.SystemDataReferences != null && Model.SystemDataReferences.Any())
+                                {
+                                    foreach (var refItem in Model.SystemDataReferences)
+                                    {
+                                        <tr>
+                                            <td>@refItem.SystemName</td>
+                                            <td>@refItem.DataEntity</td>
+                                            <td>
+                                                <span class="badge 
+                                                    @(refItem.DataUsage == "Create" ? "badge-success" : 
+                                                    refItem.DataUsage == "Read" ? "badge-primary" : 
+                                                    refItem.DataUsage == "Update" ? "badge-warning" : 
+                                                    refItem.DataUsage == "Delete" ? "badge-danger" : 
+                                                    "badge-secondary")">
+                                                    @(refItem.DataUsage ?? "Unknown")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(refItem.DataRetentionPolicy))
+                                                {
+                                                    @(refItem.DataRetentionPolicy.Length > 50 
+                                                        ? refItem.DataRetentionPolicy.Substring(0, 50) + "..." 
+                                                        : refItem.DataRetentionPolicy)
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No system-data references available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            var dataFlowTable, dataEntitiesTable, appDataTable, systemDataTable;
+            
+            if ($('#dataFlowTable tbody tr').length > 1) {
+                dataFlowTable = $('#dataFlowTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            if ($('#dataEntitiesTable tbody tr').length > 1) {
+                dataEntitiesTable = $('#dataEntitiesTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#appDataTable tbody tr').length > 1) {
+                appDataTable = $('#appDataTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#systemDataTable tbody tr').length > 1) {
+                systemDataTable = $('#systemDataTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            // Flow type filter buttons
+            $('.btn-group [data-flow-type]').click(function() {
+                $('.btn-group [data-flow-type]').removeClass('active');
+                $(this).addClass('active');
+                
+                var flowType = $(this).data('flow-type');
+                
+                if (dataFlowTable) {
+                    if (flowType === 'all') {
+                        dataFlowTable.column(3).search('').draw();
+                    } else {
+                        dataFlowTable.column(3).search(flowType, true, false).draw();
+                    }
+                } else {
+                    // Fallback for when DataTables isn't initialized
+                    if (flowType === 'all') {
+                        $('.flow-row').show();
+                    } else {
+                        $('.flow-row').hide();
+                        $('.flow-row[data-flow-type="' + flowType + '"]').show();
+                    }
+                }
+            });
+            
+            // Initialize Data Flow Chart if element exists
+            var chartElement = document.getElementById('data-flow-chart');
+            if (chartElement && @(Model.DataFlows != null && Model.DataFlows.Any() ? "true" : "false")) {
+                console.log("Initializing data flow chart");
+                
+                // Process data for the diagram
+                var nodes = [];
+                var links = [];
+                var nodeMap = new Map();
+                
+                @if (Model.DataFlows != null && Model.DataFlows.Any())
+                {
+                    <text>
+                    try {
+                        var dataFlows = @Html.Raw(Json.Serialize(Model.DataFlows.Select(d => new { 
+                            Source = d.DataSource, 
+                            Target = d.DataDestination,
+                            Type = "Data",
+                            FlowType = d.Frequency
+                        }))) || [];
+                        
+                        if (Array.isArray(dataFlows)) {
+                            // Create unique nodes
+                            dataFlows.forEach(function(flow) {
+                                if (flow && flow.Source && flow.Target) {
+                                    if (!nodeMap.has(flow.Source)) {
+                                        nodeMap.set(flow.Source, nodes.length);
+                                        nodes.push({
+                                            name: flow.Source,
+                                            category: 0
+                                        });
+                                    }
+                                    
+                                    if (!nodeMap.has(flow.Target)) {
+                                        nodeMap.set(flow.Target, nodes.length);
+                                        nodes.push({
+                                            name: flow.Target,
+                                            category: 1
+                                        });
+                                    }
+                                    
+                                    // Create links between nodes
+                                    links.push({
+                                        source: nodeMap.get(flow.Source),
+                                        target: nodeMap.get(flow.Target),
+                                        value: flow.Type || 'Data',
+                                        lineStyle: {
+                                            width: 2,
+                                            curveness: 0.3,
+                                            color: flow.FlowType === 'Real-time' ? '#1cc88a' : 
+                                                  flow.FlowType === 'Batch' ? '#4e73df' : 
+                                                  flow.FlowType === 'Event-driven' ? '#36b9cc' : '#858796'
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing data flow data:", e);
+                    }
+                    </text>
+                }
+                
+                // Use the chart helper to handle empty data
+                handleEmptyChart(chartElement, nodes.length > 0 ? nodes : null, function(flowChart) {
+                    try {
+                        // Chart options
+                        var option = {
+                            title: {
+                                text: 'Data Flow Diagram',
+                                left: 'center'
+                            },
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function(params) {
+                                    try {
+                                        if (params.dataType === 'edge') {
+                                            var sourceNode = nodes[params.data.source];
+                                            var targetNode = nodes[params.data.target];
+                                            return (sourceNode?.name || 'Unknown') + ' → ' + 
+                                                  (targetNode?.name || 'Unknown') + '<br/>' + 
+                                                  'Data: ' + (params.data.value || 'Unknown');
+                                        }
+                                        return params.name || 'Unknown';
+                                    } catch (e) {
+                                        console.error("Error in tooltip formatter:", e);
+                                        return "Error displaying tooltip";
+                                    }
+                                }
+                            },
+                            legend: [
+                                {
+                                    data: ['Source', 'Destination'],
+                                    bottom: 10,
+                                    left: 'center'
+                                },
+                                {
+                                    data: ['Real-time', 'Batch', 'Event-driven'],
+                                    bottom: 30,
+                                    left: 'center',
+                                    itemWidth: 15,
+                                    itemHeight: 5,
+                                    itemStyle: {
+                                        color: function(params) {
+                                            if (params && params.name === 'Real-time') return '#1cc88a';
+                                            if (params && params.name === 'Batch') return '#4e73df';
+                                            if (params && params.name === 'Event-driven') return '#36b9cc';
+                                            return '#858796';
+                                        }
+                                    }
+                                }
+                            ],
+                            series: [
+                                {
+                                    type: 'graph',
+                                    layout: 'force',
+                                    data: nodes,
+                                    links: links,
+                                    categories: [
+                                        { name: 'Source' },
+                                        { name: 'Destination' }
+                                    ],
+                                    roam: true,
+                                    label: {
+                                        show: true,
+                                        position: 'right',
+                                        fontSize: 12
+                                    },
+                                    force: {
+                                        repulsion: 150,
+                                        edgeLength: 150
+                                    },
+                                    emphasis: {
+                                        focus: 'adjacency',
+                                        lineStyle: {
+                                            width: 5
+                                        }
+                                    },
+                                    edgeSymbol: ['circle', 'arrow'],
+                                    edgeSymbolSize: [4, 8]
+                                }
+                            ]
+                        };
+                        
+                        // Apply options
+                        flowChart.setOption(option);
+                        
+                        // Fullscreen toggle
+                        document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                            if (chartElement.classList.contains('fullscreen')) {
+                                chartElement.classList.remove('fullscreen');
+                                this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                                chartElement.style.height = '500px';
+                            } else {
+                                chartElement.classList.add('fullscreen');
+                                this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                                chartElement.style.height = '85vh';
+                            }
+                            
+                            // Resize chart after container size change
+                            setTimeout(function() {
+                                flowChart.resize();
+                            }, 100);
+                        });
+                        
+                        // Export button
+                        document.getElementById('exportBtn').addEventListener('click', function() {
+                            var dataURL = flowChart.getDataURL({
+                                pixelRatio: 2,
+                                backgroundColor: '#fff'
+                            });
+                            
+                            // Create an invisible anchor element to trigger download
+                            var downloadLink = document.createElement('a');
+                            downloadLink.href = dataURL;
+                            downloadLink.download = 'data-flow-diagram.png';
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                        });
+                    } catch (e) {
+                        console.error("Error setting chart options:", e);
+                        chartElement.innerHTML = '<div class="alert alert-danger text-center">' +
+                                               '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                                               'Error generating chart: ' + e.message +
+                                               '</div>';
+                    }
+                });
+            } else {
+                // Hide buttons if no chart
+                document.getElementById('toggleFullscreen').style.display = 'none';
+                document.getElementById('exportBtn').style.display = 'none';
+            }
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+        
+        .btn-outline-primary.active {
+            background-color: #4e73df;
+            color: white;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}

@@ -1,0 +1,703 @@
+@model SIMEA.Models.ViewModels.TechnologyStandardsViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Technology Standards Compliance Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This view provides insights into compliance with technology standards across the enterprise. It helps identify technologies that need to be updated or replaced to align with enterprise standards.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Overview Cards -->
+    <div class="row">
+        @if (Model.ComplianceByDomain?.Count > 0)
+        {
+            foreach (var domain in Model.ComplianceByDomain)
+            {
+                var colorClass = "";
+                var icon = "";
+                
+                // Set color based on domain
+                if (domain.Key == "Application")
+                {
+                    colorClass = "primary";
+                    icon = "fas fa-laptop-code";
+                }
+                else if (domain.Key == "Data")
+                {
+                    colorClass = "info";
+                    icon = "fas fa-database";
+                }
+                else if (domain.Key == "Infrastructure")
+                {
+                    colorClass = "warning";
+                    icon = "fas fa-server";
+                }
+                
+                <div class="col-xl-4 col-md-6 mb-4">
+                    <div class="card border-left-@colorClass shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-@colorClass text-uppercase mb-1">
+                                        @domain.Key Compliance</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">@domain.Value%</div>
+                                    <div class="progress progress-sm mt-2">
+                                        <div class="progress-bar bg-@colorClass" role="progressbar" style="width: @domain.Value%" 
+                                            aria-valuenow="@domain.Value" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="@icon fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-xl-12 mb-4">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle mr-2"></i> No compliance data available
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Standards Compliance Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Standards Compliance Summary</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.StandardsItems != null && Model.StandardsItems.Any())
+                    {
+                        <div id="compliance-chart" style="height: 400px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No standards compliance data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Standards Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Technology Standards</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Filter Options:</div>
+                            <a class="dropdown-item" href="#" id="showAllStandards">Show All Standards</a>
+                            <a class="dropdown-item" href="#" id="showNonCompliantOnly">Show Non-Compliant Only</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" id="sortByCompliance">Sort by Compliance</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.StandardsItems != null && Model.StandardsItems.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="standardsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Standard</th>
+                                        <th>Description</th>
+                                        <th>Version</th>
+                                        <th>Compliant</th>
+                                        <th>Non-Compliant</th>
+                                        <th>Compliance Rate</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var standard in Model.StandardsItems)
+                                    {
+                                        var totalApps = standard.CompliantCount + standard.NonCompliantCount;
+                                        var complianceRate = totalApps > 0 ? (int)(standard.CompliantCount * 100.0 / totalApps) : 0;
+                                        var rateClass = complianceRate >= 70 ? "success" : 
+                                                      complianceRate >= 40 ? "warning" : "danger";
+                                                  
+                                        <tr class="standard-row" data-compliance-rate="@complianceRate">
+                                            <td>@standard.Category</td>
+                                            <td>@standard.StandardName</td>
+                                            <td>@standard.Description</td>
+                                            <td>@standard.Version</td>
+                                            <td>@standard.CompliantCount</td>
+                                            <td>@standard.NonCompliantCount</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="mr-2">
+                                                        <span class="text-@rateClass">@complianceRate%</span>
+                                                    </div>
+                                                    <div class="progress progress-sm w-100">
+                                                        <div class="progress-bar bg-@rateClass" role="progressbar" style="width: @complianceRate%" 
+                                                            aria-valuenow="@complianceRate" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary view-details-btn" 
+                                                        data-standard="@standard.StandardName"
+                                                        data-compliant="@string.Join(",", standard.CompliantApplications)"
+                                                        data-noncompliant="@string.Join(",", standard.NonCompliantApplications)">
+                                                    <i class="fas fa-info-circle"></i> Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No standards data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Non-Compliant Applications -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Non-Compliant Applications</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.NonCompliantApplications != null && Model.NonCompliantApplications.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="nonCompliantTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Application Name</th>
+                                        <th>Description</th>
+                                        <th>Business Function</th>
+                                        <th>Technology Stack</th>
+                                        <th>Action Required</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var app in Model.NonCompliantApplications)
+                                    {
+                                        <tr>
+                                            <td>@app.ApplicationName</td>
+                                            <td>@(app.ApplicationDescription?.Length > 50 ? app.ApplicationDescription.Substring(0, 47) + "..." : app.ApplicationDescription)</td>
+                                            <td>@app.BusinessFunctionSupported</td>
+                                            <td>
+                                                @if (app.TechnologyStack != null && app.TechnologyStack.Any())
+                                                {
+                                                    foreach (var tech in app.TechnologyStack.Take(3))
+                                                    {
+                                                        <span class="badge badge-light m-1">@tech</span>
+                                                    }
+                                                    
+                                                    if (app.TechnologyStack.Count > 3)
+                                                    {
+                                                        <span class="badge badge-secondary">+@(app.TechnologyStack.Count - 3) more</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not specified</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-danger">Upgrade Required</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success text-center">
+                            <i class="fas fa-check-circle mr-2"></i> All applications are compliant with standards
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standard Details Modal -->
+    <div class="modal fade" id="standardDetailsModal" tabindex="-1" role="dialog" aria-labelledby="standardDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="standardDetailsModalLabel">Standard Details</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" id="standardDetailsTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="compliant-tab" data-toggle="tab" href="#compliant" role="tab" aria-controls="compliant" aria-selected="true">
+                                Compliant Applications
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="noncompliant-tab" data-toggle="tab" href="#noncompliant" role="tab" aria-controls="noncompliant" aria-selected="false">
+                                Non-Compliant Applications
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="standardDetailsTabsContent">
+                        <div class="tab-pane fade show active" id="compliant" role="tabpanel" aria-labelledby="compliant-tab">
+                            <ul class="list-group" id="compliantAppsList">
+                                <!-- Will be filled dynamically -->
+                            </ul>
+                        </div>
+                        <div class="tab-pane fade" id="noncompliant" role="tabpanel" aria-labelledby="noncompliant-tab">
+                            <ul class="list-group" id="nonCompliantAppsList">
+                                <!-- Will be filled dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            var standardsTable;
+            if ($('#standardsTable tbody tr').length > 1) {
+                standardsTable = $('#standardsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            var nonCompliantTable;
+            if ($('#nonCompliantTable tbody tr').length > 1) {
+                nonCompliantTable = $('#nonCompliantTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            // Initialize Compliance Chart if element exists
+            var complianceChartElement = document.getElementById('compliance-chart');
+            if (complianceChartElement) {
+                console.log("Initializing compliance chart");
+                var complianceChart = echarts.init(complianceChartElement, null, { renderer: 'canvas' });
+                
+                // Process data for the compliance chart
+                @if (Model.StandardsItems != null && Model.StandardsItems.Any())
+                {
+                    <text>
+                    try {
+                        var standardsData = @Html.Raw(Json.Serialize(Model.StandardsItems.Select(s => new {
+                            StandardName = s.StandardName,
+                            Category = s.Category,
+                            CompliantCount = s.CompliantCount,
+                            NonCompliantCount = s.NonCompliantCount
+                        }))) || [];
+                        
+                        var categories = [];
+                        var compliantData = [];
+                        var nonCompliantData = [];
+                        
+                        if (Array.isArray(standardsData)) {
+                            standardsData.forEach(function(item) {
+                                if (item && item.StandardName) {
+                                    categories.push(item.StandardName);
+                                    compliantData.push(item.CompliantCount || 0);
+                                    nonCompliantData.push(item.NonCompliantCount || 0);
+                                }
+                            });
+                        }
+                        
+                        // Add placeholder if no data
+                        if (categories.length === 0) {
+                            categories.push('No Data');
+                            compliantData.push(0);
+                            nonCompliantData.push(0);
+                        }
+                    } catch (e) {
+                        console.error("Error processing standards data:", e);
+                        var categories = ['Error'];
+                        var compliantData = [0];
+                        var nonCompliantData = [0];
+                    }
+                    </text>
+                }
+                else
+                {
+                    <text>
+                    var categories = [];
+                    var compliantData = [];
+                    var nonCompliantData = [];
+                    </text>
+                }
+                
+                try {
+                    // Compliance chart options
+                    var option = {
+                        title: {
+                            text: 'Technology Standards Compliance',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            formatter: function(params) {
+                                try {
+                                    var compliant = params[0].value || 0;
+                                    var nonCompliant = params[1] ? (params[1].value || 0) : 0;
+                                    var total = compliant + nonCompliant;
+                                    var complianceRate = total > 0 ? Math.round(compliant * 100 / total) : 0;
+                                    
+                                    return (params[0].name || 'Unknown') + '<br/>' +
+                                           (params[0].seriesName || 'Compliant') + ': ' + compliant + '<br/>' +
+                                           (params[1] ? (params[1].seriesName || 'Non-Compliant') : 'Non-Compliant') + ': ' + nonCompliant + '<br/>' +
+                                           'Compliance Rate: ' + complianceRate + '%';
+                                } catch (e) {
+                                    console.error("Error in tooltip formatter:", e);
+                                    return "Error displaying tooltip";
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['Compliant', 'Non-Compliant'],
+                            bottom: 10
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '15%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: categories,
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 30
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: 'Number of Applications',
+                            minInterval: 1
+                        },
+                        series: [
+                            {
+                                name: 'Compliant',
+                                type: 'bar',
+                                stack: 'total',
+                                itemStyle: {
+                                    color: '#1cc88a'
+                                },
+                                emphasis: {
+                                    focus: 'series'
+                                },
+                                data: compliantData
+                            },
+                            {
+                                name: 'Non-Compliant',
+                                type: 'bar',
+                                stack: 'total',
+                                itemStyle: {
+                                    color: '#e74a3b'
+                                },
+                                emphasis: {
+                                    focus: 'series'
+                                },
+                                data: nonCompliantData
+                            }
+                        ]
+                    };
+                    
+                    // Apply options to the chart
+                    complianceChart.setOption(option);
+                } catch (e) {
+                    console.error("Error initializing compliance chart:", e);
+                    complianceChartElement.innerHTML = '<div class="alert alert-danger text-center">' +
+                        '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                        'Error generating chart: ' + e.message +
+                        '</div>';
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    complianceChart.resize();
+                });
+                
+                // Fullscreen toggle
+                document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                    if (complianceChartElement.classList.contains('fullscreen')) {
+                        complianceChartElement.classList.remove('fullscreen');
+                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                        complianceChartElement.style.height = '400px';
+                    } else {
+                        complianceChartElement.classList.add('fullscreen');
+                        this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                        complianceChartElement.style.height = '85vh';
+                    }
+                    
+                    // Resize chart after container size change
+                    setTimeout(function() {
+                        complianceChart.resize();
+                    }, 100);
+                });
+                
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', function() {
+                    var dataURL = complianceChart.getDataURL({
+                        pixelRatio: 2,
+                        backgroundColor: '#fff'
+                    });
+                    
+                    // Create an invisible anchor element to trigger download
+                    var downloadLink = document.createElement('a');
+                    downloadLink.href = dataURL;
+                    downloadLink.download = 'standards-compliance.png';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+            } else {
+                // Hide buttons if no chart
+                document.getElementById('toggleFullscreen').style.display = 'none';
+                document.getElementById('exportBtn').style.display = 'none';
+            }
+            
+            // View standard details
+            $('.view-details-btn').click(function() {
+                var standard = $(this).data('standard');
+                var compliant = $(this).data('compliant').split(',');
+                var nonCompliant = $(this).data('noncompliant').split(',');
+                
+                // Update modal title
+                $('#standardDetailsModalLabel').text(standard + ' Compliance Details');
+                
+                // Clear existing lists
+                $('#compliantAppsList').empty();
+                $('#nonCompliantAppsList').empty();
+                
+                // Populate compliant apps list
+                if (compliant.length > 0 && compliant[0] !== "") {
+                    compliant.forEach(function(app) {
+                        $('#compliantAppsList').append(`
+                            <li class="list-group-item">
+                                <span class="badge badge-success mr-2">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                                ${app}
+                            </li>
+                        `);
+                    });
+                } else {
+                    $('#compliantAppsList').append(`
+                        <li class="list-group-item text-center text-muted">
+                            No compliant applications
+                        </li>
+                    `);
+                }
+                
+                // Populate non-compliant apps list
+                if (nonCompliant.length > 0 && nonCompliant[0] !== "") {
+                    nonCompliant.forEach(function(app) {
+                        $('#nonCompliantAppsList').append(`
+                            <li class="list-group-item">
+                                <span class="badge badge-danger mr-2">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                                ${app}
+                            </li>
+                        `);
+                    });
+                } else {
+                    $('#nonCompliantAppsList').append(`
+                        <li class="list-group-item text-center text-muted">
+                            No non-compliant applications
+                        </li>
+                    `);
+                }
+                
+                // Show the modal
+                $('#standardDetailsModal').modal('show');
+            });
+            
+            // Filter and sorting options
+            $('#showAllStandards').click(function(e) {
+                e.preventDefault();
+                
+                if (standardsTable) {
+                    standardsTable.search('').draw();
+                } else {
+                    $('.standard-row').show();
+                }
+            });
+            
+            $('#showNonCompliantOnly').click(function(e) {
+                e.preventDefault();
+                
+                if (standardsTable) {
+                    // Use DataTables API for filtering
+                    $.fn.dataTable.ext.search.push(
+                        function(settings, data, dataIndex) {
+                            var complianceRate = parseInt(data[6]) || 0;
+                            return complianceRate < 100;
+                        }
+                    );
+                    standardsTable.draw();
+                    // Remove the filter after drawing
+                    $.fn.dataTable.ext.search.pop();
+                } else {
+                    // Manual filtering
+                    $('.standard-row').each(function() {
+                        var complianceRate = parseInt($(this).data('compliance-rate')) || 0;
+                        if (complianceRate >= 100) {
+                            $(this).hide();
+                        } else {
+                            $(this).show();
+                        }
+                    });
+                }
+            });
+            
+            $('#sortByCompliance').click(function(e) {
+                e.preventDefault();
+                
+                if (standardsTable) {
+                    standardsTable.order([6, 'asc']).draw();
+                } else {
+                    // Manual sorting
+                    var rows = $('#standardsTable tbody tr').get();
+                    rows.sort(function(a, b) {
+                        var rateA = parseInt($(a).data('compliance-rate')) || 0;
+                        var rateB = parseInt($(b).data('compliance-rate')) || 0;
+                        return rateA - rateB;
+                    });
+                    
+                    $.each(rows, function(index, row) {
+                        $('#standardsTable tbody').append(row);
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        .progress {
+            height: 0.5rem;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}

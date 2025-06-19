@@ -1,0 +1,260 @@
+@model SIMEA.Models.ApplicationDataCrossReference
+
+@{
+    ViewData["Title"] = "Create Data Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Application to Data Cross Reference</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/ApplicationDataCrossReference/Index">Application Data Cross References</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Data Cross Reference
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="ApplicationDataCrossReference" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ApplicationName" class="control-label">Application Name</label>
+                            <input asp-for="ApplicationName" class="form-control" placeholder="Application Name" required />
+                            <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="DataEntity" class="control-label">Data Entity</label>
+                            <input asp-for="DataEntity" class="form-control" placeholder="Data Entity Name" required />
+                            <span asp-validation-for="DataEntity" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="DataUsage" class="control-label">Data Usage</label>
+                        <textarea asp-for="DataUsage" class="form-control" rows="3" placeholder="Description of how the application uses this data" required></textarea>
+                        <span asp-validation-for="DataUsage" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="DataSensitivity" class="control-label">Data Sensitivity</label>
+                            <select asp-for="DataSensitivity" class="form-control" required>
+                                <option value="">Select Sensitivity Level</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                                <option value="Public">Public</option>
+                            </select>
+                            <span asp-validation-for="DataSensitivity" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" placeholder="Person or team responsible for this data relationship" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="AccessControls" class="control-label">Access Controls</label>
+                            <input asp-for="AccessControls" class="form-control" placeholder="Access control mechanisms" />
+                            <span asp-validation-for="AccessControls" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="DataRetentionPolicy" class="control-label">Data Retention Policy</label>
+                            <input asp-for="DataRetentionPolicy" class="form-control" placeholder="Data retention policy" />
+                            <span asp-validation-for="DataRetentionPolicy" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" asp-controller="ApplicationDataCrossReference" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script>
+        $(document).ready(function () {
+            // Configure toastr notifications
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+            
+            let dependencies = [];
+
+            // Functions to update UI displays
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<span class="badge badge-primary mr-1 mb-1 dependency-badge" data-value="${dependency}">
+                        ${dependency} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${dependency}"></i>
+                        <input type="hidden" name="Dependencies" value="${dependency}" />
+                    </span>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>';
+                }
+                
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger delete-dependency" data-value="${dependency}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No dependencies added yet</li>';
+                }
+                
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Add dependency
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Add dependency from modal
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyModalInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Remove dependency
+            $(document).on('click', '.remove-badge', function () {
+                const value = $(this).data('value');
+                const index = dependencies.indexOf(value);
+                if (index !== -1) {
+                    dependencies.splice(index, 1);
+                    updateDependenciesList();
+                }
+            });
+
+            // Remove dependency from modal
+            $(document).on('click', '.delete-dependency', function () {
+                const value = $(this).data('value');
+                const index = dependencies.indexOf(value);
+                if (index !== -1) {
+                    dependencies.splice(index, 1);
+                    updateDependenciesList();
+                }
+            });
+
+            // Handle Enter key
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+            
+            // Initialize dependencies display
+            updateDependenciesList();
+        });
+    </script>
+}

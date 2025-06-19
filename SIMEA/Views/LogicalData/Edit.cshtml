@@ -1,0 +1,440 @@
+@model SIMEA.Models.LogicalDataModel
+
+@{
+    ViewData["Title"] = "Edit Logical Data Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Logical Data Model</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="EntityName" class="control-label"></label>
+                            <input asp-for="EntityName" class="form-control" />
+                            <span asp-validation-for="EntityName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label"></label>
+                            <input asp-for="Owner" class="form-control" />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="PrimaryKey" class="control-label"></label>
+                            <input asp-for="PrimaryKey" class="form-control" />
+                            <span asp-validation-for="PrimaryKey" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ForeignKey" class="control-label"></label>
+                            <input asp-for="ForeignKey" class="form-control" />
+                            <span asp-validation-for="ForeignKey" class="text-danger"></span>
+                            <small class="form-text text-muted">Optional. Leave empty if not applicable.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Attributes</label>
+                        <div class="input-group">
+                            <input type="text" id="attributeInput" class="form-control" placeholder="Add attribute (e.g., name VARCHAR(100) NOT NULL)" />
+                            <div class="input-group-append">
+                                <button type="button" id="addAttribute" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#attributesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="attributesList" class="mt-2">
+                            <!-- Existing attributes will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Relationships</label>
+                        <div class="input-group">
+                            <input type="text" id="relationshipInput" class="form-control" placeholder="Add relationship (e.g., Has-Many Orders)" />
+                            <div class="input-group-append">
+                                <button type="button" id="addRelationship" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#relationshipsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="relationshipsList" class="mt-2">
+                            <!-- Existing relationships will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependenciesList" class="mt-2">
+                            <!-- Existing dependencies will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attributes Modal -->
+    <div class="modal fade" id="attributesModal" tabindex="-1" role="dialog" aria-labelledby="attributesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="attributesModalLabel">Manage Attributes</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="attributesModalList">
+                        <!-- Attributes will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="attributeModalInput" class="form-control" placeholder="Add new attribute" />
+                        <div class="input-group-append">
+                            <button type="button" id="addAttributeModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relationships Modal -->
+    <div class="modal fade" id="relationshipsModal" tabindex="-1" role="dialog" aria-labelledby="relationshipsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="relationshipsModalLabel">Manage Relationships</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="relationshipsModalList">
+                        <!-- Relationships will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="relationshipModalInput" class="form-control" placeholder="Add new relationship" />
+                        <div class="input-group-append">
+                            <button type="button" id="addRelationshipModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let attributes = @Html.Raw(Json.Serialize(Model.Attributes ?? new List<string>()));
+            let relationships = @Html.Raw(Json.Serialize(Model.Relationships ?? new List<string>()));
+            let dependencies = @Html.Raw(Json.Serialize(Model.Dependencies ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateAttributesList() {
+                let html = '';
+                attributes.forEach((attribute, index) => {
+                    html += `<div class="badge badge-primary mr-2 mb-2 p-2">${attribute}
+                        <a href="#" class="text-white ml-1 remove-attribute" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Attributes[${index}]" value="${attribute}" />
+                    </div>`;
+                });
+                $('#attributesList').html(html);
+                updateAttributesModal();
+            }
+
+            function updateRelationshipsList() {
+                let html = '';
+                relationships.forEach((relationship, index) => {
+                    html += `<div class="badge badge-success mr-2 mb-2 p-2">${relationship}
+                        <a href="#" class="text-white ml-1 remove-relationship" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Relationships[${index}]" value="${relationship}" />
+                    </div>`;
+                });
+                $('#relationshipsList').html(html);
+                updateRelationshipsModal();
+            }
+
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<div class="badge badge-info mr-2 mb-2 p-2">${dependency}
+                        <a href="#" class="text-white ml-1 remove-dependency" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Dependencies[${index}]" value="${dependency}" />
+                    </div>`;
+                });
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateAttributesModal() {
+                let html = '';
+                attributes.forEach((attribute, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${attribute}
+                        <button type="button" class="btn btn-sm btn-danger remove-attribute-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#attributesModalList').html(html);
+            }
+
+            function updateRelationshipsModal() {
+                let html = '';
+                relationships.forEach((relationship, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${relationship}
+                        <button type="button" class="btn btn-sm btn-danger remove-relationship-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#relationshipsModalList').html(html);
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger remove-dependency-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Initial display
+            updateAttributesList();
+            updateRelationshipsList();
+            updateDependenciesList();
+
+            // Add attribute from main form
+            $('#addAttribute').click(function () {
+                const attribute = $('#attributeInput').val().trim();
+                if (attribute && !attributes.includes(attribute)) {
+                    attributes.push(attribute);
+                    updateAttributesList();
+                    $('#attributeInput').val('');
+                }
+            });
+
+            // Add relationship from main form
+            $('#addRelationship').click(function () {
+                const relationship = $('#relationshipInput').val().trim();
+                if (relationship && !relationships.includes(relationship)) {
+                    relationships.push(relationship);
+                    updateRelationshipsList();
+                    $('#relationshipInput').val('');
+                }
+            });
+
+            // Add dependency from main form
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyInput').val('');
+                }
+            });
+
+            // Add attribute from modal
+            $('#addAttributeModal').click(function () {
+                const attribute = $('#attributeModalInput').val().trim();
+                if (attribute && !attributes.includes(attribute)) {
+                    attributes.push(attribute);
+                    updateAttributesList();
+                    $('#attributeModalInput').val('');
+                }
+            });
+
+            // Add relationship from modal
+            $('#addRelationshipModal').click(function () {
+                const relationship = $('#relationshipModalInput').val().trim();
+                if (relationship && !relationships.includes(relationship)) {
+                    relationships.push(relationship);
+                    updateRelationshipsList();
+                    $('#relationshipModalInput').val('');
+                }
+            });
+
+            // Add dependency from modal
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyModalInput').val('');
+                }
+            });
+
+            // Remove attribute from main form
+            $(document).on('click', '.remove-attribute', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                attributes.splice(index, 1);
+                updateAttributesList();
+            });
+
+            // Remove relationship from main form
+            $(document).on('click', '.remove-relationship', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                relationships.splice(index, 1);
+                updateRelationshipsList();
+            });
+
+            // Remove dependency from main form
+            $(document).on('click', '.remove-dependency', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Remove attribute from modal
+            $(document).on('click', '.remove-attribute-modal', function () {
+                const index = $(this).data('index');
+                attributes.splice(index, 1);
+                updateAttributesList();
+            });
+
+            // Remove relationship from modal
+            $(document).on('click', '.remove-relationship-modal', function () {
+                const index = $(this).data('index');
+                relationships.splice(index, 1);
+                updateRelationshipsList();
+            });
+
+            // Remove dependency from modal
+            $(document).on('click', '.remove-dependency-modal', function () {
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Handle Enter key in inputs
+            $('#attributeInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addAttribute').click();
+                }
+            });
+
+            $('#relationshipInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addRelationship').click();
+                }
+            });
+
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#attributeModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addAttributeModal').click();
+                }
+            });
+
+            $('#relationshipModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addRelationshipModal').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+        });
+    </script>
+}

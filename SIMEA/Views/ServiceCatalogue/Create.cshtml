@@ -1,0 +1,407 @@
+@model SIMEA.Models.ServiceCatalogue
+
+@{
+    ViewData["Title"] = "Create Service Catalogue Entry";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Service Catalogue Entry</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/ServiceCatalogue/Index">Service Catalogue</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Service
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="ServiceCatalogue" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ServiceName" class="control-label">Service Name</label>
+                            <input asp-for="ServiceName" class="form-control" placeholder="Enter service name" required />
+                            <span asp-validation-for="ServiceName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ServiceOwner" class="control-label">Service Owner</label>
+                            <input asp-for="ServiceOwner" class="form-control" placeholder="Enter service owner" required />
+                            <span asp-validation-for="ServiceOwner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ServiceDescription" class="control-label">Service Description</label>
+                        <textarea asp-for="ServiceDescription" class="form-control" rows="3" placeholder="Describe the service" required></textarea>
+                        <span asp-validation-for="ServiceDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="SLA" class="control-label">Service Level Agreement (SLA)</label>
+                            <input asp-for="SLA" class="form-control" placeholder="Enter SLA details" required />
+                            <span asp-validation-for="SLA" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Availability" class="control-label">Availability</label>
+                            <select asp-for="Availability" class="form-control" required>
+                                <option value="">Select Availability</option>
+                                <option value="99.999%">99.999% (Five Nines)</option>
+                                <option value="99.99%">99.99% (Four Nines)</option>
+                                <option value="99.9%">99.9% (Three Nines)</option>
+                                <option value="99.5%">99.5%</option>
+                                <option value="99.0%">99.0%</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                                <option value="Best Effort">Best Effort</option>
+                            </select>
+                            <span asp-validation-for="Availability" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Cost" class="control-label">Cost</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                <input asp-for="Cost" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+                                <span asp-validation-for="Cost" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Supported Applications</label>
+                        <div class="input-group">
+                            <input type="text" id="appInput" class="form-control" placeholder="Add application" />
+                            <div class="input-group-append">
+                                <button type="button" id="addApp" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#appsModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="appsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-apps">No applications added</span>
+                        </div>
+                        <div id="appsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" asp-controller="ServiceCatalogue" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Modal -->
+    <div class="modal fade" id="appsModal" tabindex="-1" role="dialog" aria-labelledby="appsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="appsModalLabel">Manage Supported Applications</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="appsModalList">
+                        <!-- Applications will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="appModalInput" class="form-control" placeholder="Add new application" />
+                        <div class="input-group-append">
+                            <button type="button" id="addAppModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script>
+        $(document).ready(function () {
+            // Configure toastr notifications
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+            
+            let supportedApps = [];
+            let dependencies = [];
+
+            // Functions to update UI displays
+            function updateAppsList() {
+                let html = '';
+                supportedApps.forEach((app) => {
+                    html += `<span class="badge badge-info mr-1 mb-1 app-badge" data-value="${app}">
+                        ${app} <i class="fas fa-times ml-1 remove-badge" data-type="app" data-value="${app}"></i>
+                        <input type="hidden" name="SupportedApplications" value="${app}" />
+                    </span>`;
+                });
+                
+                if (supportedApps.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-apps">No applications added</span>';
+                }
+                
+                $('#appsList').html(html);
+                updateAppsModal();
+            }
+
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency) => {
+                    html += `<span class="badge badge-secondary mr-1 mb-1 dependency-badge" data-value="${dependency}">
+                        ${dependency} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${dependency}"></i>
+                        <input type="hidden" name="Dependencies" value="${dependency}" />
+                    </span>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>';
+                }
+                
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateAppsModal() {
+                let html = '';
+                supportedApps.forEach((app) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${app}
+                        <button type="button" class="btn btn-sm btn-danger delete-app" data-value="${app}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (supportedApps.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No applications added yet</li>';
+                }
+                
+                $('#appsModalList').html(html);
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger delete-dependency" data-value="${dependency}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No dependencies added yet</li>';
+                }
+                
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Add items
+            $('#addApp').click(function () {
+                const app = $('#appInput').val().trim();
+                if (app) {
+                    if (!supportedApps.includes(app)) {
+                        supportedApps.push(app);
+                        updateAppsList();
+                        $('#appInput').val('');
+                    } else {
+                        toastr.warning('This application is already added.');
+                    }
+                }
+            });
+
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Add items from modals
+            $('#addAppModal').click(function () {
+                const app = $('#appModalInput').val().trim();
+                if (app) {
+                    if (!supportedApps.includes(app)) {
+                        supportedApps.push(app);
+                        updateAppsList();
+                        $('#appModalInput').val('');
+                    } else {
+                        toastr.warning('This application is already added.');
+                    }
+                }
+            });
+
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyModalInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Remove items
+            $(document).on('click', '.remove-badge', function () {
+                const type = $(this).data('type');
+                const value = $(this).data('value');
+                
+                if (type === 'app') {
+                    const index = supportedApps.indexOf(value);
+                    if (index !== -1) {
+                        supportedApps.splice(index, 1);
+                        updateAppsList();
+                    }
+                } else if (type === 'dependency') {
+                    const index = dependencies.indexOf(value);
+                    if (index !== -1) {
+                        dependencies.splice(index, 1);
+                        updateDependenciesList();
+                    }
+                }
+            });
+
+            // Remove items from modals
+            $(document).on('click', '.delete-app', function () {
+                const value = $(this).data('value');
+                const index = supportedApps.indexOf(value);
+                if (index !== -1) {
+                    supportedApps.splice(index, 1);
+                    updateAppsList();
+                }
+            });
+
+            $(document).on('click', '.delete-dependency', function () {
+                const value = $(this).data('value');
+                const index = dependencies.indexOf(value);
+                if (index !== -1) {
+                    dependencies.splice(index, 1);
+                    updateDependenciesList();
+                }
+            });
+
+            // Handle Enter key
+            $('#appInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addApp').click();
+                }
+            });
+
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#appModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addAppModal').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+            
+            // Initialize displays
+            updateAppsList();
+            updateDependenciesList();
+        });
+    </script>
+}

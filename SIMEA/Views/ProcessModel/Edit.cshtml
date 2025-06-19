@@ -1,0 +1,926 @@
+@model SIMEA.Models.ProcessModel
+
+@{
+    ViewData["Title"] = "Edit Process Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Process Model</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ProcessName" class="control-label"></label>
+                            <input asp-for="ProcessName" class="form-control" />
+                            <span asp-validation-for="ProcessName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label"></label>
+                            <input asp-for="Owner" class="form-control" />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ProcessDescription" class="control-label"></label>
+                        <textarea asp-for="ProcessDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ProcessDescription" class="text-danger"></span>
+                    </div>
+
+                    <!-- Inputs Section -->
+                    <div class="form-group">
+                        <label class="control-label">Inputs</label>
+                        <div class="input-group">
+                            <input type="text" id="inputItem" class="form-control" placeholder="Add input" />
+                            <div class="input-group-append">
+                                <button type="button" id="addInput" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#inputsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="inputsList" class="mt-2">
+                            <!-- Existing inputs will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Outputs Section -->
+                    <div class="form-group">
+                        <label class="control-label">Outputs</label>
+                        <div class="input-group">
+                            <input type="text" id="outputItem" class="form-control" placeholder="Add output" />
+                            <div class="input-group-append">
+                                <button type="button" id="addOutput" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#outputsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="outputsList" class="mt-2">
+                            <!-- Existing outputs will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Steps/Workflow Section -->
+                    <div class="form-group">
+                        <label class="control-label">Steps/Workflow</label>
+                        <div class="input-group">
+                            <input type="text" id="stepItem" class="form-control" placeholder="Add workflow step" />
+                            <div class="input-group-append">
+                                <button type="button" id="addStep" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#stepsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="stepsList" class="mt-2">
+                            <!-- Existing steps will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Tools/Systems Used Section -->
+                    <div class="form-group">
+                        <label class="control-label">Tools/Systems Used</label>
+                        <div class="input-group">
+                            <input type="text" id="toolItem" class="form-control" placeholder="Add tool or system" />
+                            <div class="input-group-append">
+                                <button type="button" id="addTool" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#toolsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="toolsList" class="mt-2">
+                            <!-- Existing tools will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics Section -->
+                    <div class="form-group">
+                        <label class="control-label">Performance Metrics</label>
+                        <div class="input-group">
+                            <input type="text" id="metricItem" class="form-control" placeholder="Add performance metric" />
+                            <div class="input-group-append">
+                                <button type="button" id="addMetric" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#metricsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="metricsList" class="mt-2">
+                            <!-- Existing metrics will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Value Stream Properties Section -->
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#valueStreamCollapse">
+                                    <i class="fas fa-chart-line mr-2"></i> Value Stream Properties (Optional)
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="valueStreamCollapse">
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="CustomerType">Customer Type</label>
+                                        <input asp-for="CustomerType" class="form-control" placeholder="E.g. External, Internal">
+                                        <span asp-validation-for="CustomerType" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="MappingDate">Mapping Date</label>
+                                        <input asp-for="MappingDate" type="date" class="form-control">
+                                        <span asp-validation-for="MappingDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="CycleEfficiency">Cycle Efficiency</label>
+                                        <div class="input-group">
+                                            <input asp-for="CycleEfficiency" type="number" class="form-control" step="0.01" min="0" max="1" placeholder="0.00-1.00">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted">Value between 0 and 1 (e.g., 0.35 = 35%)</small>
+                                        <span asp-validation-for="CycleEfficiency" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="LeadTime">Lead Time (Days)</label>
+                                        <input asp-for="LeadTime" type="number" class="form-control" placeholder="Total process time in days">
+                                        <span asp-validation-for="LeadTime" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Key Metrics Section -->
+                                <div class="form-group">
+                                    <label>Key Metrics</label>
+                                    <div class="input-group">
+                                        <input type="text" id="keyMetricItem" class="form-control" placeholder="Add key metric">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addKeyMetric" type="button">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#keyMetricsModal">
+                                                <i class="fas fa-list"></i> Manage
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="keyMetricsList">
+                                        <!-- Existing key metrics will be populated via JavaScript -->
+                                    </div>
+                                </div>
+
+                                <!-- Bottlenecks Section -->
+                                <div class="form-group">
+                                    <label>Bottlenecks</label>
+                                    <div class="input-group">
+                                        <input type="text" id="bottleneckItem" class="form-control" placeholder="Add bottleneck">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addBottleneck" type="button">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#bottlenecksModal">
+                                                <i class="fas fa-list"></i> Manage
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="bottlenecksList">
+                                        <!-- Existing bottlenecks will be populated via JavaScript -->
+                                    </div>
+                                </div>
+
+                                <!-- Improvement Opportunities Section -->
+                                <div class="form-group">
+                                    <label>Improvement Opportunities</label>
+                                    <div class="input-group">
+                                        <input type="text" id="improvementItem" class="form-control" placeholder="Add improvement opportunity">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addImprovement" type="button">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#improvementsModal">
+                                                <i class="fas fa-list"></i> Manage
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="improvementsList">
+                                        <!-- Existing improvement opportunities will be populated via JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Process Stages Section -->
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#processStagesCollapse">
+                                    <i class="fas fa-project-diagram mr-2"></i> Process Stages
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="processStagesCollapse">
+                            <div class="card-body">
+                                <div id="processStagesContainer">
+                                    @if (Model.Stages != null && Model.Stages.Any())
+                                    {
+                                        @for (var i = 0; i < Model.Stages.Count; i++)
+                                        {
+                                            <div class="process-stage-item card mb-3">
+                                                <div class="card-header d-flex justify-content-between align-items-center">
+                                                    <h6 class="mb-0">Stage @(i + 1): @Model.Stages[i].Name</h6>
+                                                    <button type="button" class="btn btn-sm btn-danger remove-stage" data-index="@i">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="card-body">
+                                                    <input type="hidden" name="Stages[@i].Id" value="@Model.Stages[i].Id" />
+                                                    
+                                                    <div class="form-group">
+                                                        <label>Stage Name</label>
+                                                        <input type="text" class="form-control" name="Stages[@i].Name" value="@Model.Stages[i].Name" required />
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <label>Description</label>
+                                                        <textarea class="form-control" name="Stages[@i].Description" rows="2">@Model.Stages[i].Description</textarea>
+                                                    </div>
+                                                    
+                                                    <div class="form-row">
+                                                        <div class="form-group col-md-6">
+                                                            <label>Process Time (hh:mm:ss)</label>
+                                                            <input type="text" class="form-control" name="Stages[@i].ProcessTime" 
+                                                                   value="@Model.Stages[i].ProcessTime.ToString(@"hh\:mm\:ss")" 
+                                                                   placeholder="00:00:00" />
+                                                            <small class="form-text text-muted">Time spent actively processing</small>
+                                                        </div>
+                                                        <div class="form-group col-md-6">
+                                                            <label>Wait Time (hh:mm:ss)</label>
+                                                            <input type="text" class="form-control" name="Stages[@i].WaitTime" 
+                                                                   value="@Model.Stages[i].WaitTime.ToString(@"hh\:mm\:ss")" 
+                                                                   placeholder="00:00:00" />
+                                                            <small class="form-text text-muted">Time spent waiting</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="form-check mb-3">
+                                                        @if (Model.Stages[i].IsValueAdd)
+                                                        {
+                                                            <input type="checkbox" class="form-check-input" name="Stages[@i].IsValueAdd" value="true" checked />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input type="checkbox" class="form-check-input" name="Stages[@i].IsValueAdd" value="true" />
+                                                        }
+                                                        <label class="form-check-label">Value-Adding Activity</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                
+                                <button type="button" id="addStageBtn" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Add Process Stage
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                            <i class="fas fa-info-circle"></i> Details
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals for each list type -->
+    @{
+        var listTypes = new[] {
+            new { Name = "inputs", Title = "Inputs", PropertyName = "Inputs" },
+            new { Name = "outputs", Title = "Outputs", PropertyName = "Outputs" },
+            new { Name = "steps", Title = "Steps/Workflow", PropertyName = "StepsWorkflow" },
+            new { Name = "tools", Title = "Tools/Systems", PropertyName = "ToolsSystemsUsed" },
+            new { Name = "metrics", Title = "Performance Metrics", PropertyName = "PerformanceMetrics" }
+        };
+    }
+
+    @foreach (var listType in listTypes)
+    {
+        <div class="modal fade" id="@(listType.Name)Modal" tabindex="-1" role="dialog" aria-labelledby="@(listType.Name)ModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="@(listType.Name)ModalLabel">Manage @(listType.Title)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group" id="@(listType.Name)ModalList">
+                            <!-- Items will be added here -->
+                        </ul>
+                        <div class="input-group mt-3">
+                            <input type="text" id="@(listType.Name.TrimEnd('s'))ModalInput" class="form-control" placeholder="Add new @(listType.Name.TrimEnd('s'))" />
+                            <div class="input-group-append">
+                                <button type="button" id="add@(listType.Name.TrimEnd('s').First().ToString().ToUpper() + listType.Name.TrimEnd('s').Substring(1))Modal" class="btn btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Key Metrics Modal -->
+    <div class="modal fade" id="keyMetricsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Key Metrics</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group mb-3" id="keyMetricsModalList">
+                        <!-- Will be populated via JavaScript -->
+                    </ul>
+                    <div class="input-group">
+                        <input type="text" id="keyMetricModalInput" class="form-control" placeholder="Add key metric">
+                        <div class="input-group-append">
+                            <button type="button" id="addKeyMetricModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottlenecks Modal -->
+    <div class="modal fade" id="bottlenecksModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Bottlenecks</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group mb-3" id="bottlenecksModalList">
+                        <!-- Will be populated via JavaScript -->
+                    </ul>
+                    <div class="input-group">
+                        <input type="text" id="bottleneckModalInput" class="form-control" placeholder="Add bottleneck">
+                        <div class="input-group-append">
+                            <button type="button" id="addBottleneckModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Improvements Modal -->
+    <div class="modal fade" id="improvementsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Improvement Opportunities</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group mb-3" id="improvementsModalList">
+                        <!-- Will be populated via JavaScript -->
+                    </ul>
+                    <div class="input-group">
+                        <input type="text" id="improvementModalInput" class="form-control" placeholder="Add improvement opportunity">
+                        <div class="input-group-append">
+                            <button type="button" id="addImprovementModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let inputs = @Html.Raw(Json.Serialize(Model.Inputs ?? new List<string>()));
+            let outputs = @Html.Raw(Json.Serialize(Model.Outputs ?? new List<string>()));
+            let steps = @Html.Raw(Json.Serialize(Model.StepsWorkflow ?? new List<string>()));
+            let tools = @Html.Raw(Json.Serialize(Model.ToolsSystemsUsed ?? new List<string>()));
+            let metrics = @Html.Raw(Json.Serialize(Model.PerformanceMetrics ?? new List<string>()));
+            
+            // Functions to update UI displays
+            function updateInputsList() {
+                let html = '';
+                steps.forEach((step, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${step}
+                        <button type="button" class="btn btn-sm btn-danger remove-step-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                }
+
+            function updateToolsModal() {
+                let html = '';
+                tools.forEach((tool, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${tool}
+                        <button type="button" class="btn btn-sm btn-danger remove-tool-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#toolsModalList').html(html);
+            }
+
+            function updateMetricsModal() {
+                let html = '';
+                metrics.forEach((metric, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${metric}
+                        <button type="button" class="btn btn-sm btn-danger remove-metric-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#metricsModalList').html(html);
+            }
+
+            // Initial display
+            updateInputsList();
+            updateOutputsList();
+            updateStepsList();
+            updateToolsList();
+            updateMetricsList();
+
+            // Add item from main form
+            $('#addInput').click(function () {
+                const input = $('#inputItem').val().trim();
+                if (input && !inputs.includes(input)) {
+                    inputs.push(input);
+                    updateInputsList();
+                    $('#inputItem').val('');
+                }
+            });
+
+            $('#addOutput').click(function () {
+                const output = $('#outputItem').val().trim();
+                if (output && !outputs.includes(output)) {
+                    outputs.push(output);
+                    updateOutputsList();
+                    $('#outputItem').val('');
+                }
+            });
+
+            $('#addStep').click(function () {
+                const step = $('#stepItem').val().trim();
+                if (step && !steps.includes(step)) {
+                    steps.push(step);
+                    updateStepsList();
+                    $('#stepItem').val('');
+                }
+            });
+
+            $('#addTool').click(function () {
+                const tool = $('#toolItem').val().trim();
+                if (tool && !tools.includes(tool)) {
+                    tools.push(tool);
+                    updateToolsList();
+                    $('#toolItem').val('');
+                }
+            });
+
+            $('#addMetric').click(function () {
+                const metric = $('#metricItem').val().trim();
+                if (metric && !metrics.includes(metric)) {
+                    metrics.push(metric);
+                    updateMetricsList();
+                    $('#metricItem').val('');
+                }
+            });
+
+            // Add item from modal
+            $('#addInputModal').click(function () {
+                const input = $('#inputModalInput').val().trim();
+                if (input && !inputs.includes(input)) {
+                    inputs.push(input);
+                    updateInputsList();
+                    $('#inputModalInput').val('');
+                }
+            });
+
+            $('#addOutputModal').click(function () {
+                const output = $('#outputModalInput').val().trim();
+                if (output && !outputs.includes(output)) {
+                    outputs.push(output);
+                    updateOutputsList();
+                    $('#outputModalInput').val('');
+                }
+            });
+
+            $('#addStepModal').click(function () {
+                const step = $('#stepModalInput').val().trim();
+                if (step && !steps.includes(step)) {
+                    steps.push(step);
+                    updateStepsList();
+                    $('#stepModalInput').val('');
+                }
+            });
+
+            $('#addToolModal').click(function () {
+                const tool = $('#toolModalInput').val().trim();
+                if (tool && !tools.includes(tool)) {
+                    tools.push(tool);
+                    updateToolsList();
+                    $('#toolModalInput').val('');
+                }
+            });
+
+            $('#addMetricModal').click(function () {
+                const metric = $('#metricModalInput').val().trim();
+                if (metric && !metrics.includes(metric)) {
+                    metrics.push(metric);
+                    updateMetricsList();
+                    $('#metricModalInput').val('');
+                }
+            });
+
+            // Remove item from main form
+            $(document).on('click', '.remove-input', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                inputs.splice(index, 1);
+                updateInputsList();
+            });
+
+            $(document).on('click', '.remove-output', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                outputs.splice(index, 1);
+                updateOutputsList();
+            });
+
+            $(document).on('click', '.remove-step', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                steps.splice(index, 1);
+                updateStepsList();
+            });
+
+            $(document).on('click', '.remove-tool', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                tools.splice(index, 1);
+                updateToolsList();
+            });
+
+            $(document).on('click', '.remove-metric', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                metrics.splice(index, 1);
+                updateMetricsList();
+            });
+
+            // Remove item from modal
+            $(document).on('click', '.remove-input-modal', function () {
+                const index = $(this).data('index');
+                inputs.splice(index, 1);
+                updateInputsList();
+            });
+
+            $(document).on('click', '.remove-output-modal', function () {
+                const index = $(this).data('index');
+                outputs.splice(index, 1);
+                updateOutputsList();
+            });
+
+            $(document).on('click', '.remove-step-modal', function () {
+                const index = $(this).data('index');
+                steps.splice(index, 1);
+                updateStepsList();
+            });
+
+            $(document).on('click', '.remove-tool-modal', function () {
+                const index = $(this).data('index');
+                tools.splice(index, 1);
+                updateToolsList();
+            });
+
+            $(document).on('click', '.remove-metric-modal', function () {
+                const index = $(this).data('index');
+                metrics.splice(index, 1);
+                updateMetricsList();
+            });
+
+            // Handle Enter key in inputs
+            $('#inputItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addInput').click();
+                }
+            });
+
+            $('#outputItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addOutput').click();
+                }
+            });
+
+            $('#stepItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addStep').click();
+                }
+            });
+
+            $('#toolItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addTool').click();
+                }
+            });
+
+            $('#metricItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addMetric').click();
+                }
+            });
+
+            $('#inputModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addInputModal').click();
+                }
+            });
+
+            $('#outputModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addOutputModal').click();
+                }
+            });
+
+            $('#stepModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addStepModal').click();
+                }
+            });
+
+            $('#toolModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addToolModal').click();
+                }
+            });
+
+            $('#metricModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addMetricModal').click();
+                }
+            });
+
+            // Initialize Value Stream properties
+            var keyMetrics = @Html.Raw(Json.Serialize(Model.KeyMetrics ?? new List<string>()));
+            var bottlenecks = @Html.Raw(Json.Serialize(Model.Bottlenecks ?? new List<string>()));
+            var improvements = @Html.Raw(Json.Serialize(Model.ImprovementOpportunities ?? new List<string>()));
+
+            // Setup the list managers for Value Stream properties
+            setupListManager('keyMetric', 'KeyMetrics', keyMetrics);
+            setupListManager('bottleneck', 'Bottlenecks', bottlenecks);
+            setupListManager('improvement', 'ImprovementOpportunities', improvements);
+
+            // Common function for Value Stream list management
+            function setupListManager(itemType, propertyName, initialItems) {
+                var inputId = '#' + itemType + 'Item';
+                var addBtnId = '#add' + itemType.charAt(0).toUpperCase() + itemType.slice(1);
+                var listId = '#' + itemType + 'sList';
+                var modalListId = '#' + itemType + 'sModalList';
+                var modalInputId = '#' + itemType + 'ModalInput';
+                var addModalBtnId = '#add' + itemType.charAt(0).toUpperCase() + itemType.slice(1) + 'Modal';
+                
+                // Initialize with existing items
+                $.each(initialItems, function(index, item) {
+                    addItemToList(item, listId, propertyName);
+                    addItemToModalList(item, modalListId);
+                });
+                
+                // Add item from main form
+                $(addBtnId).click(function() {
+                    var value = $(inputId).val().trim();
+                    if (value) {
+                        addItemToList(value, listId, propertyName);
+                        addItemToModalList(value, modalListId);
+                        $(inputId).val('');
+                    }
+                });
+                
+                // Add item from modal
+                $(addModalBtnId).click(function() {
+                    var value = $(modalInputId).val().trim();
+                    if (value) {
+                        addItemToList(value, listId, propertyName);
+                        addItemToModalList(value, modalListId);
+                        $(modalInputId).val('');
+                    }
+                });
+                
+                // Remove item from list when X is clicked
+                $(document).on('click', listId + ' .remove-item', function(e) {
+                    e.preventDefault();
+                    var value = $(this).data('value');
+                    removeItem(value, listId, modalListId, propertyName);
+                });
+                
+                // Remove item from modal list when X is clicked
+                $(document).on('click', modalListId + ' .remove-modal-item', function(e) {
+                    e.preventDefault();
+                    var value = $(this).data('value');
+                    removeItem(value, listId, modalListId, propertyName);
+                });
+            }
+            
+            function addItemToList(value, listId, propertyName) {
+                var itemId = 'item-' + propertyName + '-' + value.replace(/[^a-zA-Z0-9]/g, '');
+                
+                // Check if item already exists
+                if ($('#' + itemId).length === 0) {
+                    var itemHtml = '<span id="' + itemId + '" class="badge badge-primary mr-1 mb-1">' + 
+                                    value + ' <a href="#" class="text-white remove-item" data-value="' + value + '"><i class="fas fa-times"></i></a>' +
+                                    '<input type="hidden" name="' + propertyName + '" value="' + value + '" /></span>';
+                    $(listId).append(itemHtml);
+                }
+            }
+            
+            function addItemToModalList(value, modalListId) {
+                var modalItemId = 'modal-item-' + modalListId.substr(1) + '-' + value.replace(/[^a-zA-Z0-9]/g, '');
+                
+                // Check if item already exists
+                if ($('#' + modalItemId).length === 0) {
+                    var itemHtml = '<li id="' + modalItemId + '" class="list-group-item d-flex justify-content-between align-items-center">' + 
+                                    value + '<button type="button" class="btn btn-sm btn-danger remove-modal-item" data-value="' + value + '"><i class="fas fa-times"></i></button></li>';
+                    $(modalListId).append(itemHtml);
+                }
+            }
+            
+            function removeItem(value, listId, modalListId, propertyName) {
+                var itemId = 'item-' + propertyName + '-' + value.replace(/[^a-zA-Z0-9]/g, '');
+                var modalItemId = 'modal-item-' + modalListId.substr(1) + '-' + value.replace(/[^a-zA-Z0-9]/g, '');
+                
+                // Remove from main list
+                $('#' + itemId).remove();
+                
+                // Remove from modal list
+                $('#' + modalItemId).remove();
+            }
+
+            // Open the Value Stream section if any value stream properties are present
+            if (keyMetrics.length > 0 || bottlenecks.length > 0 || improvements.length > 0 || 
+                $('#CustomerType').val() || $('#MappingDate').val() || 
+                $('#CycleEfficiency').val() || $('#LeadTime').val()) {
+                $('#valueStreamCollapse').addClass('show');
+            }
+
+            // Process Stages functionality
+            let stageCounter = @(Model.Stages != null ? Model.Stages.Count : 0);
+            
+            // Add new stage button
+            $('#addStageBtn').click(function() {
+                addProcessStage();
+            });
+            
+            // Remove stage button
+            $(document).on('click', '.remove-stage', function() {
+                const index = $(this).data('index');
+                $(this).closest('.process-stage-item').remove();
+                // Re-index remaining stages
+                reindexStages();
+            });
+            
+            function addProcessStage() {
+                const html = `
+                    <div class="process-stage-item card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">New Stage</h6>
+                            <button type="button" class="btn btn-sm btn-danger remove-stage" data-index="${stageCounter}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" name="Stages[${stageCounter}].Id" value="${generateGuid()}" />
+                            
+                            <div class="form-group">
+                                <label>Stage Name</label>
+                                <input type="text" class="form-control" name="Stages[${stageCounter}].Name" required />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" name="Stages[${stageCounter}].Description" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Process Time (hh:mm:ss)</label>
+                                    <input type="text" class="form-control" name="Stages[${stageCounter}].ProcessTime" 
+                                           placeholder="00:00:00" />
+                                    <small class="form-text text-muted">Time spent actively processing</small>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Wait Time (hh:mm:ss)</label>
+                                    <input type="text" class="form-control" name="Stages[${stageCounter}].WaitTime" 
+                                           placeholder="00:00:00" />
+                                    <small class="form-text text-muted">Time spent waiting</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" name="Stages[${stageCounter}].IsValueAdd" value="true" />
+                                <label class="form-check-label">Value-Adding Activity</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#processStagesContainer').append(html);
+                stageCounter++;
+                
+                // Open the collapse if adding first stage
+                if (stageCounter === 1) {
+                    $('#processStagesCollapse').addClass('show');
+                }
+            }
+            
+            function reindexStages() {
+                $('.process-stage-item').each(function(index) {
+                    $(this).find('input, textarea').each(function() {
+                        const name = $(this).attr('name');
+                        if (name) {
+                            const newName = name.replace(/Stages\[\d+\]/, `Stages[${index}]`);
+                            $(this).attr('name', newName);
+                        }
+                    });
+                    $(this).find('.remove-stage').data('index', index);
+                });
+            }
+            
+            function generateGuid() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0,
+                          v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+            
+            // Open Process Stages section if stages exist
+            if (stageCounter > 0) {
+                $('#processStagesCollapse').addClass('show');
+            }
+        });
+    </script>
+}

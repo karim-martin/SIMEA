@@ -1,0 +1,119 @@
+@model SIMEA.Models.InfrastructureBusinessRequirementsView
+
+@{
+    ViewData["Title"] = "Delete Requirement";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Infrastructure Business Requirement</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this requirement? This action cannot be undone.
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.RequirementId):</label>
+                            <p>@Html.DisplayFor(model => model.RequirementId)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.BusinessUnit):</label>
+                            <p>@Html.DisplayFor(model => model.BusinessUnit)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Priority):</label>
+                            <p>
+                                <span class="badge badge-pill 
+                                    @(Model.Priority == "High" ? "badge-danger" : 
+                                    Model.Priority == "Medium" ? "badge-warning" : 
+                                    "badge-info")">
+                                    @Html.DisplayFor(model => model.Priority)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Status):</label>
+                            <p>
+                                <span class="badge badge-pill 
+                                    @(Model.Status == "Approved" ? "badge-success" : 
+                                    Model.Status == "Implemented" ? "badge-success" : 
+                                    Model.Status == "Draft" ? "badge-secondary" :
+                                    "badge-light")">
+                                    @Html.DisplayFor(model => model.Status)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DueDate):</label>
+                            <p>@Html.DisplayFor(model => model.DueDate)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.RequirementDescription):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.RequirementDescription)
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.AssignedTo):</label>
+                            <p>@Html.DisplayFor(model => model.AssignedTo)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Stakeholders:</label>
+                            @if (Model.Stakeholders != null && Model.Stakeholders.Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var stakeholder in Model.Stakeholders)
+                                    {
+                                        <li class="list-group-item">@stakeholder</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No stakeholders defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this requirement?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

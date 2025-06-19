@@ -1,0 +1,594 @@
+@model SIMEA.Models.ApplicationArchitectureFramework
+
+@{
+    ViewData["Title"] = "Create Application Framework";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Application Architecture Framework</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/ApplicationFramework/Index">Application Frameworks</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Application Framework
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="ApplicationFramework" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label asp-for="ApplicationName" class="control-label">Application Name</label>
+                            <input asp-for="ApplicationName" class="form-control" placeholder="Application Name" required />
+                            <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Version" class="control-label">Version</label>
+                            <input asp-for="Version" class="form-control" placeholder="E.g. 1.0.0" required />
+                            <span asp-validation-for="Version" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ApplicationDescription" class="control-label">Application Description</label>
+                        <textarea asp-for="ApplicationDescription" class="form-control" rows="3" placeholder="Detailed description of the application"></textarea>
+                        <span asp-validation-for="ApplicationDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="BusinessFunctionSupported" class="control-label">Business Function Supported</label>
+                            <input asp-for="BusinessFunctionSupported" class="form-control" placeholder="Business function or capability supported" required />
+                            <span asp-validation-for="BusinessFunctionSupported" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" placeholder="Application owner or team" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label asp-for="DeploymentEnvironment" class="control-label">Deployment Environment</label>
+                            <select asp-for="DeploymentEnvironment" class="form-control" required>
+                                <option value="">Select Deployment Environment</option>
+                                <option value="Development">Development</option>
+                                <option value="Testing">Testing</option>
+                                <option value="Staging">Staging</option>
+                                <option value="Production">Production</option>
+                                <option value="Multi-environment">Multi-environment</option>
+                                <option value="Cloud">Cloud</option>
+                                <option value="On-premises">On-premises</option>
+                                <option value="Hybrid">Hybrid</option>
+                            </select>
+                            <span asp-validation-for="DeploymentEnvironment" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Technology Stack</label>
+                        <div class="input-group">
+                            <input type="text" id="techStackInput" class="form-control" placeholder="Add technology (e.g. .NET Core, Angular, SQL Server)" />
+                            <div class="input-group-append">
+                                <button type="button" id="addTechStack" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#techStackModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="techStackList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-tech-stack">No technology stack added</span>
+                        </div>
+                        <div id="techStackContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Integration Points</label>
+                        <div class="input-group">
+                            <input type="text" id="integrationInput" class="form-control" placeholder="Add integration point" />
+                            <div class="input-group-append">
+                                <button type="button" id="addIntegration" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#integrationsModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="integrationsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-integrations">No integration points added</span>
+                        </div>
+                        <div id="integrationsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Application Rationalization Section -->
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#rationalizationCollapse">
+                                    <i class="fas fa-chart-pie mr-2"></i> Application Rationalization (Optional)
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="rationalizationCollapse">
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="RationalizationCategory">Rationalization Category</label>
+                                        <select asp-for="RationalizationCategory" class="form-control">
+                                            <option value="">Select a category</option>
+                                            <option value="Tolerate">Tolerate</option>
+                                            <option value="Invest">Invest</option>
+                                            <option value="Migrate">Migrate</option>
+                                            <option value="Eliminate">Eliminate</option>
+                                        </select>
+                                        <span asp-validation-for="RationalizationCategory" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="AssessmentDate">Assessment Date</label>
+                                        <input asp-for="AssessmentDate" type="date" class="form-control">
+                                        <span asp-validation-for="AssessmentDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="BusinessValue">Business Value (1-10)</label>
+                                        <input asp-for="BusinessValue" type="range" class="form-control-range" min="1" max="10" step="1" oninput="updateRangeValue(this, 'businessValueDisplay')">
+                                        <div class="d-flex justify-content-between">
+                                            <small>Low</small>
+                                            <span id="businessValueDisplay">5</span>
+                                            <small>High</small>
+                                        </div>
+                                        <span asp-validation-for="BusinessValue" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="TechnicalFit">Technical Fit (1-10)</label>
+                                        <input asp-for="TechnicalFit" type="range" class="form-control-range" min="1" max="10" step="1" oninput="updateRangeValue(this, 'technicalFitDisplay')">
+                                        <div class="d-flex justify-content-between">
+                                            <small>Low</small>
+                                            <span id="technicalFitDisplay">5</span>
+                                            <small>High</small>
+                                        </div>
+                                        <span asp-validation-for="TechnicalFit" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="AnnualCost">Annual Cost</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">$</span>
+                                            </div>
+                                            <input asp-for="AnnualCost" type="number" class="form-control" placeholder="Annual maintenance cost">
+                                        </div>
+                                        <span asp-validation-for="AnnualCost" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="RiskScore">Risk Score (0-10)</label>
+                                        <input asp-for="RiskScore" type="number" class="form-control" step="0.1" min="0" max="10" placeholder="0.0-10.0">
+                                        <span asp-validation-for="RiskScore" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="CurrentState">Current State</label>
+                                        <textarea asp-for="CurrentState" class="form-control" rows="3" placeholder="Description of the current state"></textarea>
+                                        <span asp-validation-for="CurrentState" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="FutureState">Future State</label>
+                                        <textarea asp-for="FutureState" class="form-control" rows="3" placeholder="Description of the target future state"></textarea>
+                                        <span asp-validation-for="FutureState" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="RationalizationRationale">Rationale</label>
+                                    <textarea asp-for="RationalizationRationale" class="form-control" rows="3" placeholder="Rationale for the rationalization decision"></textarea>
+                                    <span asp-validation-for="RationalizationRationale" class="text-danger"></span>
+                                </div>
+
+                                <!-- Redundant With Section -->
+                                <div class="form-group">
+                                    <label>Redundant With (Other Applications)</label>
+                                    <div class="input-group">
+                                        <input type="text" id="redundantItem" class="form-control" placeholder="Add redundant application">
+                                        <div class="input-group-append">
+                                            <button type="button" id="addRedundant" class="btn btn-outline-secondary">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="redundantList">
+                                        <span class="badge badge-secondary mr-1 mb-1 no-redundant">None specified</span>
+                                    </div>
+                                    <div id="redundantContainer">
+                                        <!-- Hidden inputs will be created here dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Replacement Options Section -->
+                                <div class="form-group">
+                                    <label>Replacement Options</label>
+                                    <div class="input-group">
+                                        <input type="text" id="replacementItem" class="form-control" placeholder="Add replacement option">
+                                        <div class="input-group-append">
+                                            <button type="button" id="addReplacement" class="btn btn-outline-secondary">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="replacementList">
+                                        <span class="badge badge-secondary mr-1 mb-1 no-replacement">None specified</span>
+                                    </div>
+                                    <div id="replacementContainer">
+                                        <!-- Hidden inputs will be created here dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" asp-controller="ApplicationFramework" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Stack Modal -->
+    <div class="modal fade" id="techStackModal" tabindex="-1" role="dialog" aria-labelledby="techStackModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="techStackModalLabel">Manage Technology Stack</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="techStackModalList">
+                        <!-- Tech items will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="techStackModalInput" class="form-control" placeholder="Add new technology" />
+                        <div class="input-group-append">
+                            <button type="button" id="addTechStackModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Points Modal -->
+    <div class="modal fade" id="integrationsModal" tabindex="-1" role="dialog" aria-labelledby="integrationsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="integrationsModalLabel">Manage Integration Points</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="integrationsModalList">
+                        <!-- Integration points will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="integrationModalInput" class="form-control" placeholder="Add new integration point" />
+                        <div class="input-group-append">
+                            <button type="button" id="addIntegrationModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script>
+        $(document).ready(function () {
+            // Configure toastr notifications
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+            
+            let techStack = [];
+            let integrationPoints = [];
+
+            // Functions to update UI displays
+            function updateTechStackList() {
+                let html = '';
+                techStack.forEach((tech, index) => {
+                    html += `<span class="badge badge-info mr-1 mb-1 tech-badge" data-value="${tech}">
+                        ${tech} <i class="fas fa-times ml-1 remove-badge" data-type="tech" data-value="${tech}"></i>
+                        <input type="hidden" name="TechnologyStack" value="${tech}" />
+                    </span>`;
+                });
+                
+                if (techStack.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-tech-stack">No technology stack added</span>';
+                }
+                
+                $('#techStackList').html(html);
+                updateTechStackModal();
+            }
+
+            function updateIntegrationsList() {
+                let html = '';
+                integrationPoints.forEach((integration, index) => {
+                    html += `<span class="badge badge-secondary mr-1 mb-1 integration-badge" data-value="${integration}">
+                        ${integration} <i class="fas fa-times ml-1 remove-badge" data-type="integration" data-value="${integration}"></i>
+                        <input type="hidden" name="IntegrationPoints" value="${integration}" />
+                    </span>`;
+                });
+                
+                if (integrationPoints.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-integrations">No integration points added</span>';
+                }
+                
+                $('#integrationsList').html(html);
+                updateIntegrationsModal();
+            }
+
+            function updateTechStackModal() {
+                let html = '';
+                techStack.forEach((tech, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${tech}
+                        <button type="button" class="btn btn-sm btn-danger delete-tech" data-value="${tech}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (techStack.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No technology stack added yet</li>';
+                }
+                
+                $('#techStackModalList').html(html);
+            }
+
+            function updateIntegrationsModal() {
+                let html = '';
+                integrationPoints.forEach((integration, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${integration}
+                        <button type="button" class="btn btn-sm btn-danger delete-integration" data-value="${integration}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (integrationPoints.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No integration points added yet</li>';
+                }
+                
+                $('#integrationsModalList').html(html);
+            }
+
+            // Add tech stack
+            $('#addTechStack').click(function () {
+                const tech = $('#techStackInput').val().trim();
+                if (tech) {
+                    if (!techStack.includes(tech)) {
+                        techStack.push(tech);
+                        updateTechStackList();
+                        $('#techStackInput').val('');
+                    } else {
+                        toastr.warning('This technology already exists in the stack.');
+                    }
+                }
+            });
+
+            // Add integration
+            $('#addIntegration').click(function () {
+                const integration = $('#integrationInput').val().trim();
+                if (integration) {
+                    if (!integrationPoints.includes(integration)) {
+                        integrationPoints.push(integration);
+                        updateIntegrationsList();
+                        $('#integrationInput').val('');
+                    } else {
+                        toastr.warning('This integration point already exists.');
+                    }
+                }
+            });
+
+            // Add tech stack from modal
+            $('#addTechStackModal').click(function () {
+                const tech = $('#techStackModalInput').val().trim();
+                if (tech) {
+                    if (!techStack.includes(tech)) {
+                        techStack.push(tech);
+                        updateTechStackList();
+                        $('#techStackModalInput').val('');
+                    } else {
+                        toastr.warning('This technology already exists in the stack.');
+                    }
+                }
+            });
+
+            // Add integration from modal
+            $('#addIntegrationModal').click(function () {
+                const integration = $('#integrationModalInput').val().trim();
+                if (integration) {
+                    if (!integrationPoints.includes(integration)) {
+                        integrationPoints.push(integration);
+                        updateIntegrationsList();
+                        $('#integrationModalInput').val('');
+                    } else {
+                        toastr.warning('This integration point already exists.');
+                    }
+                }
+            });
+
+            // Remove items
+            $(document).on('click', '.remove-badge', function () {
+                const type = $(this).data('type');
+                const value = $(this).data('value');
+                
+                if (type === 'tech') {
+                    const index = techStack.indexOf(value);
+                    if (index !== -1) {
+                        techStack.splice(index, 1);
+                        updateTechStackList();
+                    }
+                } else if (type === 'integration') {
+                    const index = integrationPoints.indexOf(value);
+                    if (index !== -1) {
+                        integrationPoints.splice(index, 1);
+                        updateIntegrationsList();
+                    }
+                }
+            });
+
+            // Remove tech from modal
+            $(document).on('click', '.delete-tech', function () {
+                const value = $(this).data('value');
+                const index = techStack.indexOf(value);
+                if (index !== -1) {
+                    techStack.splice(index, 1);
+                    updateTechStackList();
+                }
+            });
+
+            // Remove integration from modal
+            $(document).on('click', '.delete-integration', function () {
+                const value = $(this).data('value');
+                const index = integrationPoints.indexOf(value);
+                if (index !== -1) {
+                    integrationPoints.splice(index, 1);
+                    updateIntegrationsList();
+                }
+            });
+
+            // Handle Enter key
+            $('#techStackInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addTechStack').click();
+                }
+            });
+
+            $('#integrationInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addIntegration').click();
+                }
+            });
+
+            $('#techStackModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addTechStackModal').click();
+                }
+            });
+
+            $('#integrationModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addIntegrationModal').click();
+                }
+            });
+            
+            // Initialize displays
+            updateTechStackList();
+            updateIntegrationsList();
+
+            // Handler for Redundant With
+            setupListManager('redundant', 'RedundantWith');
+
+            // Handler for Replacement Options
+            setupListManager('replacement', 'ReplacementOptions');
+
+            // Common setup function for list management
+            function setupListManager(itemType, propertyName) {
+                var inputId = '#' + itemType + 'Item';
+                var addBtnId = '#add' + itemType.charAt(0).toUpperCase() + itemType.slice(1);
+                var listId = '#' + itemType + 'List';
+                var containerId = '#' + itemType + 'Container';
+                var noItemsClass = '.no-' + itemType;
+                
+                $(addBtnId).click(function() {
+                    var value = $(inputId).val().trim();
+                    if (value) {
+                        // Remove "no items" message if it exists
+                        $(listId + ' ' + noItemsClass).remove();
+                        
+                        // Add visual badge
+                        var itemHtml = '<span class="badge badge-primary mr-1 mb-1" data-value="' + value + '">' + 
+                                        value + ' <a href="#" class="text-white remove-item"><i class="fas fa-times"></i></a></span>';
+                        $(listId).append(itemHtml);
+                        
+                        // Add hidden input for form submission
+                        var hiddenInput = '<input type="hidden" name="' + propertyName + '" value="' + value + '" />';
+                        $(containerId).append(hiddenInput);
+                        
+                        // Clear input
+                        $(inputId).val('');
+                    }
+                });
+                
+                // Remove item when X is clicked
+                $(document).on('click', listId + ' .remove-item', function(e) {
+                    e.preventDefault();
+                    var value = $(this).closest('.badge').data('value');
+                    
+                    // Remove badge
+                    $(this).closest('.badge').remove();
+                    
+                    // Remove hidden input
+                    $(containerId + ' input[value="' + value + '"]').remove();
+                    
+                    // Add "no items" message if no items left
+                    if ($(listId + ' .badge').length === 0) {
+                        $(listId).append('<span class="badge badge-secondary mr-1 mb-1 no-' + itemType + '">None specified</span>');
+                    }
+                });
+            }
+        });
+
+        function updateRangeValue(rangeInput, displayId) {
+            document.getElementById(displayId).textContent = rangeInput.value;
+        }
+    </script>
+}

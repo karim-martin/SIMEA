@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>YOUR_ENCRYPTED_PASSWORD_WILL_BE_GENERATED_HERE</EncryptedPassword>
+    <History>Deployment history will appear here after first deployment</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

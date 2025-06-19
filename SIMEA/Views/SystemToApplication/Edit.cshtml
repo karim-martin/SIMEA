@@ -1,0 +1,226 @@
+@model SIMEA.Models.SystemToApplicationCrossReference
+
+@{
+    ViewData["Title"] = "Edit System to Application Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit System to Application Cross Reference</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SystemName" class="control-label"></label>
+                            <input asp-for="SystemName" class="form-control" />
+                            <span asp-validation-for="SystemName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ApplicationName" class="control-label"></label>
+                            <input asp-for="ApplicationName" class="form-control" />
+                            <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="IntegrationType" class="control-label"></label>
+                            <select asp-for="IntegrationType" class="form-control">
+                                <option value="">Select Integration Type</option>
+                                <option value="API">API</option>
+                                <option value="File Transfer">File Transfer</option>
+                                <option value="Database Link">Database Link</option>
+                                <option value="Message Queue">Message Queue</option>
+                                <option value="Web Service">Web Service</option>
+                                <option value="Direct Connection">Direct Connection</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="IntegrationType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Frequency" class="control-label"></label>
+                            <select asp-for="Frequency" class="form-control">
+                                <option value="">Select Frequency</option>
+                                <option value="Real-time">Real-time</option>
+                                <option value="Hourly">Hourly</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="On-demand">On-demand</option>
+                                <option value="Batch">Batch</option>
+                            </select>
+                            <span asp-validation-for="Frequency" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="DataExchanged" class="control-label"></label>
+                        <textarea asp-for="DataExchanged" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="DataExchanged" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label"></label>
+                            <input asp-for="Owner" class="form-control" />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SecurityRequirements" class="control-label"></label>
+                            <input asp-for="SecurityRequirements" class="form-control" />
+                            <span asp-validation-for="SecurityRequirements" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependenciesList" class="mt-2">
+                            <!-- Existing dependencies will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let dependencies = @Html.Raw(Json.Serialize(Model.Dependencies ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<div class="badge badge-secondary mr-2 mb-2 p-2">${dependency}
+                        <a href="#" class="text-white ml-1 remove-dependency" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Dependencies[${index}]" value="${dependency}" />
+                    </div>`;
+                });
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger remove-dependency-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Initial display
+            updateDependenciesList();
+
+            // Add dependency from main form
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyInput').val('');
+                }
+            });
+
+            // Add dependency from modal
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyModalInput').val('');
+                }
+            });
+
+            // Remove dependency from main form
+            $(document).on('click', '.remove-dependency', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Remove dependency from modal
+            $(document).on('click', '.remove-dependency-modal', function () {
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Handle Enter key in dependency inputs
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+        });
+    </script>
+}

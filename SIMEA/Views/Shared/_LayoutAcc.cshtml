@@ -1,0 +1,213 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityExtendUser> UserManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIMEA - Enterprise Architecture</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/styles.css" />
+    <link rel="stylesheet" href="~/css/model-diagram.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    @RenderSection("Styles", required: false)
+</head>
+<body class="sb-nav-fixed">
+    <nav class="sb-topnav navbar navbar-expand navbar-dark sticky-top bg-dark">
+        <a class="navbar-brand" href="/Home/Index">
+            <img src="/High Resolution Logo.png" class="img-fluid" alt="EA Logo" />
+        </a>
+        <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i
+                class="fas fa-bars"></i></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <partial name="_LoginPartial" />
+        </div>
+    </nav>
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <a class="nav-link" href="/Home/Index">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Dashboard
+                        </a>
+                        
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBusiness"
+                            aria-expanded="false" aria-controls="collapseBusiness">
+                            <div class="sb-nav-link-icon"><i class="fas fa-briefcase"></i></div>
+                            Business Domain
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseBusiness" aria-labelledby="headingOne"
+                            data-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/BusinessStrategy/Index">Business Strategy</a>
+                                <a class="nav-link" href="/OperationModel/Index">Operation Model</a>
+                                <a class="nav-link" href="/OrganizationView/Index">Organization View</a>
+                                <a class="nav-link" href="/CapabilityMap/Index">Capability Map</a>
+                                <a class="nav-link" href="/ProcessModel/Index">Process Model</a>
+                                <a class="nav-link" href="/BusinessProductService/Index">Product/Service</a>
+                                <a class="nav-link" href="/TechnologyTrend/Index">Technology Trends</a>
+                                <a class="nav-link" href="/InvestmentDecision/Index">Investment Decisions</a>
+                                <a class="nav-link" href="/EnhancedBusinessOutcome/Index">Business Outcomes</a>
+                            </nav>
+                        </div>
+                        
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApplication"
+                            aria-expanded="false" aria-controls="collapseApplication">
+                            <div class="sb-nav-link-icon"><i class="fas fa-laptop-code"></i></div>
+                            Application Domain
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseApplication" aria-labelledby="headingOne"
+                            data-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/ApplicationFramework/Index">App Framework</a>
+                                <a class="nav-link" href="/ApplicationBusinessRequirement/Index">App Requirements</a>
+                                <a class="nav-link" href="/ServiceCatalogue/Index">Service Catalogue</a>
+                                <a class="nav-link" href="/ApplicationCrossReference/Index">App Cross-Reference</a>
+                                <a class="nav-link" href="/ApplicationSecurity/Index">App Security</a>
+                                <a class="nav-link" href="/ApplicationDataCrossReference/Index">App-Data Cross-Ref</a>
+                            </nav>
+                        </div>
+                        
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseData"
+                            aria-expanded="false" aria-controls="collapseData">
+                            <div class="sb-nav-link-icon"><i class="fas fa-database"></i></div>
+                            Data Domain
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseData" aria-labelledby="headingOne"
+                            data-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/DataGovernance/Index">Data Governance</a>
+                                <a class="nav-link" href="/InformationHierarchy/Index">Info Hierarchy</a>
+                                <a class="nav-link" href="/InformationRequirements/Index">Info Requirements</a>
+                                <a class="nav-link" href="/DataFlow/Index">Data Flow</a>
+                                <a class="nav-link" href="/LogicalData/Index">Logical Data</a>
+                                <a class="nav-link" href="/DataSecurity/Index">Data Security</a>
+                            </nav>
+                        </div>
+                        
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInfrastructure"
+                            aria-expanded="false" aria-controls="collapseInfrastructure">
+                            <div class="sb-nav-link-icon"><i class="fas fa-server"></i></div>
+                            Infrastructure Domain
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseInfrastructure" aria-labelledby="headingOne"
+                            data-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/InfrastructureBusinessRequirement/Index">Infra Requirements</a>
+                                <a class="nav-link" href="/SystemToApplication/Index">System-App Link</a>
+                                <a class="nav-link" href="/ResourceNeeds/Index">Resource Needs</a>
+                                <a class="nav-link" href="/SystemToBusiness/Index">System-Business Link</a>
+                                <a class="nav-link" href="/InfrastructureSecurity/Index">Infra Security</a>
+                                <a class="nav-link" href="/SystemData/Index">System-Data Link</a>
+                            </nav>
+                        </div>
+                        
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEALinks"
+                            aria-expanded="false" aria-controls="collapseEALinks">
+                            <div class="sb-nav-link-icon"><i class="fas fa-project-diagram"></i></div>
+                            Architecture Links
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseEALinks" aria-labelledby="headingOne"
+                            data-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/ArtifactLink/Index">Manage Links</a>
+                                <a class="nav-link" href="/ArtifactLink/Create">Create New Link</a>
+                                <a class="nav-link" href="/ArtifactLink/FullView">Enterprise Visualization</a>
+                            </nav>
+                        </div>
+
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEAOutput"
+                            aria-expanded="false" aria-controls="collapseEAOutput">
+                            <div class="sb-nav-link-icon"><i class="fas fa-poll"></i></div>
+                            EA Output
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseEAOutput" aria-labelledby="headingOne"
+                            data-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" href="/EAOutput/ViewA">Strategic Alignment View</a>
+                                <a class="nav-link" href="/EAOutput/ViewB">Application Portfolio Dashboard</a>
+                                <a class="nav-link" href="/EAOutput/ViewC">Architecture Roadmap</a>
+                                <a class="nav-link" href="/EAOutput/ViewD">Cross-Domain Impact Analysis</a>
+                                <a class="nav-link" href="/EAOutput/ViewE">Technology Standards Compliance</a>
+                                <a class="nav-link" href="/EAOutput/ViewF">Data Flow Diagram</a>
+                                <a class="nav-link" href="/EAOutput/ViewG">Capability to Application Mapping</a>
+                                <a class="nav-link" href="/EAOutput/ViewH">Business Value Heat Map</a>
+                                <a class="nav-link" href="/EAOutput/ViewI">Integration Landscape</a>
+                                <a class="nav-link" href="/EAOutput/ViewJ">Business Process to Tech Stack Alignment</a>
+                                <a class="nav-link" href="/EAOutput/ViewK">Service Dependency Map</a>
+                                <a class="nav-link" href="/EAOutput/ViewL">Value Stream Modeling</a>
+                                <a class="nav-link" href="/EAOutput/ViewM">Application Rationalization</a>
+                            </nav>
+                        </div>
+                        
+                        @{
+                            var user = await UserManager.GetUserAsync(User);
+                            var roles = await UserManager.GetRolesAsync(user);
+                            var isRoot = roles.Contains("Root");
+                            
+                            if (isRoot)
+                            {
+                                <a class="nav-link" href="/Home/Setting">
+                                    <div class="sb-nav-link-icon"><i class="fas fa-cog"></i></div>
+                                    Settings
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid">
+                    <div id="loading-overlay" class="loading-overlay">
+                        <img src="~/files/template/waiting-ugh.gif" alt="Loading...">
+                    </div>
+                    @RenderBody()
+                </div>
+            </main>
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; kmwebsolutions 2025</div>
+                        <div class="text-muted text-left">Enterprise Architecture Module</div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <partial name="_ShowModal" />
+        <script type="text/javascript">
+            window.onload = function () {
+                $("#isValue").html('@Html.Raw(ViewBag.Message)');
+                $("#alertMessage").modal("show");
+            };
+        </script>
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="~/js/datatables.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="~/js/charts-helper.js"></script>
+    <script src="~/js/fontawesome.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/scripts.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

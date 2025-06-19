@@ -1,0 +1,295 @@
+@model SIMEA.Models.CapabilityMap
+
+@{
+    ViewData["Title"] = "Create Capability Map";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Capability Map</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/CapabilityMap/Index">Capability Maps</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Capability Map
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" id="createForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="CapabilityName" class="control-label">Capability Name*</label>
+                            <input asp-for="CapabilityName" class="form-control" required />
+                            <span asp-validation-for="CapabilityName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="MaturityLevel" class="control-label">Maturity Level*</label>
+                            <select asp-for="MaturityLevel" class="form-control" required>
+                                <option value="">Select Maturity Level</option>
+                                <option value="Initial">Initial</option>
+                                <option value="Developing">Developing</option>
+                                <option value="Defined">Defined</option>
+                                <option value="Managed">Managed</option>
+                                <option value="Optimized">Optimized</option>
+                            </select>
+                            <span asp-validation-for="MaturityLevel" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="CapabilityDescription" class="control-label">Capability Description*</label>
+                        <textarea asp-for="CapabilityDescription" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="CapabilityDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Owner" class="control-label">Owner*</label>
+                        <input asp-for="Owner" class="form-control" required />
+                        <span asp-validation-for="Owner" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Key Processes</label>
+                        <div class="input-group">
+                            <input type="text" id="processInput" class="form-control" placeholder="Add key process">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addProcess" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="processesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-processes">No processes added</span>
+                        </div>
+                        <div id="processesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gaps</label>
+                        <div class="input-group">
+                            <input type="text" id="gapInput" class="form-control" placeholder="Add gap">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addGap" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="gapsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-gaps">No gaps added</span>
+                        </div>
+                        <div id="gapsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding processes
+            $("#addProcess").click(function() {
+                const value = $("#processInput").val().trim();
+                
+                if (value) {
+                    addProcess(value);
+                    $("#processInput").val("");
+                }
+            });
+            
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Handle adding gaps
+            $("#addGap").click(function() {
+                const value = $("#gapInput").val().trim();
+                
+                if (value) {
+                    addGap(value);
+                    $("#gapInput").val("");
+                }
+            });
+            
+            // Enter key for processes
+            $("#processInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addProcess").click();
+                }
+            });
+            
+            // Enter key for dependencies
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Enter key for gaps
+            $("#gapInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addGap").click();
+                }
+            });
+            
+            // Function to add a process
+            function addProcess(value) {
+                // Remove "no processes" badge if it exists
+                $("#processesList .no-processes").remove();
+                
+                // Check if this process already exists
+                if ($(`#processesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#processesContainer").append(`<input type="hidden" name="KeyProcesses" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#processesList").append(`
+                        <span class="badge badge-success mr-1 mb-1 process-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="process" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a gap
+            function addGap(value) {
+                // Remove "no gaps" badge if it exists
+                $("#gapsList .no-gaps").remove();
+                
+                // Check if this gap already exists
+                if ($(`#gapsContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#gapsContainer").append(`<input type="hidden" name="Gaps" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#gapsList").append(`
+                        <span class="badge badge-danger mr-1 mb-1 gap-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="gap" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a process
+            function removeProcess(value) {
+                // Remove the hidden input
+                $(`#processesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#processesList .process-badge[data-value="${value}"]`).remove();
+                
+                // Add "no processes" badge if there are no more processes
+                if ($("#processesContainer input").length === 0) {
+                    $("#processesList").html('<span class="badge badge-secondary mr-1 mb-1 no-processes">No processes added</span>');
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Function to remove a gap
+            function removeGap(value) {
+                // Remove the hidden input
+                $(`#gapsContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#gapsList .gap-badge[data-value="${value}"]`).remove();
+                
+                // Add "no gaps" badge if there are no more gaps
+                if ($("#gapsContainer input").length === 0) {
+                    $("#gapsList").html('<span class="badge badge-secondary mr-1 mb-1 no-gaps">No gaps added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "process") {
+                    removeProcess(value);
+                } else if (type === "dependency") {
+                    removeDependency(value);
+                } else if (type === "gap") {
+                    removeGap(value);
+                }
+            });
+        });
+    </script>
+}

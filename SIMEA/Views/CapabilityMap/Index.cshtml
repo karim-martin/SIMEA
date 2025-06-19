@@ -1,0 +1,107 @@
+@model IEnumerable<SIMEA.Models.CapabilityMap>
+
+@{
+    ViewData["Title"] = "Capability Maps";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Capability Maps</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="capabilityTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CapabilityName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.CapabilityDescription)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.MaturityLevel)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Owner)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.KeyProcesses)
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.CapabilityName)
+                                    </td>
+                                    <td>
+                                        @(item.CapabilityDescription != null && item.CapabilityDescription.Length > 50 ? item.CapabilityDescription.Substring(0, 47) + "..." : item.CapabilityDescription)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MaturityLevel)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Owner)
+                                    </td>
+                                    <td>
+                                        @if (item.KeyProcesses != null && item.KeyProcesses.Any())
+                                        {
+                                            <span>@string.Join(", ", item.KeyProcesses.Take(2))</span>
+                                            if (item.KeyProcesses.Count() > 2)
+                                            {
+                                                <span>...</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#capabilityTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search capabilities:",
+                    "lengthMenu": "Show _MENU_ capabilities per page",
+                    "zeroRecords": "No capabilities found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No capabilities available",
+                    "infoFiltered": "(filtered from _MAX_ total capabilities)"
+                }
+            });
+        });
+    </script>
+}

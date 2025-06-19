@@ -1,0 +1,163 @@
+@model SIMEA.Models.OrganizationView
+
+@{
+    ViewData["Title"] = "Organization Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Organization View Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DepartmentOrUnit):</label>
+                            <p class="lead">@Html.DisplayFor(model => model.DepartmentOrUnit)</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.RolesAndResponsibilities):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.RolesAndResponsibilities)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ReportingStructure):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.ReportingStructure)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Key Personnel</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.KeyPersonnel != null && Model.KeyPersonnel.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var person in Model.KeyPersonnel)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-user mr-2 text-primary"></i> @person
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No key personnel defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Collaboration Points</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.CollaborationPoints != null && Model.CollaborationPoints.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var point in Model.CollaborationPoints)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-project-diagram mr-2 text-info"></i> @point
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No collaboration points defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Organizational Goals</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.OrganizationalGoals != null && Model.OrganizationalGoals.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var goal in Model.OrganizationalGoals)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-bullseye mr-2 text-success"></i> @goal
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No organizational goals defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Challenges</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Challenges != null && Model.Challenges.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var challenge in Model.Challenges)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle mr-2 text-danger"></i> @challenge
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No challenges defined</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary mr-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mr-2">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

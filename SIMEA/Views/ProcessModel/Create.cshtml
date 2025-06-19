@@ -1,0 +1,537 @@
+@model SIMEA.Models.ProcessModel
+
+@{
+    ViewData["Title"] = "Create Process Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Process Model</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/ProcessModel/Index">Process Models</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Process Model
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="ProcessModel" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ProcessName" class="control-label">Process Name</label>
+                            <input asp-for="ProcessName" class="form-control" required />
+                            <span asp-validation-for="ProcessName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ProcessDescription" class="control-label">Description</label>
+                        <textarea asp-for="ProcessDescription" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="ProcessDescription" class="text-danger"></span>
+                    </div>
+
+                    <!-- Inputs Section -->
+                    <div class="form-group">
+                        <label>Inputs</label>
+                        <div class="input-group">
+                            <input type="text" id="inputItem" class="form-control" placeholder="Add input">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addInput" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="inputsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-inputs">No inputs added</span>
+                        </div>
+                        <div id="inputsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Outputs Section -->
+                    <div class="form-group">
+                        <label>Outputs</label>
+                        <div class="input-group">
+                            <input type="text" id="outputItem" class="form-control" placeholder="Add output">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addOutput" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="outputsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-outputs">No outputs added</span>
+                        </div>
+                        <div id="outputsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Steps/Workflow Section -->
+                    <div class="form-group">
+                        <label>Steps/Workflow</label>
+                        <div class="input-group">
+                            <input type="text" id="stepItem" class="form-control" placeholder="Add workflow step">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addStep" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="stepsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-steps">No steps added</span>
+                        </div>
+                        <div id="stepsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Tools/Systems Used Section -->
+                    <div class="form-group">
+                        <label>Tools/Systems Used</label>
+                        <div class="input-group">
+                            <input type="text" id="toolItem" class="form-control" placeholder="Add tool or system">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addTool" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="toolsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-tools">No tools/systems added</span>
+                        </div>
+                        <div id="toolsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics Section -->
+                    <div class="form-group">
+                        <label>Performance Metrics</label>
+                        <div class="input-group">
+                            <input type="text" id="metricItem" class="form-control" placeholder="Add performance metric">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addMetric" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="metricsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-metrics">No metrics added</span>
+                        </div>
+                        <div id="metricsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Value Stream Properties Section -->
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#valueStreamCollapse">
+                                    <i class="fas fa-chart-line mr-2"></i> Value Stream Properties (Optional)
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="valueStreamCollapse">
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="CustomerType">Customer Type</label>
+                                        <input asp-for="CustomerType" class="form-control" placeholder="E.g. External, Internal">
+                                        <span asp-validation-for="CustomerType" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="MappingDate">Mapping Date</label>
+                                        <input asp-for="MappingDate" type="date" class="form-control">
+                                        <span asp-validation-for="MappingDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="CycleEfficiency">Cycle Efficiency</label>
+                                        <div class="input-group">
+                                            <input asp-for="CycleEfficiency" type="number" class="form-control" step="0.01" min="0" max="1" placeholder="0.00-1.00">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text text-muted">Value between 0 and 1 (e.g., 0.35 = 35%)</small>
+                                        <span asp-validation-for="CycleEfficiency" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label asp-for="LeadTime">Lead Time (Days)</label>
+                                        <input asp-for="LeadTime" type="number" class="form-control" placeholder="Total process time in days">
+                                        <span asp-validation-for="LeadTime" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Key Metrics Section -->
+                                <div class="form-group">
+                                    <label>Key Metrics</label>
+                                    <div class="input-group">
+                                        <input type="text" id="keyMetricItem" class="form-control" placeholder="Add key metric">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addKeyMetric" type="button">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="keyMetricsList">
+                                        <span class="badge badge-secondary mr-1 mb-1 no-keyMetrics">No key metrics added</span>
+                                    </div>
+                                    <div id="keyMetricsContainer">
+                                        <!-- Hidden inputs will be created here dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Bottlenecks Section -->
+                                <div class="form-group">
+                                    <label>Bottlenecks</label>
+                                    <div class="input-group">
+                                        <input type="text" id="bottleneckItem" class="form-control" placeholder="Add bottleneck">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addBottleneck" type="button">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="bottlenecksList">
+                                        <span class="badge badge-secondary mr-1 mb-1 no-bottlenecks">No bottlenecks added</span>
+                                    </div>
+                                    <div id="bottlenecksContainer">
+                                        <!-- Hidden inputs will be created here dynamically -->
+                                    </div>
+                                </div>
+
+                                <!-- Improvement Opportunities Section -->
+                                <div class="form-group">
+                                    <label>Improvement Opportunities</label>
+                                    <div class="input-group">
+                                        <input type="text" id="improvementItem" class="form-control" placeholder="Add improvement opportunity">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" id="addImprovement" type="button">
+                                                <i class="fas fa-plus"></i> Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2" id="improvementsList">
+                                        <span class="badge badge-secondary mr-1 mb-1 no-improvements">No improvement opportunities added</span>
+                                    </div>
+                                    <div id="improvementsContainer">
+                                        <!-- Hidden inputs will be created here dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Process Stages Section -->
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#processStagesCollapse">
+                                    <i class="fas fa-project-diagram mr-2"></i> Process Stages
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="collapse" id="processStagesCollapse">
+                            <div class="card-body">
+                                <div id="processStagesContainer">
+                                    <!-- Process stages will be added here -->
+                                </div>
+                                
+                                <button type="button" id="addStageBtn" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Add Process Stage
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Process Model</button>
+                        <a asp-action="Index" asp-controller="ProcessModel" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Setup handlers for each list type
+            setupListHandlers('input', 'Inputs', 'info');
+            setupListHandlers('output', 'Outputs', 'success');
+            setupListHandlers('step', 'StepsWorkflow', 'primary');
+            setupListHandlers('tool', 'ToolsSystemsUsed', 'warning');
+            setupListHandlers('metric', 'PerformanceMetrics', 'secondary');
+            
+            // Function to set up handlers for a specific list type
+            function setupListHandlers(itemType, propertyName, badgeColor) {
+                const addBtnId = `#add${capitalizeFirstLetter(itemType)}`;
+                const inputId = `#${itemType}Item`;
+                const listId = `#${itemType}sList`;
+                const containerId = `#${itemType}sContainer`;
+                const noneClass = `.no-${itemType}s`;
+                const badgeClass = `${itemType}-badge`;
+                
+                // Add item button click
+                $(addBtnId).click(function() {
+                    const value = $(inputId).val().trim();
+                    
+                    if (value) {
+                        addListItem(itemType, propertyName, value, badgeColor);
+                        $(inputId).val("");
+                    }
+                });
+                
+                // Enter key in input field
+                $(inputId).keypress(function(e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
+                        $(addBtnId).click();
+                    }
+                });
+                
+                // Function to add an item to a list
+                function addListItem(itemType, propertyName, value, badgeColor) {
+                    // Remove "no items" badge if it exists
+                    $(`${listId} ${noneClass}`).remove();
+                    
+                    // Check if this item already exists
+                    if ($(`${containerId} input[value="${value}"]`).length === 0) {
+                        // Add the hidden input
+                        $(containerId).append(`<input type="hidden" name="${propertyName}" value="${value}">`);
+                        
+                        // Add the badge to the display
+                        $(listId).append(`
+                            <span class="badge badge-${badgeColor} mr-1 mb-1 ${badgeClass}" data-value="${value}">
+                                ${value} <i class="fas fa-times ml-1 remove-badge" data-type="${itemType}" data-value="${value}"></i>
+                            </span>
+                        `);
+                    }
+                }
+            }
+            
+            // Handle removing badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                removeListItem(type, value);
+            });
+            
+            // Function to remove an item from a list
+            function removeListItem(itemType, value) {
+                const containerId = `#${itemType}sContainer`;
+                const listId = `#${itemType}sList`;
+                const badgeClass = `.${itemType}-badge`;
+                const noneClass = `no-${itemType}s`;
+                const propertyName = getPropertyName(itemType);
+                
+                // Remove the hidden input
+                $(`${containerId} input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`${listId} ${badgeClass}[data-value="${value}"]`).remove();
+                
+                // Add "no items" badge if there are no more items
+                if ($(`${containerId} input`).length === 0) {
+                    $(listId).html(`<span class="badge badge-secondary mr-1 mb-1 ${noneClass}">No ${getDisplayName(itemType)} added</span>`);
+                }
+            }
+            
+            // Helper function to capitalize the first letter
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+            
+            // Helper function to get property name based on item type
+            function getPropertyName(itemType) {
+                switch(itemType) {
+                    case 'input': return 'Inputs';
+                    case 'output': return 'Outputs';
+                    case 'step': return 'StepsWorkflow';
+                    case 'tool': return 'ToolsSystemsUsed';
+                    case 'metric': return 'PerformanceMetrics';
+                    default: return itemType + 's';
+                }
+            }
+            
+            // Helper function to get display name based on item type
+            function getDisplayName(itemType) {
+                switch(itemType) {
+                    case 'step': return 'steps';
+                    case 'tool': return 'tools/systems';
+                    default: return itemType + 's';
+                }
+            }
+
+            // Handler for Key Metrics
+            setupListManager('keyMetric', 'KeyMetrics');
+
+            // Handler for Bottlenecks
+            setupListManager('bottleneck', 'Bottlenecks');
+
+            // Handler for Improvement Opportunities
+            setupListManager('improvement', 'ImprovementOpportunities');
+
+            // Common setup function for list management
+            function setupListManager(itemType, propertyName) {
+                var inputId = '#' + itemType + 'Item';
+                var addBtnId = '#add' + itemType.charAt(0).toUpperCase() + itemType.slice(1);
+                var listId = '#' + itemType + 'sList';
+                var containerId = '#' + itemType + 'sContainer';
+                var noItemsClass = '.no-' + itemType + 's';
+                
+                $(addBtnId).click(function() {
+                    var value = $(inputId).val().trim();
+                    if (value) {
+                        // Remove "no items" message if it exists
+                        $(listId + ' ' + noItemsClass).remove();
+                        
+                        // Add visual badge
+                        var itemHtml = '<span class="badge badge-primary mr-1 mb-1" data-value="' + value + '">' + 
+                                        value + ' <a href="#" class="text-white remove-item"><i class="fas fa-times"></i></a></span>';
+                        $(listId).append(itemHtml);
+                        
+                        // Add hidden input for form submission
+                        var hiddenInput = '<input type="hidden" name="' + propertyName + '" value="' + value + '" />';
+                        $(containerId).append(hiddenInput);
+                        
+                        // Clear input
+                        $(inputId).val('');
+                    }
+                });
+                
+                // Remove item when X is clicked
+                $(document).on('click', listId + ' .remove-item', function(e) {
+                    e.preventDefault();
+                    var value = $(this).closest('.badge').data('value');
+                    
+                    // Remove badge
+                    $(this).closest('.badge').remove();
+                    
+                    // Remove hidden input
+                    $(containerId + ' input[value="' + value + '"]').remove();
+                    
+                    // Add "no items" message if no items left
+                    if ($(listId + ' .badge').length === 0) {
+                        $(listId).append('<span class="badge badge-secondary mr-1 mb-1 no-' + itemType + 's">No ' + itemType + 's added</span>');
+                    }
+                });
+            }
+
+            // Process Stages functionality
+            let stageCounter = 0;
+            
+            // Add new stage button
+            $('#addStageBtn').click(function() {
+                addProcessStage();
+            });
+            
+            // Remove stage button
+            $(document).on('click', '.remove-stage', function() {
+                const index = $(this).data('index');
+                $(this).closest('.process-stage-item').remove();
+                // Re-index remaining stages
+                reindexStages();
+            });
+            
+            function addProcessStage() {
+                const html = `
+                    <div class="process-stage-item card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">New Stage</h6>
+                            <button type="button" class="btn btn-sm btn-danger remove-stage" data-index="${stageCounter}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" name="Stages[${stageCounter}].Id" value="${generateGuid()}" />
+                            
+                            <div class="form-group">
+                                <label>Stage Name</label>
+                                <input type="text" class="form-control" name="Stages[${stageCounter}].Name" required />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea class="form-control" name="Stages[${stageCounter}].Description" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Process Time (hh:mm:ss)</label>
+                                    <input type="text" class="form-control" name="Stages[${stageCounter}].ProcessTime" 
+                                           placeholder="00:00:00" />
+                                    <small class="form-text text-muted">Time spent actively processing</small>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Wait Time (hh:mm:ss)</label>
+                                    <input type="text" class="form-control" name="Stages[${stageCounter}].WaitTime" 
+                                           placeholder="00:00:00" />
+                                    <small class="form-text text-muted">Time spent waiting</small>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" name="Stages[${stageCounter}].IsValueAdd" value="true" />
+                                <label class="form-check-label">Value-Adding Activity</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                $('#processStagesContainer').append(html);
+                stageCounter++;
+                
+                // Open the collapse if adding first stage
+                if (stageCounter === 1) {
+                    $('#processStagesCollapse').addClass('show');
+                }
+            }
+            
+            function reindexStages() {
+                $('.process-stage-item').each(function(index) {
+                    $(this).find('input, textarea').each(function() {
+                        const name = $(this).attr('name');
+                        if (name) {
+                            const newName = name.replace(/Stages\[\d+\]/, `Stages[${index}]`);
+                            $(this).attr('name', newName);
+                        }
+                    });
+                    $(this).find('.remove-stage').data('index', index);
+                });
+            }
+            
+            function generateGuid() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0,
+                          v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+        });
+    </script>
+}

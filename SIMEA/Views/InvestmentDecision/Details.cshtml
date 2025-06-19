@@ -1,0 +1,205 @@
+@model SIMEA.Models.InvestmentDecisionModel
+
+@{
+    ViewData["Title"] = "Investment Decision Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="text-primary">@Model.InvestmentName</h4>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <strong>Type:</strong><br>
+                                    <span class="badge badge-info">@Model.InvestmentType</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Category:</strong><br>
+                                    <span class="badge badge-secondary">@Model.InvestmentCategory</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Status:</strong><br>
+                                    @{
+                                        var statusClass = Model.DecisionStatus switch
+                                        {
+                                            "Approved" => "badge-success",
+                                            "Rejected" => "badge-danger",
+                                            "Under Review" => "badge-warning",
+                                            "Deferred" => "badge-secondary",
+                                            "Implemented" => "badge-primary",
+                                            _ => "badge-light"
+                                        };
+                                    }
+                                    <span class="badge @statusClass">@Model.DecisionStatus</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Description:</strong><br>
+                                <p class="text-muted">@Model.Description</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Business Driver:</strong><br>
+                                <p class="text-muted">@Model.BusinessDriver</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-primary">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Total Investment</span>
+                                    <span class="info-box-number">@Model.TotalInvestment.ToString("C")</span>
+                                </div>
+                            </div>
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success">
+                                    <i class="fas fa-chart-line"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Expected Benefits</span>
+                                    <span class="info-box-number">@Model.ExpectedBenefits.ToString("C")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="mt-4 mb-3">Financial Metrics</h5>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="small-box bg-info">
+                                        <div class="inner">
+                                            <h3>@Model.ROIPercentage.ToString("F1")%</h3>
+                                            <p>ROI</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-percentage"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small-box bg-success">
+                                        <div class="inner">
+                                            <h3>@Model.NPV.ToString("C0")</h3>
+                                            <p>NPV</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-chart-area"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small-box bg-warning">
+                                        <div class="inner">
+                                            <h3>@Model.IRRPercentage.ToString("F1")%</h3>
+                                            <p>IRR</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-chart-pie"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small-box bg-secondary">
+                                        <div class="inner">
+                                            <h3>@Model.PaybackPeriodMonths mo</h3>
+                                            <p>Payback Period</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mt-4 mb-3">Priority & Timeline</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Priority Score:</dt>
+                                <dd class="col-sm-8">
+                                    <div class="progress">
+                                                                <div class="progress-bar" role="progressbar" 
+                             style="width: @(Model.PriorityScore * 10)%" 
+                             aria-valuenow="@Model.PriorityScore" aria-valuemin="0" aria-valuemax="10">
+                            @Model.PriorityScore/10
+                                        </div>
+                                    </div>
+                                </dd>
+                                <dt class="col-sm-4">Implementation Timeline:</dt>
+                                <dd class="col-sm-8">@Model.ImplementationTimeline</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mt-4 mb-3">Decision Information</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Decision Maker:</dt>
+                                <dd class="col-sm-8">@Model.DecisionMaker</dd>
+                                <dt class="col-sm-4">Decision Date:</dt>
+                                <dd class="col-sm-8">@(Model.DecisionDate?.ToString("MMM dd, yyyy") ?? "Not Set")</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.DecisionRationale))
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mt-4 mb-3">Decision Rationale</h5>
+                                <div class="alert alert-info">
+                                    <p class="mb-0">@Model.DecisionRationale</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <h6 class="text-muted">Record Information</h6>
+                            <small class="text-muted">
+                                Created by @(Model.UserCreated ?? "System") on @(Model.DateCreated?.ToString("MMM dd, yyyy HH:mm") ?? "Unknown")
+                                @if (Model.UserModified != null)
+                                {
+                                    <br><text>Last modified by </text>@Model.UserModified<text> on </text>@Model.DateModified?.ToString("MMM dd, yyyy HH:mm")
+                                }
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

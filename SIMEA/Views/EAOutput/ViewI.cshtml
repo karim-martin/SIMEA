@@ -1,0 +1,795 @@
+@model SIMEA.Models.ViewModels.IntegrationLandscapeViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Integration Landscape Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This view provides a comprehensive overview of all integration points between systems and applications in the enterprise architecture, helping to identify integration patterns and dependencies.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Pattern Distribution -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Integration Pattern Distribution</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.IntegrationPatterns != null && Model.IntegrationPatterns.Any())
+                    {
+                        <div id="pattern-distribution-chart" style="height: 350px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No integration pattern data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Integration Patterns</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="patternsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Pattern Type</th>
+                                    <th>Count</th>
+                                    <th>Examples</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.IntegrationPatterns != null && Model.IntegrationPatterns.Any())
+                                {
+                                    foreach (var pattern in Model.IntegrationPatterns)
+                                    {
+                                        <tr>
+                                            <td>@pattern.PatternType</td>
+                                            <td>
+                                                <span class="badge badge-primary badge-pill">@pattern.Count</span>
+                                            </td>
+                                            <td>
+                                                @if (pattern.Examples != null && pattern.Examples.Any())
+                                                {
+                                                    <ul class="mb-0 pl-3">
+                                                        @foreach (var example in pattern.Examples)
+                                                        {
+                                                            <li>@example</li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No examples available</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No integration pattern data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Network Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Integration Network</h6>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-integration-type="all">All</button>
+                        @if (Model.IntegrationPatterns != null && Model.IntegrationPatterns.Any())
+                        {
+                            foreach (var pattern in Model.IntegrationPatterns.Take(5)) // Limit to first 5 for UI clarity
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        data-integration-type="@pattern.PatternType">@pattern.PatternType</button>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if ((Model.AppIntegrations != null && Model.AppIntegrations.Any()) || 
+                         (Model.SystemAppIntegrations != null && Model.SystemAppIntegrations.Any()))
+                    {
+                        <div id="integration-network-chart" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application to Application Integrations -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application-to-Application Integrations</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="appIntegrationsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Source Application</th>
+                                    <th>Target Application</th>
+                                    <th>Integration Type</th>
+                                    <th>Data Exchange</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.AppIntegrations != null && Model.AppIntegrations.Any())
+                                {
+                                    foreach (var integration in Model.AppIntegrations)
+                                    {
+                                        <tr data-integration-type="@integration.IntegrationType">
+                                            <td>@integration.SourceApplication</td>
+                                            <td>@integration.TargetApplication</td>
+                                            <td>
+                                                <span class="badge 
+                                                    @(integration.IntegrationType == "API/REST" ? "badge-success" : 
+                                                    integration.IntegrationType == "File Transfer" ? "badge-primary" : 
+                                                    integration.IntegrationType == "Messaging" ? "badge-info" : 
+                                                    "badge-secondary")">
+                                                    @(integration.IntegrationType ?? "Unknown")
+                                                </span>
+                                            </td>
+                                            <td>@integration.DataExchanged</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No application-to-application integration data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System to Application Integrations -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">System-to-Application Integrations</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="sysAppIntegrationsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>System</th>
+                                    <th>Application</th>
+                                    <th>Integration Type</th>
+                                    <th>Data Exchanged</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.SystemAppIntegrations != null && Model.SystemAppIntegrations.Any())
+                                {
+                                    foreach (var integration in Model.SystemAppIntegrations)
+                                    {
+                                        <tr data-integration-type="@integration.IntegrationType">
+                                            <td>@integration.SystemName</td>
+                                            <td>@integration.ApplicationName</td>
+                                            <td>
+                                                <span class="badge 
+                                                    @(integration.IntegrationType == "API/REST" ? "badge-success" : 
+                                                    integration.IntegrationType == "File Transfer" ? "badge-primary" : 
+                                                    integration.IntegrationType == "Messaging" ? "badge-info" : 
+                                                    "badge-secondary")">
+                                                    @(integration.IntegrationType ?? "Unknown")
+                                                </span>
+                                            </td>
+                                            <td>@integration.DataExchanged</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No system-to-application integration data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            var patternsTable, appIntegrationsTable, sysAppIntegrationsTable;
+            
+            if ($('#patternsTable tbody tr').length > 1) {
+                patternsTable = $('#patternsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#appIntegrationsTable tbody tr').length > 1) {
+                appIntegrationsTable = $('#appIntegrationsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            if ($('#sysAppIntegrationsTable tbody tr').length > 1) {
+                sysAppIntegrationsTable = $('#sysAppIntegrationsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            // Integration type filter buttons
+            $('.btn-group [data-integration-type]').click(function() {
+                $('.btn-group [data-integration-type]').removeClass('active');
+                $(this).addClass('active');
+                
+                var integrationType = $(this).data('integration-type');
+                
+                // Update network chart if exists
+                if (typeof networkChart !== 'undefined') {
+                    filterNetworkByType(integrationType);
+                }
+                
+                // Filter datatables if initialized
+                if (appIntegrationsTable) {
+                    if (integrationType === 'all') {
+                        appIntegrationsTable.column(2).search('').draw();
+                    } else {
+                        appIntegrationsTable.column(2).search(integrationType).draw();
+                    }
+                }
+                
+                if (sysAppIntegrationsTable) {
+                    if (integrationType === 'all') {
+                        sysAppIntegrationsTable.column(2).search('').draw();
+                    } else {
+                        sysAppIntegrationsTable.column(2).search(integrationType).draw();
+                    }
+                }
+            });
+            
+            // Initialize Pattern Distribution Chart if element exists
+            var patternChartElement = document.getElementById('pattern-distribution-chart');
+            if (patternChartElement && @(Model.IntegrationPatterns != null && Model.IntegrationPatterns.Any() ? "true" : "false")) {
+                console.log("Initializing pattern distribution chart");
+                var patternChart = echarts.init(patternChartElement, null, { renderer: 'canvas' });
+                
+                // Process data for the chart
+                var patternData = [];
+                
+                @if (Model.IntegrationPatterns != null && Model.IntegrationPatterns.Any())
+                {
+                    <text>
+                    try {
+                        var integrationPatterns = @Html.Raw(Json.Serialize(Model.IntegrationPatterns.Select(p => new { 
+                            Type = p.PatternType, 
+                            Count = p.Count
+                        }))) || [];
+                        
+                        if (Array.isArray(integrationPatterns)) {
+                            patternData = integrationPatterns
+                                .filter(pattern => pattern && pattern.Type)
+                                .map(function(pattern) {
+                                    return {
+                                        name: pattern.Type,
+                                        value: pattern.Count || 0
+                                    };
+                                });
+                        }
+                        
+                        // Add a placeholder if no data
+                        if (patternData.length === 0) {
+                            patternData.push({
+                                name: 'No Data',
+                                value: 1
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing integration pattern data:", e);
+                        patternData = [{name: 'Error', value: 1}];
+                    }
+                    </text>
+                }
+                
+                try {
+                    // Chart options
+                    var patternOption = {
+                        title: {
+                            text: 'Integration Patterns',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function(params) {
+                                try {
+                                    return (params.seriesName || 'Pattern') + ' <br/>' + 
+                                           (params.name || 'Unknown') + ': ' + 
+                                           (params.value || 0) + ' (' + 
+                                           (params.percent || 0) + '%)';
+                                } catch (e) {
+                                    console.error("Error in tooltip formatter:", e);
+                                    return "Error displaying tooltip";
+                                }
+                            }
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: patternData.map(function(item) { return item.name; })
+                        },
+                        series: [
+                            {
+                                name: 'Integration Pattern',
+                                type: 'pie',
+                                radius: '55%',
+                                center: ['50%', '60%'],
+                                data: patternData,
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    
+                    // Apply options
+                    patternChart.setOption(patternOption);
+                } catch (e) {
+                    console.error("Error initializing pattern chart:", e);
+                    patternChartElement.innerHTML = '<div class="alert alert-danger text-center">' +
+                                                 '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                                                 'Error generating chart: ' + e.message +
+                                                 '</div>';
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    patternChart.resize();
+                });
+            }
+            
+            // Initialize Integration Network Chart
+            var networkChartElement = document.getElementById('integration-network-chart');
+            var networkChart;
+            var originalNodes, originalLinks;
+            
+            if (networkChartElement && 
+                (@(Model.AppIntegrations != null && Model.AppIntegrations.Any() ? "true" : "false") || 
+                 @(Model.SystemAppIntegrations != null && Model.SystemAppIntegrations.Any() ? "true" : "false"))) {
+                
+                console.log("Initializing integration network chart");
+                networkChart = echarts.init(networkChartElement, null, { renderer: 'canvas' });
+                
+                // Process data for the network chart
+                var nodes = [];
+                var links = [];
+                var nodeMap = new Map();
+                var intTypeColors = {
+                    'API/REST': '#1cc88a',
+                    'File Transfer': '#4e73df',
+                    'Messaging': '#36b9cc',
+                    'Database': '#f6c23e',
+                    'Other': '#858796'
+                };
+                
+                @if (Model.AppIntegrations != null && Model.AppIntegrations.Any())
+                {
+                    <text>
+                    try {
+                        var appIntegrations = @Html.Raw(Json.Serialize(Model.AppIntegrations.Select(i => new { 
+                            Source = i.SourceApplication, 
+                            Target = i.TargetApplication,
+                            Type = i.IntegrationType
+                        }))) || [];
+                        
+                        if (Array.isArray(appIntegrations)) {
+                            // Process app-to-app integrations
+                            appIntegrations.forEach(function(integration) {
+                                if (integration && integration.Source && integration.Target) {
+                                    var sourceId = integration.Source;
+                                    var targetId = integration.Target;
+                                    var intType = integration.Type || 'Other';
+                                    
+                                    // Add source node if not exists
+                                    if (!nodeMap.has(sourceId)) {
+                                        nodeMap.set(sourceId, nodes.length);
+                                        nodes.push({
+                                            id: sourceId,
+                                            name: sourceId,
+                                            category: 0,
+                                            symbolSize: 35
+                                        });
+                                    }
+                                    
+                                    // Add target node if not exists
+                                    if (!nodeMap.has(targetId)) {
+                                        nodeMap.set(targetId, nodes.length);
+                                        nodes.push({
+                                            id: targetId,
+                                            name: targetId,
+                                            category: 0,
+                                            symbolSize: 35
+                                        });
+                                    }
+                                    
+                                    // Add link between nodes
+                                    links.push({
+                                        source: sourceId,
+                                        target: targetId,
+                                        integrationType: intType,
+                                        lineStyle: {
+                                            width: 3,
+                                            color: intTypeColors[intType] || intTypeColors['Other'],
+                                            curveness: 0.3
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing app integrations data:", e);
+                    }
+                    </text>
+                }
+                
+                @if (Model.SystemAppIntegrations != null && Model.SystemAppIntegrations.Any())
+                {
+                    <text>
+                    try {
+                        var sysAppIntegrations = @Html.Raw(Json.Serialize(Model.SystemAppIntegrations.Select(i => new { 
+                            System = i.SystemName, 
+                            Application = i.ApplicationName,
+                            Type = i.IntegrationType
+                        }))) || [];
+                        
+                        if (Array.isArray(sysAppIntegrations)) {
+                            // Process system-to-app integrations
+                            sysAppIntegrations.forEach(function(integration) {
+                                if (integration && integration.System && integration.Application) {
+                                    var systemId = 'Sys: ' + integration.System;
+                                    var appId = integration.Application;
+                                    var intType = integration.Type || 'Other';
+                                    
+                                    // Add system node if not exists
+                                    if (!nodeMap.has(systemId)) {
+                                        nodeMap.set(systemId, nodes.length);
+                                        nodes.push({
+                                            id: systemId,
+                                            name: integration.System,
+                                            category: 1,
+                                            symbolSize: 35
+                                        });
+                                    }
+                                    
+                                    // Add application node if not exists
+                                    if (!nodeMap.has(appId)) {
+                                        nodeMap.set(appId, nodes.length);
+                                        nodes.push({
+                                            id: appId,
+                                            name: appId,
+                                            category: 0,
+                                            symbolSize: 35
+                                        });
+                                    }
+                                    
+                                    // Add link between nodes
+                                    links.push({
+                                        source: systemId,
+                                        target: appId,
+                                        integrationType: intType,
+                                        lineStyle: {
+                                            width: 3,
+                                            color: intTypeColors[intType] || intTypeColors['Other'],
+                                            curveness: 0.3
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing system-to-app integrations data:", e);
+                    }
+                    </text>
+                }
+                
+                // Store original data for filtering
+                originalNodes = [...nodes];
+                originalLinks = [...links];
+                
+                try {
+                    // Network chart options
+                    var networkOption = {
+                        title: {
+                            text: 'Integration Network',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            formatter: function(params) {
+                                try {
+                                    if (params.dataType === 'edge') {
+                                        return (params.data.source || 'Unknown') + ' → ' + (params.data.target || 'Unknown') + '<br/>' +
+                                              'Type: ' + (params.data.integrationType || 'Unknown');
+                                    }
+                                    return params.data.name || 'Unknown';
+                                } catch (e) {
+                                    console.error("Error in tooltip formatter:", e);
+                                    return "Error displaying tooltip";
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['Application', 'System'],
+                            bottom: 10
+                        },
+                        series: [
+                            {
+                                type: 'graph',
+                                layout: 'force',
+                                data: nodes,
+                                links: links,
+                                categories: [
+                                    { name: 'Application' },
+                                    { name: 'System' }
+                                ],
+                                roam: true,
+                                draggable: true,
+                                label: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: '{b}'
+                                },
+                                force: {
+                                    repulsion: 300,
+                                    edgeLength: [100, 200]
+                                },
+                                lineStyle: {
+                                    curveness: 0.3
+                                },
+                                emphasis: {
+                                    focus: 'adjacency',
+                                    lineStyle: {
+                                        width: 5
+                                    }
+                                },
+                                edgeSymbol: ['none', 'arrow'],
+                                edgeSymbolSize: [0, 8]
+                            }
+                        ]
+                    };
+                    
+                    // Apply options
+                    networkChart.setOption(networkOption);
+                    
+                    // Function to filter network by integration type
+                    function filterNetworkByType(integrationType) {
+                        try {
+                            if (!networkChart || !originalNodes || !originalLinks) return;
+                            
+                            if (integrationType === 'all') {
+                                networkOption.series[0].data = originalNodes;
+                                networkOption.series[0].links = originalLinks;
+                            } else {
+                                // Filter links by integration type
+                                var filteredLinks = originalLinks.filter(function(link) {
+                                    return link && link.integrationType === integrationType;
+                                });
+                                
+                                // Get unique node IDs from filtered links
+                                var nodeIds = new Set();
+                                filteredLinks.forEach(function(link) {
+                                    if (link && link.source && link.target) {
+                                        nodeIds.add(link.source);
+                                        nodeIds.add(link.target);
+                                    }
+                                });
+                                
+                                // Filter nodes to only those in links
+                                var filteredNodes = originalNodes.filter(function(node) {
+                                    return node && node.id && nodeIds.has(node.id);
+                                });
+                                
+                                networkOption.series[0].data = filteredNodes;
+                                networkOption.series[0].links = filteredLinks;
+                            }
+                            
+                            networkChart.setOption(networkOption);
+                        } catch (e) {
+                            console.error("Error filtering network chart:", e);
+                        }
+                    }
+                    
+                    // Expose the function to the window scope
+                    window.filterNetworkByType = filterNetworkByType;
+                } catch (e) {
+                    console.error("Error initializing network chart:", e);
+                    networkChartElement.innerHTML = '<div class="alert alert-danger text-center">' +
+                                                 '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                                                 'Error generating chart: ' + e.message +
+                                                 '</div>';
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    networkChart.resize();
+                });
+                
+                // Fullscreen toggle
+                document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                    if (networkChartElement.classList.contains('fullscreen')) {
+                        networkChartElement.classList.remove('fullscreen');
+                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                        networkChartElement.style.height = '500px';
+                    } else {
+                        networkChartElement.classList.add('fullscreen');
+                        this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                        networkChartElement.style.height = '85vh';
+                    }
+                    
+                    // Resize chart after container size change
+                    setTimeout(function() {
+                        networkChart.resize();
+                    }, 100);
+                });
+                
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', function() {
+                    var dataURL = networkChart.getDataURL({
+                        pixelRatio: 2,
+                        backgroundColor: '#fff'
+                    });
+                    
+                    // Create an invisible anchor element to trigger download
+                    var downloadLink = document.createElement('a');
+                    downloadLink.href = dataURL;
+                    downloadLink.download = 'integration-landscape.png';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+            } else {
+                // Hide buttons if no chart
+                document.getElementById('toggleFullscreen').style.display = 'none';
+                document.getElementById('exportBtn').style.display = 'none';
+            }
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+        
+        .btn-outline-primary.active {
+            background-color: #4e73df;
+            color: white;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}

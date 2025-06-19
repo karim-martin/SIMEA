@@ -1,0 +1,271 @@
+@model SIMEA.Models.ArtifactLink
+
+@{
+    ViewData["Title"] = "Edit Artifact Link";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-edit mr-2"></i> Edit Artifact Link
+            </h6>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-8">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label asp-for="SourceArtifactType" class="control-label font-weight-bold">
+                                    <i class="fas fa-cube mr-1 text-primary"></i> Source Artifact Type
+                                </label>
+                                <select asp-for="SourceArtifactType" class="form-control shadow-sm" asp-items="ViewBag.ArtifactTypes" id="sourceArtifactType">
+                                    <option value="">-- Select Source Type --</option>
+                                </select>
+                                <span asp-validation-for="SourceArtifactType" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-6 form-group">
+                                <label asp-for="TargetArtifactType" class="control-label font-weight-bold">
+                                    <i class="fas fa-cube mr-1 text-success"></i> Target Artifact Type
+                                </label>
+                                <select asp-for="TargetArtifactType" class="form-control shadow-sm" asp-items="ViewBag.ArtifactTypes" id="targetArtifactType">
+                                    <option value="">-- Select Target Type --</option>
+                                </select>
+                                <span asp-validation-for="TargetArtifactType" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row mb-3">
+                            <div class="col-md-6">
+                                <div class="card border-left-primary shadow h-100">
+                                    <div class="card-body p-3">
+                                        <label asp-for="SourceArtifactId" class="control-label font-weight-bold">
+                                            <i class="fas fa-project-diagram mr-1"></i> Source Artifact
+                                        </label>
+                                        <select asp-for="SourceArtifactId" class="form-control" id="sourceArtifactId">
+                                            <option value="@Model.SourceArtifactId">Current: @Model.SourceArtifactId</option>
+                                        </select>
+                                        <span asp-validation-for="SourceArtifactId" class="text-danger"></span>
+                                        <small class="form-text text-muted">Select the source artifact to link from</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card border-left-success shadow h-100">
+                                    <div class="card-body p-3">
+                                        <label asp-for="TargetArtifactId" class="control-label font-weight-bold">
+                                            <i class="fas fa-project-diagram mr-1"></i> Target Artifact
+                                        </label>
+                                        <select asp-for="TargetArtifactId" class="form-control" id="targetArtifactId">
+                                            <option value="@Model.TargetArtifactId">Current: @Model.TargetArtifactId</option>
+                                        </select>
+                                        <span asp-validation-for="TargetArtifactId" class="text-danger"></span>
+                                        <small class="form-text text-muted">Select the target artifact to link to</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="LinkDescription" class="control-label font-weight-bold">
+                                <i class="fas fa-link mr-1 text-info"></i> Relationship Description
+                            </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light">Define as</span>
+                                </div>
+                                <textarea asp-for="LinkDescription" class="form-control shadow-sm" rows="2" 
+                                          placeholder="e.g., 'implements', 'depends on', 'supports', etc."></textarea>
+                            </div>
+                            <small class="form-text text-muted">Describe the relationship between these artifacts</small>
+                            <span asp-validation-for="LinkDescription" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mt-4 d-flex justify-content-between">
+                            <div>
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                                    <i class="fas fa-eye mr-1"></i> View Details
+                                </a>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="fas fa-times mr-1"></i> Cancel
+                                </a>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="m-0 font-weight-bold text-gray-700">
+                                <i class="fas fa-info-circle mr-2"></i> Editing Instructions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small text-muted mb-3">
+                                <p><strong>Steps to edit an artifact link:</strong></p>
+                                <ol>
+                                    <li>Select the source artifact type from the dropdown</li>
+                                    <li>Choose the specific source artifact</li>
+                                    <li>Select the target artifact type</li>
+                                    <li>Choose the specific target artifact</li>
+                                    <li>Define the relationship between these artifacts</li>
+                                </ol>
+                                
+                                <hr>
+                                
+                                <p><strong>Example relationships:</strong></p>
+                                <ul>
+                                    <li><span class="badge badge-light">implements</span></li>
+                                    <li><span class="badge badge-light">depends on</span></li>
+                                    <li><span class="badge badge-light">supports</span></li>
+                                    <li><span class="badge badge-light">is component of</span></li>
+                                    <li><span class="badge badge-light">controls</span></li>
+                                    <li><span class="badge badge-light">is derived from</span></li>
+                                </ul>
+                                
+                                <hr>
+                                
+                                <p class="mb-0"><i class="fas fa-lightbulb text-warning mr-1"></i> <strong>Tip:</strong> Meaningful relationship descriptions improve architecture understanding.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-gradient-light border-left-info shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Link ID</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Id</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-gradient-light {
+            background-color: #f8f9fc;
+            background-image: linear-gradient(180deg, #f8f9fc 10%, #eaecf4 100%);
+            background-size: cover;
+        }
+        
+        select.form-control {
+            height: calc(2.25rem + 5px);
+        }
+        
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .card-body, .input-group-text {
+            transition: all 0.3s ease;
+        }
+        
+        .border-left-primary {
+            border-left: 0.25rem solid #4e73df !important;
+        }
+        
+        .border-left-success {
+            border-left: 0.25rem solid #1cc88a !important;
+        }
+        
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+        
+        .shadow-sm {
+            box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function () {
+            // Load initial source artifact options with improved UX
+            if ($('#sourceArtifactType').val()) {
+                loadArtifactIds($('#sourceArtifactType').val(), '#sourceArtifactId', '@Model.SourceArtifactId');
+                $('#sourceArtifactId').closest('.card').addClass('pulse-highlight');
+            }
+            
+            // Load initial target artifact options with improved UX
+            if ($('#targetArtifactType').val()) {
+                loadArtifactIds($('#targetArtifactType').val(), '#targetArtifactId', '@Model.TargetArtifactId');
+                $('#targetArtifactId').closest('.card').addClass('pulse-highlight');
+            }
+
+            // Event handlers for source artifact type selection
+            $('#sourceArtifactType').change(function () {
+                var selectedType = $(this).val();
+                if (selectedType) {
+                    $('#sourceArtifactId').closest('.card').addClass('loading');
+                    loadArtifactIds(selectedType, '#sourceArtifactId');
+                } else {
+                    $('#sourceArtifactId').empty().append('<option value="">-- Select Source Artifact --</option>');
+                }
+            });
+            
+            // Event handlers for target artifact type selection
+            $('#targetArtifactType').change(function () {
+                var selectedType = $(this).val();
+                if (selectedType) {
+                    $('#targetArtifactId').closest('.card').addClass('loading');
+                    loadArtifactIds(selectedType, '#targetArtifactId');
+                } else {
+                    $('#targetArtifactId').empty().append('<option value="">-- Select Target Artifact --</option>');
+                }
+            });
+            
+            // Function to load artifact IDs based on selected type
+            function loadArtifactIds(artifactType, selectElement, currentValue) {
+                $.ajax({
+                    url: '@Url.Action("GetArtifactIds", "ArtifactLink")',
+                    type: 'GET',
+                    data: { artifactType: artifactType },
+                    success: function (data) {
+                        var select = $(selectElement);
+                        select.empty();
+                        select.append('<option value="">-- Select Artifact --</option>');
+                        
+                        $.each(data, function (i, item) {
+                            var option = $('<option>').val(item.id).text(item.name);
+                            if (currentValue && item.id == currentValue) {
+                                option.prop('selected', true);
+                            }
+                            select.append(option);
+                        });
+                        
+                        // Improve UX feedback
+                        $(selectElement).closest('.card').removeClass('loading').addClass('loaded');
+                        setTimeout(function() {
+                            $(selectElement).closest('.card').removeClass('loaded');
+                        }, 1000);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading artifacts:', error);
+                        alert('Error loading artifacts. Please try again.');
+                        $(selectElement).closest('.card').removeClass('loading');
+                    }
+                });
+            }
+        });
+    </script>
+}

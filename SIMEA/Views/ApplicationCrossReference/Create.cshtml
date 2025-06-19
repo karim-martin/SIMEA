@@ -1,0 +1,271 @@
+@model SIMEA.Models.ApplicationToApplicationCrossReference
+
+@{
+    ViewData["Title"] = "Create Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Application to Application Cross Reference</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/ApplicationCrossReference/Index">Application Cross References</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Cross Reference
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="ApplicationCrossReference" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SourceApplication" class="control-label">Source Application</label>
+                            <input asp-for="SourceApplication" class="form-control" placeholder="Source Application Name" required />
+                            <span asp-validation-for="SourceApplication" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="TargetApplication" class="control-label">Target Application</label>
+                            <input asp-for="TargetApplication" class="form-control" placeholder="Target Application Name" required />
+                            <span asp-validation-for="TargetApplication" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="IntegrationType" class="control-label">Integration Type</label>
+                            <select asp-for="IntegrationType" class="form-control" required>
+                                <option value="">Select Integration Type</option>
+                                <option value="API">API</option>
+                                <option value="File Transfer">File Transfer</option>
+                                <option value="Database">Database</option>
+                                <option value="Message Queue">Message Queue</option>
+                                <option value="Web Service">Web Service</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="IntegrationType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Frequency" class="control-label">Frequency</label>
+                            <select asp-for="Frequency" class="form-control" required>
+                                <option value="">Select Frequency</option>
+                                <option value="Real-time">Real-time</option>
+                                <option value="Hourly">Hourly</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="On-demand">On-demand</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="Frequency" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="DataExchanged" class="control-label">Data Exchanged</label>
+                        <textarea asp-for="DataExchanged" class="form-control" rows="3" placeholder="Description of data exchanged between applications" required></textarea>
+                        <span asp-validation-for="DataExchanged" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" placeholder="Person or team responsible for this integration" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SecurityRequirements" class="control-label">Security Requirements</label>
+                            <input asp-for="SecurityRequirements" class="form-control" placeholder="Security requirements for this integration" />
+                            <span asp-validation-for="SecurityRequirements" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" asp-controller="ApplicationCrossReference" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script>
+        $(document).ready(function () {
+            // Configure toastr notifications
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+            
+            let dependencies = [];
+
+            // Functions to update UI displays
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<span class="badge badge-primary mr-1 mb-1 dependency-badge" data-value="${dependency}">
+                        ${dependency} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${dependency}"></i>
+                        <input type="hidden" name="Dependencies" value="${dependency}" />
+                    </span>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>';
+                }
+                
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger delete-dependency" data-value="${dependency}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No dependencies added yet</li>';
+                }
+                
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Add dependency
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Add dependency from modal
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyModalInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Remove dependency
+            $(document).on('click', '.remove-badge', function () {
+                const value = $(this).data('value');
+                const index = dependencies.indexOf(value);
+                if (index !== -1) {
+                    dependencies.splice(index, 1);
+                    updateDependenciesList();
+                }
+            });
+
+            // Remove dependency from modal
+            $(document).on('click', '.delete-dependency', function () {
+                const value = $(this).data('value');
+                const index = dependencies.indexOf(value);
+                if (index !== -1) {
+                    dependencies.splice(index, 1);
+                    updateDependenciesList();
+                }
+            });
+
+            // Handle Enter key
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+            
+            // Initialize dependencies display
+            updateDependenciesList();
+        });
+    </script>
+}

@@ -1,0 +1,239 @@
+@model SIMEA.Models.InformationHierarchyView
+
+@{
+    ViewData["Title"] = "Create Information Hierarchy";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Information Hierarchy</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/InformationHierarchy/Index">Information Hierarchy</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Information Hierarchy
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="InformationHierarchy" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="InformationLevel" class="control-label">Information Level</label>
+                            <input asp-for="InformationLevel" class="form-control" required />
+                            <span asp-validation-for="InformationLevel" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ParentInformation" class="control-label">Parent Information</label>
+                            <input asp-for="ParentInformation" class="form-control" />
+                            <span asp-validation-for="ParentInformation" class="text-danger"></span>
+                            <small class="form-text text-muted">Leave empty if this is a top-level element</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SecurityLevel" class="control-label">Security Level</label>
+                            <select asp-for="SecurityLevel" class="form-control" required>
+                                <option value="">Select Security Level</option>
+                                <option value="Public">Public</option>
+                                <option value="Internal">Internal</option>
+                                <option value="Confidential">Confidential</option>
+                                <option value="Restricted">Restricted</option>
+                            </select>
+                            <span asp-validation-for="SecurityLevel" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Usage" class="control-label">Usage</label>
+                        <textarea asp-for="Usage" class="form-control" rows="2" required></textarea>
+                        <span asp-validation-for="Usage" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Child Information</label>
+                        <div class="input-group">
+                            <input type="text" id="childInput" class="form-control" placeholder="Add child information item">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addChild" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="childList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-children">No child information added</span>
+                        </div>
+                        <div id="childContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Information Hierarchy</button>
+                        <a asp-action="Index" asp-controller="InformationHierarchy" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding child information
+            $("#addChild").click(function() {
+                const value = $("#childInput").val().trim();
+                
+                if (value) {
+                    addChild(value);
+                    $("#childInput").val("");
+                }
+            });
+            
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Enter key for child information
+            $("#childInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addChild").click();
+                }
+            });
+            
+            // Enter key for dependencies
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Function to add a child information item
+            function addChild(value) {
+                // Remove "no children" badge if it exists
+                $("#childList .no-children").remove();
+                
+                // Check if this child already exists
+                if ($(`#childContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#childContainer").append(`<input type="hidden" name="ChildInformation" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#childList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 child-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="child" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-info mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a child information item
+            function removeChild(value) {
+                // Remove the hidden input
+                $(`#childContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#childList .child-badge[data-value="${value}"]`).remove();
+                
+                // Add "no children" badge if there are no more children
+                if ($("#childContainer input").length === 0) {
+                    $("#childList").html('<span class="badge badge-secondary mr-1 mb-1 no-children">No child information added</span>');
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "child") {
+                    removeChild(value);
+                } else if (type === "dependency") {
+                    removeDependency(value);
+                }
+            });
+        });
+    </script>
+}

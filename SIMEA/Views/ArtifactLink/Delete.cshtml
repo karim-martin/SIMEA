@@ -1,0 +1,251 @@
+@model SIMEA.Models.ArtifactLink
+
+@{
+    ViewData["Title"] = "Delete Artifact Link";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-danger">
+                <i class="fas fa-trash-alt mr-2"></i> Delete Artifact Link
+            </h6>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>Warning:</strong> Are you sure you want to delete this artifact link? This action cannot be undone.
+            </div>
+
+            <div class="row">
+                <!-- UML Diagram -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <h6 class="m-0 font-weight-bold">
+                                <i class="fas fa-project-diagram mr-2"></i> Link Visualization
+                            </h6>
+                        </div>
+                        <div class="card-body p-4 bg-light">
+                            <div id="umlDiagram" class="text-center py-4" style="border-radius: 8px; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.05); padding: 20px;">
+                                @{ var vm = ViewBag.ViewModel; }
+                                
+                                <!-- Source Artifact -->
+                                <div class="source-artifact p-3 mb-4" style="border: 2px solid #4e73df; border-radius: 8px; display: inline-block; min-width: 250px; max-width: 90%; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                    <div class="bg-gradient-primary text-white p-2 mb-2 rounded">
+                                        <i class="@GetIconForType(Model.SourceArtifactType.ToString()) mr-2"></i>
+                                        @ViewBag.SourceArtifactInfo.Type
+                                    </div>
+                                    <div class="p-2 text-truncate font-weight-bold" title="@ViewBag.SourceArtifactInfo.Name">
+                                        @ViewBag.SourceArtifactInfo.Name
+                                    </div>
+                                    <div class="small text-muted">ID: @Model.SourceArtifactId</div>
+                                </div>
+                                
+                                <!-- Connection Arrow -->
+                                <div class="arrow-connector mb-3 position-relative">
+                                    <div class="connector-line mx-auto" style="height: 30px; width: 2px; background-color: #4e73df;"></div>
+                                    <div class="link-label px-3 py-2 mx-auto" style="max-width: 250px; border: 1px dashed #4e73df; border-radius: 20px; font-size: 14px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                        <i class="fas fa-link mr-1"></i>
+                                        @(string.IsNullOrEmpty(Model.LinkDescription) ? "Links to" : Model.LinkDescription)
+                                    </div>
+                                    <div class="connector-line mx-auto" style="height: 30px; width: 2px; background-color: #1cc88a;"></div>
+                                    <div class="arrow-head text-center" style="margin-top: -5px; color: #1cc88a;">
+                                        <i class="fas fa-chevron-down" style="font-size: 20px;"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- Target Artifact -->
+                                <div class="target-artifact p-3" style="border: 2px solid #1cc88a; border-radius: 8px; display: inline-block; min-width: 250px; max-width: 90%; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                    <div class="bg-gradient-success text-white p-2 mb-2 rounded">
+                                        <i class="@GetIconForType(Model.TargetArtifactType.ToString()) mr-2"></i>
+                                        @ViewBag.TargetArtifactInfo.Type
+                                    </div>
+                                    <div class="p-2 text-truncate font-weight-bold" title="@ViewBag.TargetArtifactInfo.Name">
+                                        @ViewBag.TargetArtifactInfo.Name
+                                    </div>
+                                    <div class="small text-muted">ID: @Model.TargetArtifactId</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Link Details -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-gray-200">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-info-circle mr-2"></i> Link Details
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th class="bg-light w-50">Link ID</th>
+                                        <td>@Model.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Source Type</th>
+                                        <td>
+                                            <span class="badge badge-primary">
+                                                @Model.SourceArtifactType
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Source ID</th>
+                                        <td>@Model.SourceArtifactId</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Target Type</th>
+                                        <td>
+                                            <span class="badge badge-success">
+                                                @Model.TargetArtifactType
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Target ID</th>
+                                        <td>@Model.TargetArtifactId</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Relationship</th>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(Model.LinkDescription))
+                                            {
+                                                <span class="text-muted"><i>Not specified</i></span>
+                                            }
+                                            else
+                                            {
+                                                <span class="font-weight-medium">@Model.LinkDescription</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Domain Connection</th>
+                                        <td>
+                                            @{
+                                                bool isCrossDomain = IsCrossDomain(Model.SourceArtifactType.ToString(), Model.TargetArtifactType.ToString());
+                                                var domainBadgeClass = isCrossDomain ? "badge-warning" : "badge-info";
+                                                var domainText = isCrossDomain ? "Cross-Domain" : "Same Domain";
+                                            }
+                                            <span class="badge @domainBadgeClass">@domainText</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <!-- Confirmation -->
+                            <form asp-action="Delete" class="mt-4">
+                                <input type="hidden" asp-for="Id" />
+                                <div class="d-flex justify-content-between">
+                                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                                        <i class="fas fa-edit mr-1"></i> Edit Instead
+                                    </a>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-trash-alt mr-1"></i> Confirm Delete
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetIconForType(string artifactType)
+    {
+        if (artifactType.Contains("Business"))
+            return "fas fa-briefcase";
+        else if (artifactType.Contains("Application"))
+            return "fas fa-laptop-code";
+        else if (artifactType.Contains("Data") || artifactType.Contains("Information"))
+            return "fas fa-database";
+        else if (artifactType.Contains("Infrastructure") || artifactType.Contains("System"))
+            return "fas fa-server";
+        else if (artifactType.Contains("Process"))
+            return "fas fa-cogs";
+        else if (artifactType.Contains("Service"))
+            return "fas fa-concierge-bell";
+        else if (artifactType.Contains("Security"))
+            return "fas fa-shield-alt";
+        else
+            return "fas fa-cube";
+    }
+    
+    public bool IsCrossDomain(string sourceType, string targetType)
+    {
+        string GetDomain(string type)
+        {
+            if (type.Contains("Business"))
+                return "Business";
+            else if (type.Contains("Application"))
+                return "Application";
+            else if (type.Contains("Data") || type.Contains("Information") || type.Contains("Logical"))
+                return "Data";
+            else if (type.Contains("Infrastructure") || type.Contains("System") || type.Contains("Resource"))
+                return "Infrastructure";
+            else
+                return "Unknown";
+        }
+        
+        return GetDomain(sourceType) != GetDomain(targetType);
+    }
+}
+
+@section Styles {
+    <style>
+        .bg-gradient-primary {
+            background-color: #4e73df;
+            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            background-size: cover;
+        }
+        
+        .bg-gradient-success {
+            background-color: #1cc88a;
+            background-image: linear-gradient(180deg, #1cc88a 10%, #13855c 100%);
+            background-size: cover;
+        }
+        
+        .arrow-connector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .connector-line {
+            transition: all 0.3s ease;
+        }
+        
+        .source-artifact, .target-artifact {
+            transition: all 0.3s ease;
+        }
+        
+        .source-artifact:hover, .target-artifact:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Confirmation dialog
+            $("form").submit(function(e) {
+                if (!confirm("Are you absolutely sure you want to delete this artifact link? This action cannot be undone.")) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,111 @@
+@model IEnumerable<SIMEA.Models.ResourceNeedsModel>
+
+@{
+    ViewData["Title"] = "Resource Needs";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Resource Needs</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="resourceNeedsTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ResourceType)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ResourceName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Quantity)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Cost)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Owner)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AllocationStatus)
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ResourceType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ResourceName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Quantity)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Cost)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Owner)
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-pill 
+                                            @(item.AllocationStatus == "Available" ? "badge-success" : 
+                                              item.AllocationStatus == "Allocated" ? "badge-warning" : 
+                                              "badge-info")">
+                                            @Html.DisplayFor(modelItem => item.AllocationStatus)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#resourceNeedsTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search resources:",
+                    "lengthMenu": "Show _MENU_ resources per page",
+                    "zeroRecords": "No resources found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No resources available",
+                    "infoFiltered": "(filtered from _MAX_ total resources)"
+                }
+            });
+        });
+    </script>
+}

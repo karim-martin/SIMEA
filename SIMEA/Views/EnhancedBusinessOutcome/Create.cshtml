@@ -1,0 +1,193 @@
+@model SIMEA.Models.EnhancedBusinessOutcomeModel
+
+@{
+    ViewData["Title"] = "Create Enhanced Business Outcome";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="OutcomeName" class="control-label"></label>
+                                    <input asp-for="OutcomeName" class="form-control" />
+                                    <span asp-validation-for="OutcomeName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="OutcomeCategory" class="control-label"></label>
+                                    <select asp-for="OutcomeCategory" class="form-control">
+                                        <option value="">Select Category</option>
+                                        <option value="Strategic">Strategic</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Financial">Financial</option>
+                                        <option value="Customer">Customer</option>
+                                        <option value="Innovation">Innovation</option>
+                                    </select>
+                                    <span asp-validation-for="OutcomeCategory" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="PriorityLevel" class="control-label"></label>
+                                    <select asp-for="PriorityLevel" class="form-control">
+                                        <option value="">Select Priority</option>
+                                        <option value="Critical">Critical</option>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                    <span asp-validation-for="PriorityLevel" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="StrategicAlignment" class="control-label"></label>
+                            <textarea asp-for="StrategicAlignment" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="StrategicAlignment" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="TargetValue" class="control-label"></label>
+                                    <input asp-for="TargetValue" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="TargetValue" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="CurrentValue" class="control-label"></label>
+                                    <input asp-for="CurrentValue" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="CurrentValue" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="MeasurementUnit" class="control-label"></label>
+                                    <input asp-for="MeasurementUnit" class="form-control" placeholder="e.g., %, $, days, count" />
+                                    <span asp-validation-for="MeasurementUnit" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="CompletionPercentage" class="control-label"></label>
+                                    <input asp-for="CompletionPercentage" class="form-control" type="number" min="0" max="100" step="0.1" />
+                                    <span asp-validation-for="CompletionPercentage" class="text-danger"></span>
+                                    <small class="form-text text-muted">Percentage (0-100%)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="Status" class="control-label"></label>
+                                    <select asp-for="Status" class="form-control">
+                                        <option value="">Select Status</option>
+                                        <option value="Not Started">Not Started</option>
+                                        <option value="In Progress">In Progress</option>
+                                        <option value="On Track">On Track</option>
+                                        <option value="At Risk">At Risk</option>
+                                        <option value="Delayed">Delayed</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="TargetDate" class="control-label"></label>
+                                    <input asp-for="TargetDate" class="form-control" type="date" />
+                                    <span asp-validation-for="TargetDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="ActualDate" class="control-label"></label>
+                                    <input asp-for="ActualDate" class="form-control" type="date" />
+                                    <span asp-validation-for="ActualDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="BusinessImpact" class="control-label"></label>
+                                    <textarea asp-for="BusinessImpact" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="BusinessImpact" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="ValueRealization" class="control-label"></label>
+                                    <textarea asp-for="ValueRealization" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="ValueRealization" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="OwnerName" class="control-label"></label>
+                                    <input asp-for="OwnerName" class="form-control" />
+                                    <span asp-validation-for="OwnerName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="SponsorName" class="control-label"></label>
+                                    <input asp-for="SponsorName" class="form-control" />
+                                    <span asp-validation-for="SponsorName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ReviewNotes" class="control-label"></label>
+                            <textarea asp-for="ReviewNotes" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="ReviewNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

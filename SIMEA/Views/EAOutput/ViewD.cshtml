@@ -1,0 +1,850 @@
+@model SIMEA.Models.ViewModels.CrossDomainImpactViewModel
+@using SIMEA.Models.ViewModels
+@using SIMEA.Models
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-warning shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-warning">Cross-Domain Impact Analysis Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This analysis helps identify the ripple effects of changes across architectural domains. It shows how modifying artifacts in one domain can impact artifacts in other domains.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cross-Domain Impact Network Graph -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Cross-Domain Dependency Network</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.CrossDomainConnections != null && Model.CrossDomainConnections.Any())
+                    {
+                        <div id="impact-network-graph" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impact Analysis Card -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Impact Analysis</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Analysis Options:</div>
+                            <a class="dropdown-item" href="#" id="sortByImpact">Sort by Impact Score</a>
+                            <a class="dropdown-item" href="#" id="filterHighImpact">Show High Impact Only</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" id="resetFilters">Reset Filters</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.ImpactItems != null && Model.ImpactItems.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="impactTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Source Artifact</th>
+                                        <th>Domain</th>
+                                        <th>Impacted Artifacts</th>
+                                        <th>Impact Count</th>
+                                        <th>Impact Score</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ImpactItems)
+                                    {
+                                        <tr class="impact-row" data-score="@item.TotalImpactScore">
+                                            <td>@item.SourceName</td>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(item.SourceDomain == ArtifactDomain.Business ? "badge-primary" : 
+                                                    item.SourceDomain == ArtifactDomain.Application ? "badge-success" : 
+                                                    item.SourceDomain == ArtifactDomain.Data ? "badge-info" : 
+                                                    "badge-warning")">
+                                                    @item.SourceDomain
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (item.ImpactedArtifacts != null && item.ImpactedArtifacts.Any())
+                                                {
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach (var artifact in item.ImpactedArtifacts.Take(3))
+                                                        {
+                                                            <li>
+                                                                <span class="badge badge-pill 
+                                                                    @(artifact.Domain == ArtifactDomain.Business ? "badge-primary" : 
+                                                                    artifact.Domain == ArtifactDomain.Application ? "badge-success" : 
+                                                                    artifact.Domain == ArtifactDomain.Data ? "badge-info" : 
+                                                                    "badge-warning")">
+                                                                    @artifact.Domain
+                                                                </span>
+                                                                @artifact.Name
+                                                            </li>
+                                                        }
+                                                        @if (item.ImpactedArtifacts.Count > 3)
+                                                        {
+                                                            <li><small class="text-muted">+ @(item.ImpactedArtifacts.Count - 3) more...</small></li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None</span>
+                                                }
+                                            </td>
+                                            <td>@item.ImpactedArtifacts?.Count ?? 0</td>
+                                            <td>
+                                                @{
+                                                    var scoreClass = item.TotalImpactScore >= 5 ? "text-danger" :
+                                                                    item.TotalImpactScore >= 3 ? "text-warning" : "text-success";
+                                                }
+                                                <span class="@scoreClass font-weight-bold">@item.TotalImpactScore</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary view-impact-details" data-source-id="@item.SourceId">
+                                                    <i class="fas fa-search"></i> View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No impact analysis data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Domain Impact Distribution -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Domain Impact Distribution</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.CrossDomainConnections != null && Model.CrossDomainConnections.Any())
+                    {
+                        <div id="domain-impact-chart" style="height: 350px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Cross-Domain Connections</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.CrossDomainConnections != null && Model.CrossDomainConnections.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="connectionsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Source</th>
+                                        <th>Target</th>
+                                        <th>Relationship</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var connection in Model.CrossDomainConnections.Take(10))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(connection.SourceType.ToString().Contains("Business") ? "badge-primary" : 
+                                                    connection.SourceType.ToString().Contains("Application") ? "badge-success" : 
+                                                    connection.SourceType.ToString().Contains("Data") ? "badge-info" : 
+                                                    "badge-warning")">
+                                                    @GetDomainName(connection.SourceType.ToString())
+                                                </span>
+                                                @connection.SourceName
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(connection.TargetType.ToString().Contains("Business") ? "badge-primary" : 
+                                                    connection.TargetType.ToString().Contains("Application") ? "badge-success" : 
+                                                    connection.TargetType.ToString().Contains("Data") ? "badge-info" : 
+                                                    "badge-warning")">
+                                                    @GetDomainName(connection.TargetType.ToString())
+                                                </span>
+                                                @connection.TargetName
+                                            </td>
+                                            <td>
+                                                @(string.IsNullOrEmpty(connection.Description) ? "Impacts" : connection.Description)
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            @if (Model.CrossDomainConnections.Count > 10)
+                            {
+                                <div class="text-center mt-3">
+                                    <a href="#" id="viewAllConnectionsBtn" class="btn btn-sm btn-outline-primary">
+                                        View All @Model.CrossDomainConnections.Count Connections
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No cross-domain connections available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impact Details Modal -->
+    <div class="modal fade" id="impactDetailsModal" tabindex="-1" role="dialog" aria-labelledby="impactDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="impactDetailsModalLabel">Impact Details</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="impact-details-content">
+                        <!-- Impact details will be loaded here dynamically -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetDomainName(string artifactType)
+    {
+        if (artifactType.Contains("Business"))
+            return "Business";
+        else if (artifactType.Contains("Application"))
+            return "Application";
+        else if (artifactType.Contains("Data") || artifactType.Contains("Information") || artifactType.Contains("Logical"))
+            return "Data";
+        else if (artifactType.Contains("Infrastructure") || artifactType.Contains("System") || artifactType.Contains("Resource"))
+            return "Infrastructure";
+        else
+            return "Unknown";
+    }
+}
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTable if it has data
+            var impactTable;
+            if ($('#impactTable tbody tr').length > 1) {
+                impactTable = $('#impactTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            var connectionsTable;
+            if ($('#connectionsTable tbody tr').length > 1) {
+                connectionsTable = $('#connectionsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5,
+                    "searching": false,
+                    "paging": false,
+                    "info": false
+                });
+            }
+            
+            // Initialize Network Graph if element exists
+            var networkGraphElement = document.getElementById('impact-network-graph');
+            if (networkGraphElement) {
+                console.log("Initializing network graph");
+                var networkGraph = echarts.init(networkGraphElement, null, { renderer: 'canvas' });
+                
+                // Process data for the network graph
+                var nodes = [];
+                var links = [];
+                var domainColors = {
+                    'Business': '#4e73df',
+                    'Application': '#1cc88a',
+                    'Data': '#36b9cc',
+                    'Infrastructure': '#f6c23e'
+                };
+                
+                // Create nodes from all artifacts
+                @if (Model.AllArtifacts != null && Model.AllArtifacts.Any())
+                {
+                    <text>
+                    try {
+                        // Get artifacts from the model - limited to 10 per domain for visualization performance
+                        var businessArtifacts = @Html.Raw(Json.Serialize(Model.AllArtifacts.Where(a => a.Domain == ArtifactDomain.Business).Take(10).Select(a => new { Id = a.NodeId, Name = a.Name, Domain = "Business" }))) || [];
+                        var applicationArtifacts = @Html.Raw(Json.Serialize(Model.AllArtifacts.Where(a => a.Domain == ArtifactDomain.Application).Take(10).Select(a => new { Id = a.NodeId, Name = a.Name, Domain = "Application" }))) || [];
+                        var dataArtifacts = @Html.Raw(Json.Serialize(Model.AllArtifacts.Where(a => a.Domain == ArtifactDomain.Data).Take(10).Select(a => new { Id = a.NodeId, Name = a.Name, Domain = "Data" }))) || [];
+                        var infrastructureArtifacts = @Html.Raw(Json.Serialize(Model.AllArtifacts.Where(a => a.Domain == ArtifactDomain.Infrastructure).Take(10).Select(a => new { Id = a.NodeId, Name = a.Name, Domain = "Infrastructure" }))) || [];
+                        
+                        // Combine all artifacts
+                        var allArtifacts = [].concat(
+                            Array.isArray(businessArtifacts) ? businessArtifacts : [],
+                            Array.isArray(applicationArtifacts) ? applicationArtifacts : [],
+                            Array.isArray(dataArtifacts) ? dataArtifacts : [],
+                            Array.isArray(infrastructureArtifacts) ? infrastructureArtifacts : []
+                        );
+                        
+                        // Add nodes to visualization
+                        allArtifacts.forEach(function(artifact) {
+                            if (artifact && artifact.Id && artifact.Name && artifact.Domain) {
+                                nodes.push({
+                                    id: artifact.Id,
+                                    name: artifact.Name,
+                                    symbolSize: 20,
+                                    itemStyle: {
+                                        color: domainColors[artifact.Domain] || '#999'
+                                    },
+                                    category: artifact.Domain
+                                });
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Error processing artifacts for network graph:", e);
+                    }
+                    </text>
+                }
+                
+                // Create links from cross-domain connections
+                @if (Model.CrossDomainConnections != null && Model.CrossDomainConnections.Any())
+                {
+                    <text>
+                    try {
+                        var connections = @Html.Raw(Json.Serialize(Model.CrossDomainConnections.Select(c => new {
+                            Source = c.SourceNodeId,
+                            Target = c.TargetNodeId,
+                            Value = c.Description ?? "impacts"
+                        }))) || [];
+                        
+                        // Filter connections to only include nodes that are visualized
+                        var nodeIds = nodes.map(function(node) { return node.id; });
+                        
+                        if (Array.isArray(connections)) {
+                            connections.forEach(function(connection) {
+                                if (connection && connection.Source && connection.Target && 
+                                    nodeIds.includes(connection.Source) && nodeIds.includes(connection.Target)) {
+                                    links.push({
+                                        source: connection.Source,
+                                        target: connection.Target,
+                                        value: connection.Value || "impacts"
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing connections for network graph:", e);
+                    }
+                    </text>
+                }
+                
+                // Network graph options
+                var networkOption = {
+                    title: {
+                        text: 'Cross-Domain Impact Network',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        formatter: function(params) {
+                            if (params.dataType === 'edge') {
+                                return params.data.source + ' → ' + params.data.target + '<br/>' + 
+                                       (params.data.value || 'Impacts');
+                            }
+                            return params.data.name;
+                        }
+                    },
+                    legend: {
+                        data: Object.keys(domainColors),
+                        bottom: 5
+                    },
+                    series: [
+                        {
+                            type: 'graph',
+                            layout: 'force',
+                            data: nodes,
+                            links: links,
+                            categories: [
+                                { name: 'Business' },
+                                { name: 'Application' },
+                                { name: 'Data' },
+                                { name: 'Infrastructure' }
+                            ],
+                            roam: true,
+                            label: {
+                                show: true,
+                                position: 'right',
+                                formatter: '{b}'
+                            },
+                            lineStyle: {
+                                color: 'source',
+                                curveness: 0.3
+                            },
+                            emphasis: {
+                                focus: 'adjacency',
+                                lineStyle: {
+                                    width: 5
+                                }
+                            },
+                            force: {
+                                repulsion: 100,
+                                edgeLength: [50, 200]
+                            }
+                        }
+                    ]
+                };
+                
+                // Apply options to the network graph
+                networkGraph.setOption(networkOption);
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    networkGraph.resize();
+                });
+            }
+            
+            // Initialize Domain Impact Chart if element exists
+            var domainChartElement = document.getElementById('domain-impact-chart');
+            if (domainChartElement) {
+                var domainChart = echarts.init(domainChartElement);
+                
+                // Process data for domain impact chart
+                var domainImpacts = {
+                    'Business': { affected: 0, affecting: 0 },
+                    'Application': { affected: 0, affecting: 0 },
+                    'Data': { affected: 0, affecting: 0 },
+                    'Infrastructure': { affected: 0, affecting: 0 }
+                };
+                
+                @if (Model.CrossDomainConnections != null && Model.CrossDomainConnections.Any())
+                {
+                    <text>
+                    var connections = @Html.Raw(Json.Serialize(Model.CrossDomainConnections.Select(c => new {
+                        SourceDomain = GetDomainName(c.SourceType.ToString()),
+                        TargetDomain = GetDomainName(c.TargetType.ToString())
+                    })));
+                    
+                    // Count affecting and affected for each domain
+                    connections.forEach(function(connection) {
+                        if (domainImpacts[connection.SourceDomain]) {
+                            domainImpacts[connection.SourceDomain].affecting++;
+                        }
+                        if (domainImpacts[connection.TargetDomain]) {
+                            domainImpacts[connection.TargetDomain].affected++;
+                        }
+                    });
+                    </text>
+                }
+                
+                // Domain chart options
+                var domainOption = {
+                    title: {
+                        text: 'Domain Impact Distribution',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    legend: {
+                        data: ['Affected by Other Domains', 'Affecting Other Domains'],
+                        bottom: 0
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '10%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: Object.keys(domainImpacts)
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: 'Number of Connections',
+                        minInterval: 1
+                    },
+                    series: [
+                        {
+                            name: 'Affected by Other Domains',
+                            type: 'bar',
+                            data: Object.values(domainImpacts).map(function(d) { return d.affected; }),
+                            itemStyle: {
+                                color: '#f6c23e'
+                            }
+                        },
+                        {
+                            name: 'Affecting Other Domains',
+                            type: 'bar',
+                            data: Object.values(domainImpacts).map(function(d) { return d.affecting; }),
+                            itemStyle: {
+                                color: '#4e73df'
+                            }
+                        }
+                    ]
+                };
+                
+                // Apply options to the domain chart
+                domainChart.setOption(domainOption);
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    domainChart.resize();
+                });
+            }
+            
+            // Handle detailed impact view
+            $('.view-impact-details').click(function() {
+                var sourceId = $(this).data('source-id');
+                var sourceName = $(this).closest('tr').find('td:first').text();
+                var impactedArtifacts = [];
+                
+                // Find the impact item for this source
+                @if (Model.ImpactItems != null && Model.ImpactItems.Any())
+                {
+                    <text>
+                    var impactItems = @Html.Raw(Json.Serialize(Model.ImpactItems.Select(i => new {
+                        SourceId = i.SourceId,
+                        SourceName = i.SourceName,
+                        SourceDomain = i.SourceDomain.ToString(),
+                        ImpactedArtifacts = i.ImpactedArtifacts?.Select(a => new {
+                            Id = a.Id,
+                            Name = a.Name,
+                            Domain = a.Domain.ToString(),
+                            Description = a.Description
+                        })
+                    })));
+                    
+                    var selectedItem = impactItems.find(item => item.SourceId === sourceId);
+                    
+                    if (selectedItem) {
+                        // Update modal content
+                        var modalContent = `
+                            <div class="alert alert-primary">
+                                <strong>${selectedItem.SourceName}</strong> (${selectedItem.SourceDomain}) has impact on ${selectedItem.ImpactedArtifacts?.length || 0} artifact(s) in other domains.
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Impacted Artifact</th>
+                                            <th>Domain</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                        
+                        if (selectedItem.ImpactedArtifacts && selectedItem.ImpactedArtifacts.length > 0) {
+                            selectedItem.ImpactedArtifacts.forEach(function(artifact) {
+                                var domainBadge = '';
+                                if (artifact.Domain === 'Business') {
+                                    domainBadge = '<span class="badge badge-primary">Business</span>';
+                                } else if (artifact.Domain === 'Application') {
+                                    domainBadge = '<span class="badge badge-success">Application</span>';
+                                } else if (artifact.Domain === 'Data') {
+                                    domainBadge = '<span class="badge badge-info">Data</span>';
+                                } else {
+                                    domainBadge = '<span class="badge badge-warning">Infrastructure</span>';
+                                }
+                                
+                                modalContent += `
+                                    <tr>
+                                        <td>${artifact.Name}</td>
+                                        <td>${domainBadge}</td>
+                                        <td>${artifact.Description || 'No description available'}</td>
+                                    </tr>`;
+                            });
+                        } else {
+                            modalContent += `
+                                <tr>
+                                    <td colspan="3" class="text-center">No impacted artifacts</td>
+                                </tr>`;
+                        }
+                        
+                        modalContent += `
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle mr-1"></i> Changes to <strong>${selectedItem.SourceName}</strong> require coordination with affected artifacts. Consider impact assessment before making changes.
+                            </div>`;
+                        
+                        $('#impact-details-content').html(modalContent);
+                        
+                        // Update modal title
+                        $('#impactDetailsModalLabel').text('Impact Details for ' + selectedItem.SourceName);
+                        
+                        // Show the modal
+                        $('#impactDetailsModal').modal('show');
+                    }
+                    </text>
+                }
+            });
+            
+            // Fullscreen toggle
+            document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                var chartElement = document.getElementById('impact-network-graph') || 
+                                  document.getElementById('domain-impact-chart');
+                
+                if (chartElement) {
+                    if (chartElement.classList.contains('fullscreen')) {
+                        chartElement.classList.remove('fullscreen');
+                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                        chartElement.style.height = chartElement.id === 'impact-network-graph' ? '500px' : '350px';
+                    } else {
+                        chartElement.classList.add('fullscreen');
+                        this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                        chartElement.style.height = '85vh';
+                    }
+                    
+                    // Resize chart after container size change
+                    setTimeout(function() {
+                        var chart = echarts.getInstanceByDom(chartElement);
+                        if (chart) {
+                            chart.resize();
+                        }
+                    }, 100);
+                } else {
+                    // Hide button if no charts
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                // Determine which chart to export
+                var chartElement = document.getElementById('impact-network-graph') || 
+                                  document.getElementById('domain-impact-chart');
+                
+                if (chartElement) {
+                    var chart = echarts.getInstanceByDom(chartElement);
+                    if (chart) {
+                        var dataURL = chart.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff'
+                        });
+                        
+                        // Create an invisible anchor element to trigger download
+                        var downloadLink = document.createElement('a');
+                        downloadLink.href = dataURL;
+                        downloadLink.download = 'impact-analysis.png';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    }
+                } else {
+                    // Hide button if no charts
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Sort by impact score
+            $('#sortByImpact').click(function(e) {
+                e.preventDefault();
+                
+                if (impactTable) {
+                    impactTable.order([4, 'desc']).draw();
+                } else {
+                    // Manual sorting for when DataTables isn't initialized
+                    var rows = $('#impactTable tbody tr').get();
+                    rows.sort(function(a, b) {
+                        var scoreA = parseInt($(a).data('score')) || 0;
+                        var scoreB = parseInt($(b).data('score')) || 0;
+                        return scoreB - scoreA;
+                    });
+                    
+                    $.each(rows, function(index, row) {
+                        $('#impactTable tbody').append(row);
+                    });
+                }
+            });
+            
+            // Filter high impact only
+            $('#filterHighImpact').click(function(e) {
+                e.preventDefault();
+                
+                if (impactTable) {
+                    // Use DataTables API to filter
+                    $.fn.dataTable.ext.search.push(
+                        function(settings, data, dataIndex) {
+                            var score = parseInt(data[4]) || 0;
+                            return score >= 3;
+                        }
+                    );
+                    impactTable.draw();
+                    // Remove the filter after drawing
+                    $.fn.dataTable.ext.search.pop();
+                } else {
+                    // Manual filtering
+                    $('.impact-row').each(function() {
+                        var score = parseInt($(this).data('score')) || 0;
+                        if (score < 3) {
+                            $(this).hide();
+                        } else {
+                            $(this).show();
+                        }
+                    });
+                }
+            });
+            
+            // Reset filters
+            $('#resetFilters').click(function(e) {
+                e.preventDefault();
+                
+                if (impactTable) {
+                    impactTable.order([0, 'asc']).search('').draw();
+                } else {
+                    $('.impact-row').show();
+                }
+            });
+            
+            // View all connections button
+            $('#viewAllConnectionsBtn').click(function(e) {
+                e.preventDefault();
+                
+                // Toggle between showing limited and all connections
+                var isShowingAll = $(this).data('showing-all') || false;
+                
+                if (isShowingAll) {
+                    // Show limited connections
+                    $('#connectionsTable tbody tr').slice(10).hide();
+                    $(this).text('View All ' + @(Model.CrossDomainConnections?.Count ?? 0) + ' Connections');
+                    $(this).data('showing-all', false);
+                } else {
+                    // Show all connections
+                    $('#connectionsTable tbody tr').show();
+                    $(this).text('Show Less');
+                    $(this).data('showing-all', true);
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}

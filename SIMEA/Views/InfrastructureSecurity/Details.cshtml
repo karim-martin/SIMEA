@@ -1,0 +1,167 @@
+@model SIMEA.Models.InfrastructureSecurityModel
+
+@{
+    ViewData["Title"] = "Security Model Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Infrastructure Security Model Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SystemName):</label>
+                                    <p>@Html.DisplayFor(model => model.SystemName)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                                    <p>@Html.DisplayFor(model => model.Owner)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SecurityRequirement):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.SecurityRequirement)
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.LastAuditDate):</label>
+                                    <p>@Html.DisplayFor(model => model.LastAuditDate)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ComplianceStandards):</label>
+                            @if (Model.ComplianceStandards != null && Model.ComplianceStandards.Any())
+                            {
+                                <div class="mb-2">
+                                    @foreach (var standard in Model.ComplianceStandards)
+                                    {
+                                        <span class="badge badge-primary mr-2 mb-2 p-2">@standard</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No compliance standards defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-danger">Vulnerabilities</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Vulnerabilities != null && Model.Vulnerabilities.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var vulnerability in Model.Vulnerabilities)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle mr-2 text-danger"></i> @vulnerability
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No vulnerabilities identified</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-success">Mitigation Strategies</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.MitigationStrategies != null && Model.MitigationStrategies.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var strategy in Model.MitigationStrategies)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-shield-alt mr-2 text-success"></i> @strategy
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No mitigation strategies defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-info">Dependencies</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Dependencies != null && Model.Dependencies.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var dependency in Model.Dependencies)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-link mr-2 text-info"></i> @dependency
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No dependencies defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-edit"></i> Edit Security Model
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-block mb-2">
+                                <i class="fas fa-trash"></i> Delete Security Model
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-block">
+                                <i class="fas fa-list"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

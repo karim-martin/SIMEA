@@ -1,0 +1,182 @@
+@model SIMEA.Models.SystemToApplicationCrossReference
+
+@{
+    ViewData["Title"] = "Create System to Application Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create System to Application Cross Reference</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/SystemToApplication/Index">System to Application Cross References</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Cross Reference
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SystemName" class="control-label">System Name</label>
+                            <input asp-for="SystemName" class="form-control" required />
+                            <span asp-validation-for="SystemName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ApplicationName" class="control-label">Application Name</label>
+                            <input asp-for="ApplicationName" class="form-control" required />
+                            <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="IntegrationType" class="control-label">Integration Type</label>
+                            <select asp-for="IntegrationType" class="form-control" required>
+                                <option value="">Select Integration Type</option>
+                                <option value="API">API</option>
+                                <option value="File Transfer">File Transfer</option>
+                                <option value="Database Link">Database Link</option>
+                                <option value="Message Queue">Message Queue</option>
+                                <option value="Web Service">Web Service</option>
+                                <option value="Direct Connection">Direct Connection</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="IntegrationType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Frequency" class="control-label">Frequency</label>
+                            <select asp-for="Frequency" class="form-control" required>
+                                <option value="">Select Frequency</option>
+                                <option value="Real-time">Real-time</option>
+                                <option value="Hourly">Hourly</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="On-demand">On-demand</option>
+                                <option value="Batch">Batch</option>
+                            </select>
+                            <span asp-validation-for="Frequency" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="DataExchanged" class="control-label">Data Exchanged</label>
+                        <textarea asp-for="DataExchanged" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="DataExchanged" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SecurityRequirements" class="control-label">Security Requirements</label>
+                            <input asp-for="SecurityRequirements" class="form-control" required />
+                            <span asp-validation-for="SecurityRequirements" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Enter key for dependencies
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const value = $(this).data("value");
+                removeDependency(value);
+            });
+        });
+    </script>
+}

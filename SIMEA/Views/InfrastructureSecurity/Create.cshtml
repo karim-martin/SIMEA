@@ -1,0 +1,360 @@
+@model SIMEA.Models.InfrastructureSecurityModel
+
+@{
+    ViewData["Title"] = "Create Infrastructure Security Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Infrastructure Security Model</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/InfrastructureSecurity/Index">Infrastructure Security</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-shield-alt mr-1"></i>
+                Add New Security Model
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="InfrastructureSecurity" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SystemName" class="control-label">System Name</label>
+                            <input asp-for="SystemName" class="form-control" required />
+                            <span asp-validation-for="SystemName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SecurityRequirement" class="control-label">Security Requirement</label>
+                        <textarea asp-for="SecurityRequirement" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="SecurityRequirement" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ComplianceStandards" class="control-label">Compliance Standards</label>
+                            <div class="input-group">
+                                <input type="text" id="complianceInput" class="form-control" placeholder="Add compliance standard">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" id="addCompliance" type="button">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2" id="complianceList">
+                                <span class="badge badge-secondary mr-1 mb-1 no-compliance">No compliance standards added</span>
+                            </div>
+                            <div id="complianceContainer">
+                                <!-- Hidden inputs will be created here dynamically -->
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="LastAuditDate" class="control-label">Last Audit Date</label>
+                            <input asp-for="LastAuditDate" class="form-control" type="date" required />
+                            <span asp-validation-for="LastAuditDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Vulnerabilities" class="control-label">Vulnerabilities</label>
+                            <div class="input-group">
+                                <input type="text" id="vulnerabilityInput" class="form-control" placeholder="Add vulnerability">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" id="addVulnerability" type="button">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2" id="vulnerabilitiesList">
+                                <span class="badge badge-secondary mr-1 mb-1 no-vulnerabilities">No vulnerabilities added</span>
+                            </div>
+                            <div id="vulnerabilitiesContainer">
+                                <!-- Hidden inputs will be created here dynamically -->
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="MitigationStrategies" class="control-label">Mitigation Strategies</label>
+                            <div class="input-group">
+                                <input type="text" id="mitigationInput" class="form-control" placeholder="Add mitigation strategy">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" id="addMitigation" type="button">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2" id="mitigationsList">
+                                <span class="badge badge-secondary mr-1 mb-1 no-mitigations">No mitigation strategies added</span>
+                            </div>
+                            <div id="mitigationsContainer">
+                                <!-- Hidden inputs will be created here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Dependencies" class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Security Model</button>
+                        <a asp-action="Index" asp-controller="InfrastructureSecurity" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding compliance standards
+            $("#addCompliance").click(function() {
+                const value = $("#complianceInput").val().trim();
+                
+                if (value) {
+                    addComplianceStandard(value);
+                    $("#complianceInput").val("");
+                }
+            });
+            
+            // Handle adding vulnerabilities
+            $("#addVulnerability").click(function() {
+                const value = $("#vulnerabilityInput").val().trim();
+                
+                if (value) {
+                    addVulnerability(value);
+                    $("#vulnerabilityInput").val("");
+                }
+            });
+            
+            // Handle adding mitigation strategies
+            $("#addMitigation").click(function() {
+                const value = $("#mitigationInput").val().trim();
+                
+                if (value) {
+                    addMitigation(value);
+                    $("#mitigationInput").val("");
+                }
+            });
+            
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Enter key handlers
+            $("#complianceInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addCompliance").click();
+                }
+            });
+            
+            $("#vulnerabilityInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addVulnerability").click();
+                }
+            });
+            
+            $("#mitigationInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addMitigation").click();
+                }
+            });
+            
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Function to add a compliance standard
+            function addComplianceStandard(value) {
+                // Remove "no compliance" badge if it exists
+                $("#complianceList .no-compliance").remove();
+                
+                // Check if this standard already exists
+                if ($(`#complianceContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#complianceContainer").append(`<input type="hidden" name="ComplianceStandards" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#complianceList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 compliance-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="compliance" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a vulnerability
+            function addVulnerability(value) {
+                // Remove "no vulnerabilities" badge if it exists
+                $("#vulnerabilitiesList .no-vulnerabilities").remove();
+                
+                // Check if this vulnerability already exists
+                if ($(`#vulnerabilitiesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#vulnerabilitiesContainer").append(`<input type="hidden" name="Vulnerabilities" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#vulnerabilitiesList").append(`
+                        <span class="badge badge-danger mr-1 mb-1 vulnerability-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="vulnerability" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a mitigation strategy
+            function addMitigation(value) {
+                // Remove "no mitigations" badge if it exists
+                $("#mitigationsList .no-mitigations").remove();
+                
+                // Check if this mitigation already exists
+                if ($(`#mitigationsContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#mitigationsContainer").append(`<input type="hidden" name="MitigationStrategies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#mitigationsList").append(`
+                        <span class="badge badge-success mr-1 mb-1 mitigation-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="mitigation" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-info mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a compliance standard
+            function removeComplianceStandard(value) {
+                // Remove the hidden input
+                $(`#complianceContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#complianceList .compliance-badge[data-value="${value}"]`).remove();
+                
+                // Add "no compliance" badge if there are no more standards
+                if ($("#complianceContainer input").length === 0) {
+                    $("#complianceList").html('<span class="badge badge-secondary mr-1 mb-1 no-compliance">No compliance standards added</span>');
+                }
+            }
+            
+            // Function to remove a vulnerability
+            function removeVulnerability(value) {
+                // Remove the hidden input
+                $(`#vulnerabilitiesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#vulnerabilitiesList .vulnerability-badge[data-value="${value}"]`).remove();
+                
+                // Add "no vulnerabilities" badge if there are no more vulnerabilities
+                if ($("#vulnerabilitiesContainer input").length === 0) {
+                    $("#vulnerabilitiesList").html('<span class="badge badge-secondary mr-1 mb-1 no-vulnerabilities">No vulnerabilities added</span>');
+                }
+            }
+            
+            // Function to remove a mitigation strategy
+            function removeMitigation(value) {
+                // Remove the hidden input
+                $(`#mitigationsContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#mitigationsList .mitigation-badge[data-value="${value}"]`).remove();
+                
+                // Add "no mitigations" badge if there are no more strategies
+                if ($("#mitigationsContainer input").length === 0) {
+                    $("#mitigationsList").html('<span class="badge badge-secondary mr-1 mb-1 no-mitigations">No mitigation strategies added</span>');
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "compliance") {
+                    removeComplianceStandard(value);
+                } else if (type === "vulnerability") {
+                    removeVulnerability(value);
+                } else if (type === "mitigation") {
+                    removeMitigation(value);
+                } else if (type === "dependency") {
+                    removeDependency(value);
+                }
+            });
+        });
+    </script>
+}

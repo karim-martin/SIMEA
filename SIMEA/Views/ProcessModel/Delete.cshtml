@@ -1,0 +1,172 @@
+@model SIMEA.Models.ProcessModel
+
+@{
+    ViewData["Title"] = "Delete Process Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Process Model</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this process model? This action cannot be undone.
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ProcessName):</label>
+                            <p>@Html.DisplayFor(model => model.ProcessName)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                            <p>@Html.DisplayFor(model => model.Owner)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ProcessDescription):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.ProcessDescription)
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Inputs</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.Inputs != null && Model.Inputs.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var input in Model.Inputs)
+                                        {
+                                            <li class="list-group-item">@input</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No inputs defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Outputs</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.Outputs != null && Model.Outputs.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var output in Model.Outputs)
+                                        {
+                                            <li class="list-group-item">@output</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No outputs defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Steps/Workflow</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.StepsWorkflow != null && Model.StepsWorkflow.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var step in Model.StepsWorkflow)
+                                        {
+                                            <li class="list-group-item">@step</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No workflow steps defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Tools/Systems Used</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.ToolsSystemsUsed != null && Model.ToolsSystemsUsed.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var tool in Model.ToolsSystemsUsed)
+                                        {
+                                            <li class="list-group-item">@tool</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No tools/systems defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Performance Metrics</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.PerformanceMetrics != null && Model.PerformanceMetrics.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var metric in Model.PerformanceMetrics)
+                                        {
+                                            <li class="list-group-item">@metric</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No performance metrics defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this process model?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

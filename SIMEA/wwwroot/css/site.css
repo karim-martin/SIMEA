@@ -1,0 +1,262 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+.heading-margin-top {
+    margin-top: 1rem;
+}
+
+a {
+    color: #0366d6;
+}
+
+.sidebar#chatSidebar {
+    display: flex;
+    flex-direction: column;
+    height: 120% !important;
+    border: 3px solid #cccc !important;
+    background-color: white !important;
+    padding: 1rem !important;
+}
+
+.chat-panel {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1 !important;
+    height: 120% !important;
+}
+
+.panel-body#chatHistory {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 3px solid #cccc !important;
+}
+
+.panel-footer {
+    flex-shrink: 0;
+}
+
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px; /* Vertically center the text there */
+}
+
+/*MY CUSTOM CSS BELOW*/
+#border {
+    background: #000000;
+    border-style: solid;
+    border-width: 5px;
+}
+
+.myDiv {
+    border: 1px outset black;
+    background-color: white;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+/* Default styles for all screen sizes */
+.pretty_container_signin_signout,
+.pretty_container_browserMessage,
+.pretty_container {
+    margin: auto;
+    margin-top: 5%;
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 2%;
+    width: 50%; /* Default width for larger screens */
+}
+
+/* Adjust styles for screens with a maximum width of 1200px */
+@media (max-width: 1200px) {
+    .pretty_container_signin_signout,
+    .pretty_container_browserMessage,
+    .pretty_container {
+        width: 50%;
+    }
+}
+
+/* Adjust styles for screens with a maximum width of 992px */
+@media (max-width: 992px) {
+    .pretty_container_signin_signout,
+    .pretty_container_browserMessage,
+    .pretty_container {
+        width: 60%;
+    }
+}
+
+/* Adjust styles for screens with a maximum width of 768px */
+@media (max-width: 768px) {
+    .pretty_container_signin_signout,
+    .pretty_container_browserMessage,
+    .pretty_container {
+        width: 70%;
+    }
+}
+
+/* Adjust styles for screens with a maximum width of 576px */
+@media (max-width: 576px) {
+    .pretty_container_signin_signout,
+    .pretty_container_browserMessage,
+    .pretty_container {
+        width: 90%;
+    }
+}
+
+/* Adjust styles for screens with a maximum width of 320px */
+@media (max-width: 320px) {
+    .pretty_container_signin_signout,
+    .pretty_container_browserMessage,
+    .pretty_container {
+        width: 95%;
+    }
+}
+
+
+.signature-pad > canvas {
+    display: block;
+    width: 300px;
+    height: 150px;
+    margin-bottom: 5px;
+}
+
+.pretty-form {
+    margin: 10px !important;
+    padding: 20px !important;
+    background-color: #f8f9fa !important;
+    border: 1px solid #d1d3e2 !important;
+    border-radius: 5px !important;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.pretty-form label {
+    font-weight: bold !important;
+    margin-bottom: 5px !important;
+}
+
+.pretty-form .form-control-file {
+    padding: 5px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 5px !important;
+    background-color: #ffffff !important;
+    width: 100% !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.pretty-form .form-control-file:focus {
+    border-color: #80bdff !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.pretty-form .text-danger {
+    color: #dc3545 !important;
+}
+
+.input-with-button {
+    display: flex;
+    align-items: flex-start;
+}
+
+.input-with-button input[type="text"] {
+    flex: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-with-button label {
+    cursor: pointer;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+    display: inline-block;
+}
+
+.loading-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.529);
+    z-index: 9999;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-overlay img {
+    width: 25%;
+}
+
+.alert {
+    margin-bottom: 5px;  /* Provides spacing between messages */
+}
+
+

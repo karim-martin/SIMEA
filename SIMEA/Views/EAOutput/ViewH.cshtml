@@ -1,0 +1,312 @@
+@model SIMEA.Models.ViewModels.BusinessValueHeatMapViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Add EA Output Metadata -->
+    <partial name="_EAOutputMetadata" model="Model" />
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This heat map visualizes the business value, strategic importance, and risk level of various architecture components.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Heat Map Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Business Value Heat Map</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.HeatMapItems != null && Model.HeatMapItems.Any())
+                    {
+                        <div id="heatmap-chart" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> No heat map data available.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Heat Map Data Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Heat Map Items</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="heatmapTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Domain</th>
+                                    <th>Business Value</th>
+                                    <th>Strategic Importance</th>
+                                    <th>Risk Level</th>
+                                    <th>Assessment Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.HeatMapItems)
+                                {
+                                    <tr>
+                                        <td>@item.ItemName</td>
+                                        <td>@item.ItemType</td>
+                                        <td>@item.Domain</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: @(item.BusinessValue * 10)%" 
+                                                     aria-valuenow="@item.BusinessValue" aria-valuemin="0" aria-valuemax="10">
+                                                    @item.BusinessValue
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary" role="progressbar" 
+                                                     style="width: @(item.StrategicImportance * 10)%" 
+                                                     aria-valuenow="@item.StrategicImportance" aria-valuemin="0" aria-valuemax="10">
+                                                    @item.StrategicImportance
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" role="progressbar" 
+                                                     style="width: @(item.RiskLevel * 10)%" 
+                                                     aria-valuenow="@item.RiskLevel" aria-valuemin="0" aria-valuemax="10">
+                                                    @item.RiskLevel
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@item.AssessmentDate.ToString("yyyy-MM-dd")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.0/dist/echarts.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#heatmapTable').DataTable({
+                responsive: true,
+                "pageLength": 25
+            });
+
+            // Handle fullscreen toggle
+            $('#toggleFullscreen').click(function () {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                    $(this).html('<i class="fas fa-compress"></i> Exit Fullscreen');
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                        $(this).html('<i class="fas fa-expand"></i> Fullscreen');
+                    }
+                }
+            });
+
+            // Handle export
+            $('#exportBtn').click(function (e) {
+                e.preventDefault();
+                alert('Export functionality will be implemented here.');
+            });
+
+            // Initialize Heat Map Chart
+            initHeatMapChart();
+        });
+
+        function initHeatMapChart() {
+            var chartDom = document.getElementById('heatmap-chart');
+            if (!chartDom) return;
+            
+            var myChart = echarts.init(chartDom);
+            var option;
+
+            try {
+                // Prepare data for the chart
+                var data = @Html.Raw(Json.Serialize(Model.HeatMapItems)) || [];
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error("No heatmap data available");
+                }
+                
+                // Extract unique domains and item types for axes
+                var domains = [...new Set(data.filter(item => item && item.domain).map(item => item.domain))];
+                var itemTypes = [...new Set(data.filter(item => item && item.itemType).map(item => item.itemType))];
+                
+                if (domains.length === 0 || itemTypes.length === 0) {
+                    throw new Error("Invalid heat map categories");
+                }
+                
+                // Create bubble data for scatter chart
+                var scatterData = data.map(function(item, index) {
+                    if (!item || !item.domain || !item.itemType) {
+                        console.warn("Skipping invalid heat map item at index " + index);
+                        return null;
+                    }
+                    
+                    return {
+                        name: item.itemName || 'Unknown',
+                        value: [
+                            domains.indexOf(item.domain),
+                            itemTypes.indexOf(item.itemType),
+                            item.businessValue || 0,
+                            item.strategicImportance || 0,
+                            item.riskLevel || 0
+                        ],
+                        itemStyle: {
+                            color: getColorByValue(
+                                item.businessValue || 0, 
+                                item.strategicImportance || 0, 
+                                item.riskLevel || 0
+                            )
+                        }
+                    };
+                }).filter(Boolean); // Remove null items
+                
+                option = {
+                    tooltip: {
+                        formatter: function(params) {
+                            try {
+                                var itemIndex = params.dataIndex;
+                                if (itemIndex >= 0 && itemIndex < data.length) {
+                                    var item = data[itemIndex];
+                                    if (item) {
+                                        return (item.itemName || 'Unknown') + '<br/>' +
+                                               'Domain: ' + (item.domain || 'Unknown') + '<br/>' +
+                                               'Type: ' + (item.itemType || 'Unknown') + '<br/>' +
+                                               'Business Value: ' + (item.businessValue || 0) + '<br/>' +
+                                               'Strategic Importance: ' + (item.strategicImportance || 0) + '<br/>' +
+                                               'Risk Level: ' + (item.riskLevel || 0);
+                                    }
+                                }
+                                return 'No details available';
+                            } catch (e) {
+                                console.error("Error in tooltip formatter:", e);
+                                return "Error displaying tooltip";
+                            }
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '7%',
+                        bottom: '10%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: domains,
+                        nameLocation: 'middle',
+                        nameGap: 30,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: itemTypes,
+                        nameLocation: 'middle',
+                        nameGap: 30
+                    },
+                    series: [{
+                        name: 'Heat Map',
+                        type: 'scatter',
+                        symbolSize: function(data) {
+                            // Size based on combined value
+                            return ((data[2] || 0) + (data[3] || 0)) * 3;
+                        },
+                        data: scatterData,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }]
+                };
+    
+                myChart.setOption(option);
+            } catch (e) {
+                console.error("Error initializing heat map chart:", e);
+                if (chartDom) {
+                    chartDom.innerHTML = '<div class="alert alert-danger text-center">' +
+                        '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                        'Error generating chart: ' + e.message +
+                        '</div>';
+                }
+            }
+            
+            // Make chart responsive
+            window.addEventListener('resize', function() {
+                if (myChart) {
+                    myChart.resize();
+                }
+            });
+        }
+
+        function getColorByValue(businessValue, strategicImportance, riskLevel) {
+            try {
+                // Average the business value and strategic importance
+                var value = ((businessValue || 0) + (strategicImportance || 0)) / 2;
+                var risk = riskLevel || 0;
+                
+                // Color based on value and risk
+                if (value >= 7) {
+                    return risk >= 7 ? '#e74a3b' : '#1cc88a';
+                } else if (value >= 4) {
+                    return risk >= 7 ? '#f6c23e' : '#4e73df';
+                } else {
+                    return '#858796'; // Default color for low value items
+                }
+            } catch (e) {
+                console.error("Error determining color:", e);
+                return '#858796'; // Default color
+            }
+        }
+    </script>
+}

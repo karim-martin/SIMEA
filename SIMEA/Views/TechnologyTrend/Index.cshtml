@@ -1,0 +1,117 @@
+@model IEnumerable<SIMEA.Models.TechnologyTrendModel>
+
+@{
+    ViewData["Title"] = "Technology Trends";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Create" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Add New Technology Trend
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" id="technologyTrendTable">
+                                <thead>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.TrendName)</th>
+                                        <th>@Html.DisplayNameFor(model => model.TechnologyCategory)</th>
+                                        <th>@Html.DisplayNameFor(model => model.MaturityLevel)</th>
+                                        <th>@Html.DisplayNameFor(model => model.StrategicRelevance)</th>
+                                        <th>@Html.DisplayNameFor(model => model.DisruptionPotential)</th>
+                                        <th>@Html.DisplayNameFor(model => model.BusinessImpact)</th>
+                                        <th>@Html.DisplayNameFor(model => model.AssessmentStatus)</th>
+                                        <th>@Html.DisplayNameFor(model => model.DateCreated)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@Html.DisplayFor(modelItem => item.TrendName)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.TechnologyCategory)</td>
+                                            <td>
+                                                <span class="badge @(item.MaturityLevel == "Emerging" ? "badge-info" : 
+                                                                     item.MaturityLevel == "Growth" ? "badge-success" : 
+                                                                     item.MaturityLevel == "Mature" ? "badge-primary" : "badge-warning")">
+                                                    @Html.DisplayFor(modelItem => item.MaturityLevel)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: @(item.StrategicRelevance * 10)%" aria-valuenow="@item.StrategicRelevance" aria-valuemin="0" aria-valuemax="10">
+                                                        @item.StrategicRelevance/10
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-warning" role="progressbar" style="width: @(item.DisruptionPotential * 10)%" aria-valuenow="@item.DisruptionPotential" aria-valuemin="0" aria-valuemax="10">
+                                                        @item.DisruptionPotential/10
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge @(item.BusinessImpact == "High" ? "badge-danger" : 
+                                                                     item.BusinessImpact == "Medium" ? "badge-warning" : "badge-secondary")">
+                                                    @Html.DisplayFor(modelItem => item.BusinessImpact)
+                                                </span>
+                                            </td>
+                                            <td>@Html.DisplayFor(modelItem => item.AssessmentStatus)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.DateCreated)</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <h4><i class="icon fa fa-info"></i> No Technology Trends Found</h4>
+                            No technology trends have been created yet. <a asp-action="Create">Click here to add the first technology trend</a>.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#technologyTrendTable').DataTable({
+                "responsive": true,
+                "lengthChange": false,
+                "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                "order": [[7, "desc"]]
+            }).buttons().container().appendTo('#technologyTrendTable_wrapper .col-md-6:eq(0)');
+        });
+    </script>
+} 

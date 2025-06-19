@@ -1,0 +1,330 @@
+@model SIMEA.Models.InformationHierarchyView
+
+@{
+    ViewData["Title"] = "Edit Information Hierarchy";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Information Hierarchy</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="InformationLevel" class="control-label"></label>
+                            <input asp-for="InformationLevel" class="form-control" />
+                            <span asp-validation-for="InformationLevel" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ParentInformation" class="control-label"></label>
+                            <input asp-for="ParentInformation" class="form-control" />
+                            <span asp-validation-for="ParentInformation" class="text-danger"></span>
+                            <small class="form-text text-muted">Leave empty if this is a top-level element</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label"></label>
+                            <input asp-for="Owner" class="form-control" />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="SecurityLevel" class="control-label"></label>
+                            <select asp-for="SecurityLevel" class="form-control">
+                                <option value="">Select Security Level</option>
+                                <option value="Public">Public</option>
+                                <option value="Internal">Internal</option>
+                                <option value="Confidential">Confidential</option>
+                                <option value="Restricted">Restricted</option>
+                            </select>
+                            <span asp-validation-for="SecurityLevel" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Usage" class="control-label"></label>
+                        <textarea asp-for="Usage" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Usage" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Child Information</label>
+                        <div class="input-group">
+                            <input type="text" id="childInput" class="form-control" placeholder="Add child information item" />
+                            <div class="input-group-append">
+                                <button type="button" id="addChild" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#childModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="childList" class="mt-2">
+                            <!-- Existing child information will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependenciesList" class="mt-2">
+                            <!-- Existing dependencies will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Child Information Modal -->
+    <div class="modal fade" id="childModal" tabindex="-1" role="dialog" aria-labelledby="childModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="childModalLabel">Manage Child Information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="childModalList">
+                        <!-- Child information will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="childModalInput" class="form-control" placeholder="Add new child information" />
+                        <div class="input-group-append">
+                            <button type="button" id="addChildModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let childInformation = @Html.Raw(Json.Serialize(Model.ChildInformation ?? new List<string>()));
+            let dependencies = @Html.Raw(Json.Serialize(Model.Dependencies ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateChildList() {
+                let html = '';
+                childInformation.forEach((child, index) => {
+                    html += `<div class="badge badge-primary mr-2 mb-2 p-2">${child}
+                        <a href="#" class="text-white ml-1 remove-child" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="ChildInformation[${index}]" value="${child}" />
+                    </div>`;
+                });
+                $('#childList').html(html);
+                updateChildModal();
+            }
+
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<div class="badge badge-info mr-2 mb-2 p-2">${dependency}
+                        <a href="#" class="text-white ml-1 remove-dependency" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Dependencies[${index}]" value="${dependency}" />
+                    </div>`;
+                });
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateChildModal() {
+                let html = '';
+                childInformation.forEach((child, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${child}
+                        <button type="button" class="btn btn-sm btn-danger remove-child-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#childModalList').html(html);
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger remove-dependency-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Initial display
+            updateChildList();
+            updateDependenciesList();
+
+            // Add child information from main form
+            $('#addChild').click(function () {
+                const child = $('#childInput').val().trim();
+                if (child && !childInformation.includes(child)) {
+                    childInformation.push(child);
+                    updateChildList();
+                    $('#childInput').val('');
+                }
+            });
+
+            // Add dependency from main form
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyInput').val('');
+                }
+            });
+
+            // Add child information from modal
+            $('#addChildModal').click(function () {
+                const child = $('#childModalInput').val().trim();
+                if (child && !childInformation.includes(child)) {
+                    childInformation.push(child);
+                    updateChildList();
+                    $('#childModalInput').val('');
+                }
+            });
+
+            // Add dependency from modal
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyModalInput').val('');
+                }
+            });
+
+            // Remove child information from main form
+            $(document).on('click', '.remove-child', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                childInformation.splice(index, 1);
+                updateChildList();
+            });
+
+            // Remove dependency from main form
+            $(document).on('click', '.remove-dependency', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Remove child information from modal
+            $(document).on('click', '.remove-child-modal', function () {
+                const index = $(this).data('index');
+                childInformation.splice(index, 1);
+                updateChildList();
+            });
+
+            // Remove dependency from modal
+            $(document).on('click', '.remove-dependency-modal', function () {
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Handle Enter key in inputs
+            $('#childInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addChild').click();
+                }
+            });
+
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#childModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addChildModal').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,55 @@
+﻿@page
+@model SIMEA.Areas.Identity.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="pretty_container_signin_signout">
+    <form id="account" method="post" class="container">
+        <div class="text-center">
+            <img src="/High Resolution Logo.png" class="img-fluid" />
+        </div>
+        <h4 class="text-center">@ViewData["Title"]</h4>
+        <hr />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Input.Email"></label>
+            <input asp-for="Input.Email" class="form-control" />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Input.Password"></label>
+            <input asp-for="Input.Password" class="form-control" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <div class="form-check">
+                <input asp-for="Input.RememberMe" class="form-check-input" />
+                <label class="form-check-label" asp-for="Input.RememberMe">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Log in</button>
+        </div>
+        <div class="form-group">
+            <p>
+                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+            </p>
+        </div>
+    </form>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <partial name="_ShowModal" />
+    <script type="text/javascript">
+        window.onload = function () {
+            $("#isValue").html('@Html.Raw(TempData["ErrorMessage"])');
+        };
+    </script>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

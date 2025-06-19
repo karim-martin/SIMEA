@@ -1,0 +1,391 @@
+@model SIMEA.Models.ApplicationArchitectureFramework
+
+@{
+    ViewData["Title"] = "Application Framework Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Application Architecture Framework Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <h4 class="font-weight-bold text-primary">@Html.DisplayFor(model => model.ApplicationName)</h4>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <span class="badge badge-pill badge-primary p-2">Version @Html.DisplayFor(model => model.Version)</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ApplicationDescription):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.ApplicationDescription)
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.BusinessFunctionSupported):</label>
+                                    <p>@Html.DisplayFor(model => model.BusinessFunctionSupported)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                                    <p>@Html.DisplayFor(model => model.Owner)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DeploymentEnvironment):</label>
+                                    <p>
+                                        <span class="badge badge-pill badge-info">
+                                            @Html.DisplayFor(model => model.DeploymentEnvironment)
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Technology Stack:</label>
+                                    @if (Model.TechnologyStack != null && Model.TechnologyStack.Any())
+                                    {
+                                        <div>
+                                            @foreach (var tech in Model.TechnologyStack)
+                                            {
+                                                <span class="badge badge-pill badge-info p-2 mr-2 mb-2">@tech</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No technology stack defined</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Integration Points</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.IntegrationPoints != null && Model.IntegrationPoints.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var integration in Model.IntegrationPoints)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-plug mr-2 text-secondary"></i> @integration
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No integration points defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Application Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-tag mr-2 text-primary"></i> Version</span>
+                                <span class="badge badge-primary">@Html.DisplayFor(model => model.Version)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-cogs mr-2 text-primary"></i> Environment</span>
+                                <span class="badge badge-info">@Html.DisplayFor(model => model.DeploymentEnvironment)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-user mr-2 text-primary"></i> Owner</span>
+                                <span>@Html.DisplayFor(model => model.Owner)</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-briefcase mr-2 text-primary"></i> Business Function</span>
+                                <span>@Html.DisplayFor(model => model.BusinessFunctionSupported)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-edit"></i> Edit Framework
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-block mb-2">
+                                <i class="fas fa-trash"></i> Delete Framework
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-block">
+                                <i class="fas fa-list"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Application Architecture Flow Diagram</h6>
+            </div>
+            <div class="card-body">
+                <div class="model-flow-diagram p-3">
+                    <div class="diagram-container">
+                        <!-- Application Architecture Flow Visualization -->
+                        <div class="process-flow">
+                            <div class="diagram-box business-box">
+                                <h6 class="diagram-title"><i class="fas fa-briefcase mr-2"></i>Business</h6>
+                                <div class="diagram-content">
+                                    <p class="mb-2"><strong>Function:</strong> @Model.BusinessFunctionSupported</p>
+                                    <p class="mb-0"><strong>Owner:</strong> @Model.Owner</p>
+                                </div>
+                            </div>
+                            <div class="arrow-right">
+                                <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                            </div>
+                            <div class="diagram-box app-box">
+                                <h6 class="diagram-title"><i class="fas fa-laptop-code mr-2"></i>Application</h6>
+                                <div class="diagram-content">
+                                    <p class="lead mb-1">@Model.ApplicationName</p>
+                                    <small class="text-muted">Version: @Model.Version</small>
+                                    <small class="d-block text-muted">Environment: @Model.DeploymentEnvironment</small>
+                                </div>
+                            </div>
+                            <div class="arrow-right">
+                                <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                            </div>
+                            <div class="diagram-box tech-box">
+                                <h6 class="diagram-title"><i class="fas fa-microchip mr-2"></i>Technology</h6>
+                                <div class="diagram-content">
+                                    @if (Model.TechnologyStack != null && Model.TechnologyStack.Any())
+                                    {
+                                        <div class="tech-tags">
+                                            @foreach (var tech in Model.TechnologyStack)
+                                            {
+                                                <span class="badge badge-pill badge-info mr-2 mb-2">@tech</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No technology stack defined</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Integration & Rationalization Section -->
+                        <div class="resources-section mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="resource-box integration-box">
+                                        <h6 class="diagram-title"><i class="fas fa-plug text-warning mr-2"></i>Integration Points</h6>
+                                        <div class="diagram-content bg-light p-3 rounded">
+                                            @if (Model.IntegrationPoints != null && Model.IntegrationPoints.Any())
+                                            {
+                                                <ul class="list-unstyled">
+                                                    @foreach (var integration in Model.IntegrationPoints)
+                                                    {
+                                                        <li><i class="fas fa-arrow-right text-success mr-2"></i> @integration</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No integration points defined</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="resource-box rationalization-box">
+                                        <h6 class="diagram-title"><i class="fas fa-chart-pie text-info mr-2"></i>Rationalization</h6>
+                                        <div class="diagram-content bg-light p-3 rounded">
+                                            @if (!string.IsNullOrEmpty(Model.RationalizationCategory))
+                                            {
+                                                <div class="rationalization-info">
+                                                    <p><strong>Category:</strong> 
+                                                        <span class="badge badge-pill 
+                                                            @(Model.RationalizationCategory == "Tolerate" ? "badge-warning" : 
+                                                              Model.RationalizationCategory == "Invest" ? "badge-success" : 
+                                                              Model.RationalizationCategory == "Migrate" ? "badge-info" : 
+                                                              Model.RationalizationCategory == "Eliminate" ? "badge-danger" : "badge-secondary")">
+                                                            @Model.RationalizationCategory
+                                                        </span>
+                                                    </p>
+                                                    
+                                                    @if (Model.BusinessValue.HasValue && Model.TechnicalFit.HasValue)
+                                                    {
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <p class="mb-1"><strong>Business Value:</strong></p>
+                                                                <div class="progress mb-2">
+                                                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                                                         style="width: @(Model.BusinessValue * 10)%" 
+                                                                         aria-valuenow="@Model.BusinessValue" aria-valuemin="0" aria-valuemax="10">
+                                                                        @Model.BusinessValue/10
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <p class="mb-1"><strong>Technical Fit:</strong></p>
+                                                                <div class="progress mb-2">
+                                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                                         style="width: @(Model.TechnicalFit * 10)%" 
+                                                                         aria-valuenow="@Model.TechnicalFit" aria-valuemin="0" aria-valuemax="10">
+                                                                        @Model.TechnicalFit/10
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    
+                                                    @if (!string.IsNullOrEmpty(Model.CurrentState) && !string.IsNullOrEmpty(Model.FutureState))
+                                                    {
+                                                        <p class="mt-2 mb-1"><strong>Current State:</strong> @Model.CurrentState</p>
+                                                        <p class="mb-0"><strong>Future State:</strong> @Model.FutureState</p>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No rationalization data available</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .model-flow-diagram {
+        font-family: Arial, sans-serif;
+    }
+
+    .diagram-container {
+        width: 100%;
+    }
+
+    .process-flow {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .diagram-box {
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .business-box {
+        background-color: #f0f8ff;
+        border-color: #4e73df;
+    }
+
+    .app-box {
+        background-color: #f8f9fc;
+        border-color: #4e73df;
+        flex: 2;
+    }
+
+    .tech-box {
+        background-color: #f0fff0;
+        border-color: #1cc88a;
+    }
+
+    .diagram-title {
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        color: #4e73df;
+    }
+
+    .arrow-right {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 5px;
+    }
+
+    .resources-section {
+        margin-top: 30px;
+    }
+
+    .resource-box {
+        margin-bottom: 20px;
+    }
+
+    .tech-tags {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .rationalization-info {
+        font-size: 0.9rem;
+    }
+
+    @@media (max-width: 768px) {
+        .process-flow {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .arrow-right {
+            transform: rotate(90deg);
+            margin: 10px 0;
+        }
+    }
+</style>

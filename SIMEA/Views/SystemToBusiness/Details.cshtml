@@ -1,0 +1,166 @@
+@model SIMEA.Models.SystemToBusinessCrossReference
+
+@{
+    ViewData["Title"] = "Cross Reference Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">System to Business Cross Reference Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SystemName):</label>
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.SystemName)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.BusinessUnit):</label>
+                                    <p class="form-control-static">@Html.DisplayFor(model => model.BusinessUnit)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.BusinessProcessSupported):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.BusinessProcessSupported)
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                                    <p>@Html.DisplayFor(model => model.Owner)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Criticality):</label>
+                                    <p>
+                                        <span class="badge badge-pill 
+                                            @(Model.Criticality == "Critical" ? "badge-danger" : 
+                                            Model.Criticality == "High" ? "badge-warning" : 
+                                            Model.Criticality == "Medium" ? "badge-primary" :
+                                            "badge-secondary")">
+                                            @Html.DisplayFor(model => model.Criticality)
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SecurityRequirements):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.SecurityRequirements)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Dependencies != null && Model.Dependencies.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var dependency in Model.Dependencies)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-link mr-2 text-secondary"></i> @dependency
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No dependencies defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Performance Metrics</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.PerformanceMetrics != null && Model.PerformanceMetrics.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var metric in Model.PerformanceMetrics)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-chart-line mr-2 text-info"></i> @metric
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No performance metrics defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Integration Diagram</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="p-3 bg-light rounded">
+                            <i class="fas fa-server fa-2x mb-2 text-primary"></i>
+                            <p class="font-weight-bold">@Model.SystemName</p>
+                            <i class="fas fa-arrow-down fa-lg text-success"></i>
+                            <p class="text-muted small">supports</p>
+                            <i class="fas fa-arrow-down fa-lg text-success"></i>
+                            <i class="fas fa-building fa-2x mb-2 text-secondary"></i>
+                            <p class="font-weight-bold">@Model.BusinessUnit</p>
+                            <span class="badge badge-pill badge-primary">@Model.BusinessProcessSupported</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-edit"></i> Edit Reference
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-block mb-2">
+                                <i class="fas fa-trash"></i> Delete Reference
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-block">
+                                <i class="fas fa-list"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

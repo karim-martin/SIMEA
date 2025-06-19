@@ -1,0 +1,19 @@
+﻿@page
+@model SIMEA.Areas.Identity.Pages.Account.RegisterConfirmationModel
+@{
+    ViewData["Title"] = "Register confirmation";
+}
+
+<div class="pretty_container_browserMessage">
+
+    <h1>@ViewData["Title"]</h1>
+
+    <p>Your account has been created but not yet made active by your administrator. Please request your administrator to activate your account.</p>
+
+    <div class="form-group">
+        <p>
+            <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Return to the login page</a>
+        </p>
+    </div>
+
+</div>

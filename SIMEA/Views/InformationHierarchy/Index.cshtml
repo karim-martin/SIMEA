@@ -1,0 +1,112 @@
+@model IEnumerable<SIMEA.Models.InformationHierarchyView>
+
+@{
+    ViewData["Title"] = "Information Hierarchy";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Information Hierarchy</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="informationHierarchyTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.InformationLevel)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ParentInformation)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Description)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Owner)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Usage)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SecurityLevel)
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.InformationLevel)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ParentInformation)
+                                    </td>
+                                    <td>
+                                        @(item.Description.Length > 50 ? item.Description.Substring(0, 47) + "..." : item.Description)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Owner)
+                                    </td>
+                                    <td>
+                                        @(item.Usage.Length > 30 ? item.Usage.Substring(0, 27) + "..." : item.Usage)
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-pill 
+                                            @(item.SecurityLevel == "Confidential" ? "badge-danger" : 
+                                            item.SecurityLevel == "Internal" ? "badge-warning" : 
+                                            item.SecurityLevel == "Public" ? "badge-success" :
+                                            "badge-info")">
+                                            @Html.DisplayFor(modelItem => item.SecurityLevel)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#informationHierarchyTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search hierarchies:",
+                    "lengthMenu": "Show _MENU_ hierarchies per page",
+                    "zeroRecords": "No hierarchies found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No hierarchies available",
+                    "infoFiltered": "(filtered from _MAX_ total hierarchies)"
+                }
+            });
+        });
+    </script>
+}

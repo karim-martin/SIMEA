@@ -1,0 +1,221 @@
+@model SIMEA.Models.DataSecurityModel
+
+@{
+    ViewData["Title"] = "Create Data Security Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Data Security Model</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/DataSecurity/Index">Data Security Models</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-shield-alt mr-1"></i>
+                Add New Data Security Model
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="DataSecurity" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label asp-for="DataEntity" class="control-label">Data Entity</label>
+                            <input asp-for="DataEntity" class="form-control" required />
+                            <span asp-validation-for="DataEntity" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SecurityRequirement" class="control-label">Security Requirement</label>
+                        <textarea asp-for="SecurityRequirement" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="SecurityRequirement" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="AccessControls" class="control-label">Access Controls</label>
+                            <input asp-for="AccessControls" class="form-control" required />
+                            <span asp-validation-for="AccessControls" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="EncryptionRequirements" class="control-label">Encryption Requirements</label>
+                            <input asp-for="EncryptionRequirements" class="form-control" required />
+                            <span asp-validation-for="EncryptionRequirements" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="LastAuditDate" class="control-label">Last Audit Date</label>
+                            <input asp-for="LastAuditDate" class="form-control" type="date" required />
+                            <span asp-validation-for="LastAuditDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Compliance Standards</label>
+                        <div class="input-group">
+                            <input type="text" id="standardInput" class="form-control" placeholder="Add compliance standard">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addStandard" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="standardsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-standards">No compliance standards added</span>
+                        </div>
+                        <div id="standardsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Security Model</button>
+                        <a asp-action="Index" asp-controller="DataSecurity" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding compliance standards
+            $("#addStandard").click(function() {
+                const value = $("#standardInput").val().trim();
+                
+                if (value) {
+                    addItem(value, "ComplianceStandards", "standards");
+                    $("#standardInput").val("");
+                }
+            });
+            
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addItem(value, "Dependencies", "dependencies");
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Handle enter key presses for all inputs
+            $("#standardInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addStandard").click();
+                }
+            });
+            
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Function to add an item to a list
+            function addItem(value, inputName, type) {
+                // Remove "no items" badge if it exists
+                $(`#${type}List .no-${type}`).remove();
+                
+                // Check if this item already exists
+                if ($(`#${type}Container input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $(`#${type}Container`).append(`<input type="hidden" name="${inputName}" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    const badgeClass = getBadgeClass(type);
+                    $(`#${type}List`).append(`
+                        <span class="badge ${badgeClass} mr-1 mb-1 ${type}-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="${type}" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to get appropriate badge class
+            function getBadgeClass(type) {
+                switch(type) {
+                    case 'standards':
+                        return 'badge-warning';
+                    case 'dependencies':
+                        return 'badge-secondary';
+                    default:
+                        return 'badge-primary';
+                }
+            }
+            
+            // Function to remove an item
+            function removeItem(value, inputName, type) {
+                // Remove the hidden input
+                $(`#${type}Container input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#${type}List .${type}-badge[data-value="${value}"]`).remove();
+                
+                // Add "no items" badge if there are no more items
+                if ($(`#${type}Container input`).length === 0) {
+                    $(`#${type}List`).html(`<span class="badge badge-secondary mr-1 mb-1 no-${type}">No ${type} added</span>`);
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                let inputName;
+                switch(type) {
+                    case 'standards':
+                        inputName = "ComplianceStandards";
+                        break;
+                    case 'dependencies':
+                        inputName = "Dependencies";
+                        break;
+                    default:
+                        inputName = type;
+                }
+                
+                removeItem(value, inputName, type);
+            });
+        });
+    </script>
+}

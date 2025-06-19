@@ -1,0 +1,90 @@
+/* Model Diagram Flow Styles */
+.model-flow-diagram {
+    font-size: 0.9rem;
+}
+
+.diagram-container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.process-flow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.diagram-box {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 10px;
+    min-width: 120px;
+    flex: 1;
+    margin: 0 5px;
+    background-color: #fff;
+    box-shadow: 0 0.15rem 0.5rem rgba(58, 59, 69, 0.15);
+}
+
+.input-box {
+    border-left: 4px solid #36b9cc;
+}
+
+.process-box {
+    border-left: 4px solid #4e73df;
+}
+
+.output-box {
+    border-left: 4px solid #1cc88a;
+}
+
+.arrow-right {
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+}
+
+.resources-box, .tools-box {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 10px;
+    background-color: #f8f9fc;
+}
+
+/* Activity and Workflow Steps */
+.activity-step, .workflow-step {
+    position: relative;
+}
+
+.activity-number, .step-number {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.activity-connector, .step-connector {
+    height: 20px;
+    display: flex;
+    align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .process-flow {
+        flex-direction: column;
+    }
+    
+    .diagram-box {
+        margin: 5px 0;
+        width: 100%;
+    }
+    
+    .arrow-right {
+        transform: rotate(90deg);
+        margin: 10px 0;
+    }
+} 

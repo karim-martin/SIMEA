@@ -1,0 +1,144 @@
+@model SIMEA.Models.OrganizationView
+
+@{
+    ViewData["Title"] = "Delete Organization";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Organization View</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this organization? This action cannot be undone.
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DepartmentOrUnit):</label>
+                    <p>@Html.DisplayFor(model => model.DepartmentOrUnit)</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.RolesAndResponsibilities):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.RolesAndResponsibilities)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ReportingStructure):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.ReportingStructure)
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Key Personnel</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.KeyPersonnel != null && Model.KeyPersonnel.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var person in Model.KeyPersonnel)
+                                        {
+                                            <li class="list-group-item">@person</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No key personnel defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Collaboration Points</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.CollaborationPoints != null && Model.CollaborationPoints.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var point in Model.CollaborationPoints)
+                                        {
+                                            <li class="list-group-item">@point</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No collaboration points defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Organizational Goals</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.OrganizationalGoals != null && Model.OrganizationalGoals.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var goal in Model.OrganizationalGoals)
+                                        {
+                                            <li class="list-group-item">@goal</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No organizational goals defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="m-0 font-weight-bold">Challenges</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                @if (Model.Challenges != null && Model.Challenges.Any())
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var challenge in Model.Challenges)
+                                        {
+                                            <li class="list-group-item">@challenge</li>
+                                        }
+                                    </ul>
+                                }
+                                else
+                                {
+                                    <p class="text-muted p-3 mb-0">No challenges defined</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this organization?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

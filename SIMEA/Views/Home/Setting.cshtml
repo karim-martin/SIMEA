@@ -1,0 +1,146 @@
+﻿@model SIMEA.Models.SettingGeneralInfo
+
+@{
+    ViewData["Title"] = "Setting";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<h3 class="heading-margin-top text-center">Setting</h3>
+<hr />
+<form asp-action="Setting">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @if (ViewBag.Status == "true")
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    
+    <div class="container">
+        <h5>Company</h5>
+        <div class="border border-primary p-2">
+            <div class="row">
+                <div class="col-sm-12 col-xl-3">
+                    <div class="form-group input-group-sm">
+                        <label asp-for="OrganizationName" class="control-label"></label>
+                        <input asp-for="OrganizationName" class="form-control" />
+                        <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl-3">
+                    <div class="form-group input-group-sm">
+                        <label asp-for="RegistrationNumber" class="control-label"></label>
+                        <input asp-for="RegistrationNumber" class="form-control" />
+                        <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl-3">
+                    <label asp-for="Address" class="control-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                <div class="col-sm-12 col-xl-3">
+                    <div class="form-group input-group-sm">
+                        <div class="form-group input-group-sm">
+                            <label asp-for="Parish" class="control-label"></label>
+                            <select asp-for="Parish" asp-items="ViewBag.ParishSys" class="form-control"><option value="">---Select---</option></select>
+                            <span asp-validation-for="Parish" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-xl">
+                    <div class="form-group input-group-sm">
+                        <label asp-for="BusinessTRN" class="control-label"></label>
+                        <input asp-for="BusinessTRN" class="form-control" />
+                        <span asp-validation-for="BusinessTRN" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl">
+                    <div class="form-group input-group-sm">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl">
+                    <div class="form-group input-group-sm">
+                        <label asp-for="Telephone" class="control-label"></label>
+                        <input asp-for="Telephone" class="form-control" />
+                        <span asp-validation-for="Telephone" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl">
+                    <div class="form-group input-group-sm">
+                        <label asp-for="Fax" class="control-label"></label>
+                        <input asp-for="Fax" class="form-control" />
+                        <span asp-validation-for="Fax" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h5>Work Day</h5>
+        <div class="border border-primary p-2">
+            <div class="row">
+                <div class="col-sm-12 col-xl-2"></div>
+                <div class="col align-content-center">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Sunday" value="True">
+                        <label asp-for="Sunday" class="control-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Monday" value="True">
+                        <label asp-for="Monday" class="control-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Tuesday" value="True">
+                        <label asp-for="Tuesday" class="control-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Wednesday" value="True">
+                        <label asp-for="Wednesday" class="control-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Thursday" value="True">
+                        <label asp-for="Thursday" class="control-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Friday" value="True">
+                        <label asp-for="Friday" class="control-label"></label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" asp-for="Saturday" value="True">
+                        <label asp-for="Saturday" class="control-label"></label>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl-2"></div>
+            </div>
+        </div>
+        <hr />
+        <h5>License Key</h5>
+        <div class="border border-primary p-2">
+            <div class="form-group input-group-sm">
+                <label asp-for="LicenseKey" class="control-label"></label>
+                <input asp-for="LicenseKey" class="form-control" />
+                <span asp-validation-for="LicenseKey" class="text-danger"></span>
+            </div>
+        </div>
+        <hr />
+        <div>
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

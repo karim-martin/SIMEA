@@ -1,0 +1,123 @@
+@model IEnumerable<SIMEA.Models.InformationRequirementsView>
+
+@{
+    ViewData["Title"] = "Information Requirements";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Information Requirements</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="requirementsTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.RequirementId)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.RequirementDescription)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DataEntity)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Priority)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Status)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.AssignedTo)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DueDate)
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.RequirementId)
+                                    </td>
+                                    <td>
+                                        @(item.RequirementDescription.Length > 50 ? item.RequirementDescription.Substring(0, 47) + "..." : item.RequirementDescription)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DataEntity)
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-pill 
+                                            @(item.Priority == "High" ? "badge-danger" : 
+                                            item.Priority == "Medium" ? "badge-warning" : 
+                                            "badge-info")">
+                                            @Html.DisplayFor(modelItem => item.Priority)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-pill 
+                                            @(item.Status == "Completed" ? "badge-success" : 
+                                            item.Status == "In Progress" ? "badge-primary" : 
+                                            item.Status == "Draft" ? "badge-secondary" :
+                                            "badge-light")">
+                                            @Html.DisplayFor(modelItem => item.Status)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.AssignedTo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DueDate)
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#requirementsTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search requirements:",
+                    "lengthMenu": "Show _MENU_ requirements per page",
+                    "zeroRecords": "No requirements found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No requirements available",
+                    "infoFiltered": "(filtered from _MAX_ total requirements)"
+                }
+            });
+        });
+    </script>
+}

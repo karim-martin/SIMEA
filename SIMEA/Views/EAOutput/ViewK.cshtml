@@ -1,0 +1,841 @@
+@model SIMEA.Models.ViewModels.ServiceDependencyMapViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Service Dependency Map Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This view maps dependencies between services, helping to visualize service relationships, identify critical paths, and understand potential failure impacts.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Dependency Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Service Dependency Network</h6>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-criticality="all">All</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-criticality="Critical">Critical</button>
+                        <button type="button" class="btn btn-sm btn-outline-warning" data-criticality="High">High</button>
+                        <button type="button" class="btn btn-sm btn-outline-info" data-criticality="Medium">Medium</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-criticality="Low">Low</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.Dependencies != null && Model.Dependencies.Any())
+                    {
+                        <div id="service-dependency-chart" style="height: 600px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Path Analysis -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Service Dependency Metrics</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Dependencies != null && Model.Dependencies.Any())
+                    {
+                        <div id="dependency-metrics-chart" style="height: 300px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No metrics data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Dependency Types</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Dependencies != null && Model.Dependencies.Any())
+                    {
+                        <div id="dependency-type-chart" style="height: 300px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No dependency type data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Dependencies Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Service Dependencies</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dependencyTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Source Service</th>
+                                    <th>Target Service</th>
+                                    <th>Dependency Type</th>
+                                    <th>Criticality</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Dependencies != null && Model.Dependencies.Any())
+                                {
+                                    foreach (var dependency in Model.Dependencies)
+                                    {
+                                        <tr class="dependency-row" data-criticality="@dependency.CriticalityLevel">
+                                            <td>@dependency.SourceServiceName</td>
+                                            <td>@dependency.TargetServiceName</td>
+                                            <td>@dependency.DependencyType</td>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(dependency.CriticalityLevel == "Critical" ? "badge-danger" : 
+                                                    dependency.CriticalityLevel == "High" ? "badge-warning" : 
+                                                    dependency.CriticalityLevel == "Medium" ? "badge-info" : 
+                                                    "badge-secondary")">
+                                                    @dependency.CriticalityLevel
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No service dependency data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services and Applications -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Services</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="servicesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Service Name</th>
+                                    <th>Description</th>
+                                    <th>Owner</th>
+                                    <th>SLA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Services != null && Model.Services.Any())
+                                {
+                                    foreach (var service in Model.Services)
+                                    {
+                                        <tr>
+                                            <td>@service.ServiceName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(service.ServiceDescription))
+                                                {
+                                                    @(service.ServiceDescription.Length > 50 
+                                                        ? service.ServiceDescription.Substring(0, 50) + "..." 
+                                                        : service.ServiceDescription)
+                                                }
+                                            </td>
+                                            <td>@service.ServiceOwner</td>
+                                            <td>@service.SLA</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No services available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Supporting Applications</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="applicationsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Application</th>
+                                    <th>Description</th>
+                                    <th>Owner</th>
+                                    <th>Version</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Applications != null && Model.Applications.Any())
+                                {
+                                    foreach (var app in Model.Applications)
+                                    {
+                                        <tr>
+                                            <td>@app.ApplicationName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(app.ApplicationDescription))
+                                                {
+                                                    @(app.ApplicationDescription.Length > 50 
+                                                        ? app.ApplicationDescription.Substring(0, 50) + "..." 
+                                                        : app.ApplicationDescription)
+                                                }
+                                            </td>
+                                            <td>@app.Owner</td>
+                                            <td>@app.Version</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No applications available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            var dependencyTable, servicesTable, applicationsTable;
+            
+            if ($('#dependencyTable tbody tr').length > 1) {
+                dependencyTable = $('#dependencyTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            if ($('#servicesTable tbody tr').length > 1) {
+                servicesTable = $('#servicesTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#applicationsTable tbody tr').length > 1) {
+                applicationsTable = $('#applicationsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            // Criticality filter buttons
+            $('.btn-group [data-criticality]').click(function() {
+                $('.btn-group [data-criticality]').removeClass('active');
+                $(this).addClass('active');
+                
+                var criticality = $(this).data('criticality');
+                
+                if (dependencyTable) {
+                    if (criticality === 'all') {
+                        dependencyTable.column(3).search('').draw();
+                    } else {
+                        dependencyTable.column(3).search(criticality).draw();
+                    }
+                } else {
+                    // Fallback for when DataTables isn't initialized
+                    if (criticality === 'all') {
+                        $('.dependency-row').show();
+                    } else {
+                        $('.dependency-row').hide();
+                        $('.dependency-row[data-criticality="' + criticality + '"]').show();
+                    }
+                }
+                
+                // Filter network chart if it exists
+                if (typeof dependencyChart !== 'undefined') {
+                    filterNetworkByCriticality(criticality);
+                }
+            });
+            
+            // Initialize Service Dependency Network Chart
+            var dependencyChartElement = document.getElementById('service-dependency-chart');
+            var dependencyChart;
+            var originalNodes, originalLinks;
+            
+            if (dependencyChartElement && @(Model.Dependencies != null && Model.Dependencies.Any() ? "true" : "false")) {
+                console.log("Initializing service dependency chart");
+                
+                // Process data for the network chart
+                var nodes = [];
+                var links = [];
+                var nodeMap = new Map();
+                var criticalityColors = {
+                    'Critical': '#e74a3b',
+                    'High': '#f6c23e',
+                    'Medium': '#36b9cc',
+                    'Low': '#858796'
+                };
+                
+                @if (Model.Dependencies != null && Model.Dependencies.Any())
+                {
+                    <text>
+                    var dependencies = @Html.Raw(Json.Serialize(Model.Dependencies.Select(d => new { 
+                        Source = d.SourceServiceName, 
+                        Target = d.TargetServiceName,
+                        Type = d.DependencyType,
+                        Criticality = d.CriticalityLevel
+                    })));
+                    
+                    // Process service dependencies
+                    dependencies.forEach(function(dependency) {
+                        if (!dependency.Source || !dependency.Target) return;
+                        
+                        var sourceId = dependency.Source;
+                        var targetId = dependency.Target;
+                        
+                        // Add source node if not exists
+                        if (!nodeMap.has(sourceId)) {
+                            nodeMap.set(sourceId, nodes.length);
+                            nodes.push({
+                                id: sourceId,
+                                name: sourceId,
+                                symbolSize: 35,
+                                itemStyle: {
+                                    color: '#4e73df'
+                                }
+                            });
+                        }
+                        
+                        // Add target node if not exists
+                        if (!nodeMap.has(targetId)) {
+                            nodeMap.set(targetId, nodes.length);
+                            nodes.push({
+                                id: targetId,
+                                name: targetId,
+                                symbolSize: 35,
+                                itemStyle: {
+                                    color: '#4e73df'
+                                }
+                            });
+                        }
+                        
+                        // Add link between nodes
+                        links.push({
+                            source: sourceId,
+                            target: targetId,
+                            dependencyType: dependency.Type,
+                            criticality: dependency.Criticality,
+                            lineStyle: {
+                                width: dependency.Criticality === 'Critical' ? 4 : 
+                                       dependency.Criticality === 'High' ? 3 : 
+                                       dependency.Criticality === 'Medium' ? 2 : 1,
+                                color: criticalityColors[dependency.Criticality] || criticalityColors['Low'],
+                                curveness: 0.2
+                            }
+                        });
+                    });
+                    </text>
+                }
+                
+                // Save original data for filtering
+                originalNodes = nodes;
+                originalLinks = links;
+                
+                // Function to filter network by criticality
+                function filterNetworkByCriticality(criticality) {
+                    if (criticality === 'all') {
+                        networkOption.series[0].data = originalNodes;
+                        networkOption.series[0].links = originalLinks;
+                    } else {
+                        // Filter links by criticality
+                        var filteredLinks = originalLinks.filter(function(link) {
+                            return link.criticality === criticality;
+                        });
+                        
+                        // Get unique node IDs from filtered links
+                        var nodeIds = new Set();
+                        filteredLinks.forEach(function(link) {
+                            nodeIds.add(link.source);
+                            nodeIds.add(link.target);
+                        });
+                        
+                        // Filter nodes to only those in links
+                        var filteredNodes = originalNodes.filter(function(node) {
+                            return nodeIds.has(node.id);
+                        });
+                        
+                        networkOption.series[0].data = filteredNodes;
+                        networkOption.series[0].links = filteredLinks;
+                    }
+                    
+                    dependencyChart.setOption(networkOption);
+                }
+                
+                // Count number of dependencies for each service
+                var incomingDeps = {};
+                var outgoingDeps = {};
+                var criticalServices = new Set();
+                
+                links.forEach(function(link) {
+                    // Count incoming dependencies
+                    if (!incomingDeps[link.target]) {
+                        incomingDeps[link.target] = 0;
+                    }
+                    incomingDeps[link.target]++;
+                    
+                    // Count outgoing dependencies
+                    if (!outgoingDeps[link.source]) {
+                        outgoingDeps[link.source] = 0;
+                    }
+                    outgoingDeps[link.source]++;
+                    
+                    // Mark critical services
+                    if (link.criticality === 'Critical') {
+                        criticalServices.add(link.source);
+                        criticalServices.add(link.target);
+                    }
+                });
+                
+                // Update node sizes based on dependency count
+                nodes.forEach(function(node) {
+                    var incoming = incomingDeps[node.id] || 0;
+                    var outgoing = outgoingDeps[node.id] || 0;
+                    var dependencyCount = incoming + outgoing;
+                    
+                    // Adjust node size based on dependency count (min 30, max 60)
+                    node.symbolSize = 30 + Math.min(dependencyCount * 3, 30);
+                    
+                    // Highlight critical services
+                    if (criticalServices.has(node.id)) {
+                        node.itemStyle = {
+                            color: '#e74a3b',
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        };
+                    }
+                });
+                
+                // Initialize chart with the chart helper to handle empty data
+                dependencyChart = handleEmptyChart(dependencyChartElement, nodes.length > 0 ? nodes : null, function(chart) {
+                    // Chart options
+                    var networkOption = {
+                        title: {
+                            text: 'Service Dependency Network',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            formatter: function(params) {
+                                try {
+                                    if (params.dataType === 'edge') {
+                                        return (params.data.source || 'Unknown') + ' → ' + 
+                                               (params.data.target || 'Unknown') + '<br/>' + 
+                                               'Type: ' + (params.data.dependencyType || 'Unknown') + '<br/>' +
+                                               'Criticality: ' + (params.data.criticality || 'Unknown');
+                                    }
+                                    
+                                    var serviceName = params.data.name || 'Unknown';
+                                    var incoming = incomingDeps[params.data.id] || 0;
+                                    var outgoing = outgoingDeps[params.data.id] || 0;
+                                    
+                                    return serviceName + '<br/>' + 
+                                           'Incoming Dependencies: ' + incoming + '<br/>' +
+                                           'Outgoing Dependencies: ' + outgoing;
+                                } catch (e) {
+                                    return 'No Data';
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['Service'],
+                            show: false
+                        },
+                        animationDuration: 1500,
+                        animationEasingUpdate: 'quinticInOut',
+                        series: [
+                            {
+                                type: 'graph',
+                                layout: 'force',
+                                data: nodes,
+                                links: links,
+                                roam: true,
+                                label: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: '{b}'
+                                },
+                                labelLayout: {
+                                    hideOverlap: true
+                                },
+                                scaleLimit: {
+                                    min: 0.4,
+                                    max: 2
+                                },
+                                lineStyle: {
+                                    color: 'source',
+                                    curveness: 0.3
+                                },
+                                emphasis: {
+                                    focus: 'adjacency',
+                                    lineStyle: {
+                                        width: 6
+                                    }
+                                },
+                                force: {
+                                    repulsion: 200,
+                                    edgeLength: 150,
+                                    gravity: 0.2
+                                },
+                                edgeSymbol: ['circle', 'arrow'],
+                                edgeSymbolSize: [4, 8]
+                            }
+                        ]
+                    };
+                    
+                    // Apply options
+                    chart.setOption(networkOption);
+                    
+                    // Handle window resize
+                    window.addEventListener('resize', function() {
+                        chart.resize();
+                    });
+                    
+                    // Fullscreen toggle
+                    document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                        if (dependencyChartElement.classList.contains('fullscreen')) {
+                            dependencyChartElement.classList.remove('fullscreen');
+                            this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                            dependencyChartElement.style.height = '600px';
+                        } else {
+                            dependencyChartElement.classList.add('fullscreen');
+                            this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                            dependencyChartElement.style.height = '85vh';
+                        }
+                        
+                        // Resize chart after container size change
+                        setTimeout(function() {
+                            chart.resize();
+                        }, 100);
+                    });
+                    
+                    // Export button
+                    document.getElementById('exportBtn').addEventListener('click', function() {
+                        var dataURL = chart.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff'
+                        });
+                        
+                        // Create an invisible anchor element to trigger download
+                        var downloadLink = document.createElement('a');
+                        downloadLink.href = dataURL;
+                        downloadLink.download = 'service-dependency-map.png';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    });
+                    
+                    // Initialize Dependency Metrics Chart
+                    var metricsChartElement = document.getElementById('dependency-metrics-chart');
+                    if (metricsChartElement && @(Model.Dependencies != null && Model.Dependencies.Any() ? "true" : "false")) {
+                        console.log("Initializing dependency metrics chart");
+                        var metricsChart = echarts.init(metricsChartElement, null, { renderer: 'canvas' });
+                        
+                        // Process data for metrics
+                        var serviceMetrics = [];
+                        
+                        // Find top services by dependency count
+                        var serviceData = [];
+                        for (var service in outgoingDeps) {
+                            serviceData.push({
+                                name: service,
+                                outgoing: outgoingDeps[service] || 0,
+                                incoming: incomingDeps[service] || 0,
+                                total: (outgoingDeps[service] || 0) + (incomingDeps[service] || 0)
+                            });
+                        }
+                        
+                        // Sort by total dependencies descending
+                        serviceData.sort(function(a, b) {
+                            return b.total - a.total;
+                        });
+                        
+                        // Take top 8 services
+                        var topServices = serviceData.slice(0, 8);
+                        
+                        // Chart options
+                        var metricsOption = {
+                            title: {
+                                text: 'Top Services by Dependency Count',
+                                left: 'center'
+                            },
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'shadow'
+                                }
+                            },
+                            legend: {
+                                data: ['Incoming', 'Outgoing'],
+                                bottom: 0
+                            },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '15%',
+                                top: '15%',
+                                containLabel: true
+                            },
+                            xAxis: {
+                                type: 'value'
+                            },
+                            yAxis: {
+                                type: 'category',
+                                data: topServices.map(function(s) { return s.name; }),
+                                axisLabel: {
+                                    formatter: function(value) {
+                                        if (value.length > 20) {
+                                            return value.substring(0, 17) + '...';
+                                        }
+                                        return value;
+                                    }
+                                }
+                            },
+                            series: [
+                                {
+                                    name: 'Incoming',
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                        show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: topServices.map(function(s) { return s.incoming; }),
+                                    itemStyle: {
+                                        color: '#4e73df'
+                                    }
+                                },
+                                {
+                                    name: 'Outgoing',
+                                    type: 'bar',
+                                    stack: 'total',
+                                    label: {
+                                        show: true
+                                    },
+                                    emphasis: {
+                                        focus: 'series'
+                                    },
+                                    data: topServices.map(function(s) { return s.outgoing; }),
+                                    itemStyle: {
+                                        color: '#1cc88a'
+                                    }
+                                }
+                            ]
+                        };
+                        
+                        // Apply options
+                        metricsChart.setOption(metricsOption);
+                        
+                        // Handle window resize
+                        window.addEventListener('resize', function() {
+                            metricsChart.resize();
+                        });
+                    }
+                    
+                    // Initialize Dependency Type Chart if element exists
+                    var typeChartElement = document.getElementById('dependency-type-chart');
+                    if (typeChartElement && @(Model.Dependencies != null && Model.Dependencies.Any() ? "true" : "false")) {
+                        console.log("Initializing dependency type chart");
+                        var typeChart = echarts.init(typeChartElement, null, { renderer: 'canvas' });
+                        
+                        // Count occurrences of each dependency type and criticality combination
+                        var typeCounts = {};
+                        var criticalityCounts = {};
+                        
+                        links.forEach(function(link) {
+                            // Count by type
+                            if (!typeCounts[link.dependencyType]) {
+                                typeCounts[link.dependencyType] = 0;
+                            }
+                            typeCounts[link.dependencyType]++;
+                            
+                            // Count by criticality
+                            if (!criticalityCounts[link.criticality]) {
+                                criticalityCounts[link.criticality] = 0;
+                            }
+                            criticalityCounts[link.criticality]++;
+                        });
+                        
+                        // Convert to arrays for chart
+                        var typeData = [];
+                        for (var type in typeCounts) {
+                            typeData.push({
+                                name: type,
+                                value: typeCounts[type]
+                            });
+                        }
+                        
+                        var criticalityData = [];
+                        for (var criticality in criticalityCounts) {
+                            criticalityData.push({
+                                name: criticality,
+                                value: criticalityCounts[criticality],
+                                itemStyle: {
+                                    color: criticalityColors[criticality] || criticalityColors['Low']
+                                }
+                            });
+                        }
+                        
+                        // Chart options
+                        var typeOption = {
+                            title: {
+                                text: 'Dependency Types & Criticality',
+                                left: 'center'
+                            },
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: '{a} <br/>{b}: {c} ({d}%)'
+                            },
+                            legend: {
+                                bottom: 10,
+                                left: 'center',
+                                data: ['API Call', 'Data Flow', 'Configuration', 'Authentication']
+                            },
+                            series: [
+                                {
+                                    name: 'Dependency Type',
+                                    type: 'pie',
+                                    radius: ['20%', '45%'],
+                                    center: ['30%', '50%'],
+                                    avoidLabelOverlap: false,
+                                    label: {
+                                        show: false,
+                                        position: 'center'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '14',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: false
+                                    },
+                                    data: typeData
+                                },
+                                {
+                                    name: 'Criticality Level',
+                                    type: 'pie',
+                                    radius: ['20%', '45%'],
+                                    center: ['70%', '50%'],
+                                    avoidLabelOverlap: false,
+                                    label: {
+                                        show: false,
+                                        position: 'center'
+                                    },
+                                    emphasis: {
+                                        label: {
+                                            show: true,
+                                            fontSize: '14',
+                                            fontWeight: 'bold'
+                                        }
+                                    },
+                                    labelLine: {
+                                        show: false
+                                    },
+                                    data: criticalityData
+                                }
+                            ]
+                        };
+                        
+                        // Apply options
+                        typeChart.setOption(typeOption);
+                        
+                        // Handle window resize
+                        window.addEventListener('resize', function() {
+                            typeChart.resize();
+                        });
+                    }
+                });
+            } else {
+                // Hide buttons if no chart
+                document.getElementById('toggleFullscreen').style.display = 'none';
+                document.getElementById('exportBtn').style.display = 'none';
+            }
+        });
+    </script>
+}

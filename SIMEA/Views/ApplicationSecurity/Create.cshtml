@@ -1,0 +1,670 @@
+@model SIMEA.Models.ApplicationSecurityModel
+
+@{
+    ViewData["Title"] = "Create Application Security Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Application Security Model</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/ApplicationSecurity/Index">Application Security Models</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Security Model
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="ApplicationSecurity" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ApplicationName" class="control-label">Application Name</label>
+                            <input asp-for="ApplicationName" class="form-control" placeholder="Application Name" required />
+                            <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" placeholder="Security Owner" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SecurityRequirement" class="control-label">Security Requirement</label>
+                        <textarea asp-for="SecurityRequirement" class="form-control" rows="3" placeholder="Detailed security requirements for this application" required></textarea>
+                        <span asp-validation-for="SecurityRequirement" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="LastAuditDate" class="control-label">Last Audit Date</label>
+                            <input asp-for="LastAuditDate" class="form-control" type="date" data-toggle="tooltip" title="Date of last security audit" />
+                            <span asp-validation-for="LastAuditDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Compliance Standards</label>
+                        <div class="input-group">
+                            <input type="text" id="complianceInput" class="form-control" placeholder="Add compliance standard (e.g. GDPR, HIPAA, PCI DSS)" data-toggle="tooltip" title="Enter regulatory or compliance standards that apply to this application" />
+                            <div class="input-group-append">
+                                <button type="button" id="addCompliance" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#complianceModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="complianceList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-compliance">No compliance standards added</span>
+                        </div>
+                        <div id="complianceContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Vulnerabilities</label>
+                        <div class="input-group">
+                            <input type="text" id="vulnerabilityInput" class="form-control" placeholder="Add vulnerability" />
+                            <div class="input-group-append">
+                                <button type="button" id="addVulnerability" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#vulnerabilitiesModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="vulnerabilitiesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-vulnerabilities">No vulnerabilities added</span>
+                        </div>
+                        <div id="vulnerabilitiesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Mitigation Strategies</label>
+                        <div class="input-group">
+                            <input type="text" id="mitigationInput" class="form-control" placeholder="Add mitigation strategy" />
+                            <div class="input-group-append">
+                                <button type="button" id="addMitigation" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#mitigationsModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="mitigationsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-mitigations">No mitigation strategies added</span>
+                        </div>
+                        <div id="mitigationsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-cog"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" asp-controller="ApplicationSecurity" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compliance Standards Modal -->
+    <div class="modal fade" id="complianceModal" tabindex="-1" role="dialog" aria-labelledby="complianceModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="complianceModalLabel">Manage Compliance Standards</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="complianceModalList">
+                        <!-- Compliance standards will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="complianceModalInput" class="form-control" placeholder="Add new compliance standard" />
+                        <div class="input-group-append">
+                            <button type="button" id="addComplianceModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vulnerabilities Modal -->
+    <div class="modal fade" id="vulnerabilitiesModal" tabindex="-1" role="dialog" aria-labelledby="vulnerabilitiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="vulnerabilitiesModalLabel">Manage Vulnerabilities</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="vulnerabilitiesModalList">
+                        <!-- Vulnerabilities will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="vulnerabilityModalInput" class="form-control" placeholder="Add new vulnerability" />
+                        <div class="input-group-append">
+                            <button type="button" id="addVulnerabilityModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mitigation Strategies Modal -->
+    <div class="modal fade" id="mitigationsModal" tabindex="-1" role="dialog" aria-labelledby="mitigationsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="mitigationsModalLabel">Manage Mitigation Strategies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="mitigationsModalList">
+                        <!-- Mitigation strategies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="mitigationModalInput" class="form-control" placeholder="Add new mitigation strategy" />
+                        <div class="input-group-append">
+                            <button type="button" id="addMitigationModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <script>
+        $(document).ready(function () {
+            // Configure toastr notifications
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+            
+            // Initialize date picker with today's date
+            const today = new Date().toISOString().split('T')[0];
+            $('#LastAuditDate').val(today);
+            
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+            
+            let complianceStandards = [];
+            let vulnerabilities = [];
+            let mitigationStrategies = [];
+            let dependencies = [];
+
+            // Functions to update UI displays
+            function updateComplianceList() {
+                let html = '';
+                complianceStandards.forEach((standard) => {
+                    html += `<span class="badge badge-info mr-1 mb-1 compliance-badge" data-value="${standard}">
+                        ${standard} <i class="fas fa-times ml-1 remove-badge" data-type="compliance" data-value="${standard}"></i>
+                        <input type="hidden" name="ComplianceStandards" value="${standard}" />
+                    </span>`;
+                });
+                
+                if (complianceStandards.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-compliance">No compliance standards added</span>';
+                }
+                
+                $('#complianceList').html(html);
+                updateComplianceModal();
+            }
+
+            function updateVulnerabilitiesList() {
+                let html = '';
+                vulnerabilities.forEach((vulnerability) => {
+                    html += `<span class="badge badge-danger mr-1 mb-1 vulnerability-badge" data-value="${vulnerability}">
+                        ${vulnerability} <i class="fas fa-times ml-1 remove-badge" data-type="vulnerability" data-value="${vulnerability}"></i>
+                        <input type="hidden" name="Vulnerabilities" value="${vulnerability}" />
+                    </span>`;
+                });
+                
+                if (vulnerabilities.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-vulnerabilities">No vulnerabilities added</span>';
+                }
+                
+                $('#vulnerabilitiesList').html(html);
+                updateVulnerabilitiesModal();
+            }
+
+            function updateMitigationsList() {
+                let html = '';
+                mitigationStrategies.forEach((strategy) => {
+                    html += `<span class="badge badge-success mr-1 mb-1 mitigation-badge" data-value="${strategy}">
+                        ${strategy} <i class="fas fa-times ml-1 remove-badge" data-type="mitigation" data-value="${strategy}"></i>
+                        <input type="hidden" name="MitigationStrategies" value="${strategy}" />
+                    </span>`;
+                });
+                
+                if (mitigationStrategies.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-mitigations">No mitigation strategies added</span>';
+                }
+                
+                $('#mitigationsList').html(html);
+                updateMitigationsModal();
+            }
+
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency) => {
+                    html += `<span class="badge badge-secondary mr-1 mb-1 dependency-badge" data-value="${dependency}">
+                        ${dependency} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${dependency}"></i>
+                        <input type="hidden" name="Dependencies" value="${dependency}" />
+                    </span>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>';
+                }
+                
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateComplianceModal() {
+                let html = '';
+                complianceStandards.forEach((standard) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${standard}
+                        <button type="button" class="btn btn-sm btn-danger delete-compliance" data-value="${standard}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (complianceStandards.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No compliance standards added yet</li>';
+                }
+                
+                $('#complianceModalList').html(html);
+            }
+
+            function updateVulnerabilitiesModal() {
+                let html = '';
+                vulnerabilities.forEach((vulnerability) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${vulnerability}
+                        <button type="button" class="btn btn-sm btn-danger delete-vulnerability" data-value="${vulnerability}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (vulnerabilities.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No vulnerabilities added yet</li>';
+                }
+                
+                $('#vulnerabilitiesModalList').html(html);
+            }
+
+            function updateMitigationsModal() {
+                let html = '';
+                mitigationStrategies.forEach((strategy) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${strategy}
+                        <button type="button" class="btn btn-sm btn-danger delete-mitigation" data-value="${strategy}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (mitigationStrategies.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No mitigation strategies added yet</li>';
+                }
+                
+                $('#mitigationsModalList').html(html);
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger delete-dependency" data-value="${dependency}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                
+                if (dependencies.length === 0) {
+                    html = '<li class="list-group-item text-center text-muted">No dependencies added yet</li>';
+                }
+                
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Add items
+            $('#addCompliance').click(function () {
+                const standard = $('#complianceInput').val().trim();
+                if (standard) {
+                    if (!complianceStandards.includes(standard)) {
+                        complianceStandards.push(standard);
+                        updateComplianceList();
+                        $('#complianceInput').val('');
+                    } else {
+                        toastr.warning('This compliance standard already exists.');
+                    }
+                }
+            });
+
+            $('#addVulnerability').click(function () {
+                const vulnerability = $('#vulnerabilityInput').val().trim();
+                if (vulnerability) {
+                    if (!vulnerabilities.includes(vulnerability)) {
+                        vulnerabilities.push(vulnerability);
+                        updateVulnerabilitiesList();
+                        $('#vulnerabilityInput').val('');
+                    } else {
+                        toastr.warning('This vulnerability already exists.');
+                    }
+                }
+            });
+
+            $('#addMitigation').click(function () {
+                const strategy = $('#mitigationInput').val().trim();
+                if (strategy) {
+                    if (!mitigationStrategies.includes(strategy)) {
+                        mitigationStrategies.push(strategy);
+                        updateMitigationsList();
+                        $('#mitigationInput').val('');
+                    } else {
+                        toastr.warning('This mitigation strategy already exists.');
+                    }
+                }
+            });
+
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Add items from modals
+            $('#addComplianceModal').click(function () {
+                const standard = $('#complianceModalInput').val().trim();
+                if (standard) {
+                    if (!complianceStandards.includes(standard)) {
+                        complianceStandards.push(standard);
+                        updateComplianceList();
+                        $('#complianceModalInput').val('');
+                    } else {
+                        toastr.warning('This compliance standard already exists.');
+                    }
+                }
+            });
+
+            $('#addVulnerabilityModal').click(function () {
+                const vulnerability = $('#vulnerabilityModalInput').val().trim();
+                if (vulnerability) {
+                    if (!vulnerabilities.includes(vulnerability)) {
+                        vulnerabilities.push(vulnerability);
+                        updateVulnerabilitiesList();
+                        $('#vulnerabilityModalInput').val('');
+                    } else {
+                        toastr.warning('This vulnerability already exists.');
+                    }
+                }
+            });
+
+            $('#addMitigationModal').click(function () {
+                const strategy = $('#mitigationModalInput').val().trim();
+                if (strategy) {
+                    if (!mitigationStrategies.includes(strategy)) {
+                        mitigationStrategies.push(strategy);
+                        updateMitigationsList();
+                        $('#mitigationModalInput').val('');
+                    } else {
+                        toastr.warning('This mitigation strategy already exists.');
+                    }
+                }
+            });
+
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency) {
+                    if (!dependencies.includes(dependency)) {
+                        dependencies.push(dependency);
+                        updateDependenciesList();
+                        $('#dependencyModalInput').val('');
+                    } else {
+                        toastr.warning('This dependency already exists.');
+                    }
+                }
+            });
+
+            // Remove items
+            $(document).on('click', '.remove-badge', function () {
+                const type = $(this).data('type');
+                const value = $(this).data('value');
+                
+                if (type === 'compliance') {
+                    const index = complianceStandards.indexOf(value);
+                    if (index !== -1) {
+                        complianceStandards.splice(index, 1);
+                        updateComplianceList();
+                    }
+                } else if (type === 'vulnerability') {
+                    const index = vulnerabilities.indexOf(value);
+                    if (index !== -1) {
+                        vulnerabilities.splice(index, 1);
+                        updateVulnerabilitiesList();
+                    }
+                } else if (type === 'mitigation') {
+                    const index = mitigationStrategies.indexOf(value);
+                    if (index !== -1) {
+                        mitigationStrategies.splice(index, 1);
+                        updateMitigationsList();
+                    }
+                } else if (type === 'dependency') {
+                    const index = dependencies.indexOf(value);
+                    if (index !== -1) {
+                        dependencies.splice(index, 1);
+                        updateDependenciesList();
+                    }
+                }
+            });
+
+            // Remove items from modals
+            $(document).on('click', '.delete-compliance', function () {
+                const value = $(this).data('value');
+                const index = complianceStandards.indexOf(value);
+                if (index !== -1) {
+                    complianceStandards.splice(index, 1);
+                    updateComplianceList();
+                }
+            });
+
+            $(document).on('click', '.delete-vulnerability', function () {
+                const value = $(this).data('value');
+                const index = vulnerabilities.indexOf(value);
+                if (index !== -1) {
+                    vulnerabilities.splice(index, 1);
+                    updateVulnerabilitiesList();
+                }
+            });
+
+            $(document).on('click', '.delete-mitigation', function () {
+                const value = $(this).data('value');
+                const index = mitigationStrategies.indexOf(value);
+                if (index !== -1) {
+                    mitigationStrategies.splice(index, 1);
+                    updateMitigationsList();
+                }
+            });
+
+            $(document).on('click', '.delete-dependency', function () {
+                const value = $(this).data('value');
+                const index = dependencies.indexOf(value);
+                if (index !== -1) {
+                    dependencies.splice(index, 1);
+                    updateDependenciesList();
+                }
+            });
+
+            // Handle Enter key
+            $('#complianceInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addCompliance').click();
+                }
+            });
+
+            $('#vulnerabilityInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addVulnerability').click();
+                }
+            });
+
+            $('#mitigationInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addMitigation').click();
+                }
+            });
+
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#complianceModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addComplianceModal').click();
+                }
+            });
+
+            $('#vulnerabilityModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addVulnerabilityModal').click();
+                }
+            });
+
+            $('#mitigationModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addMitigationModal').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+            
+            // Initialize displays
+            updateComplianceList();
+            updateVulnerabilitiesList();
+            updateMitigationsList();
+            updateDependenciesList();
+        });
+    </script>
+}

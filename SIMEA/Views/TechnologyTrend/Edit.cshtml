@@ -1,0 +1,177 @@
+@model SIMEA.Models.TechnologyTrendModel
+
+@{
+    ViewData["Title"] = "Edit Technology Trend";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="UserCreated" />
+                    <input type="hidden" asp-for="DateCreated" />
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="TrendName" class="control-label"></label>
+                                    <input asp-for="TrendName" class="form-control" />
+                                    <span asp-validation-for="TrendName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="TrendCategory" class="control-label"></label>
+                                    <select asp-for="TrendCategory" class="form-control">
+                                        <option value="">Select Category</option>
+                                        <option value="AI/ML">AI/ML</option>
+                                        <option value="Cloud Computing">Cloud Computing</option>
+                                        <option value="IoT">IoT</option>
+                                        <option value="Blockchain">Blockchain</option>
+                                        <option value="Cybersecurity">Cybersecurity</option>
+                                        <option value="Data Analytics">Data Analytics</option>
+                                        <option value="Mobile Technology">Mobile Technology</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span asp-validation-for="TrendCategory" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="MaturityLevel" class="control-label"></label>
+                                    <select asp-for="MaturityLevel" class="form-control">
+                                        <option value="">Select Maturity</option>
+                                        <option value="Emerging">Emerging</option>
+                                        <option value="Developing">Developing</option>
+                                        <option value="Maturing">Maturing</option>
+                                        <option value="Mature">Mature</option>
+                                        <option value="Declining">Declining</option>
+                                    </select>
+                                    <span asp-validation-for="MaturityLevel" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="StrategicRelevance" class="control-label"></label>
+                                    <select asp-for="StrategicRelevance" class="form-control">
+                                        <option value="">Select Relevance</option>
+                                        <option value="Critical">Critical</option>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                    </select>
+                                    <span asp-validation-for="StrategicRelevance" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="DisruptionPotential" class="control-label"></label>
+                                    <input asp-for="DisruptionPotential" class="form-control" type="number" min="1" max="10" />
+                                    <span asp-validation-for="DisruptionPotential" class="text-danger"></span>
+                                    <small class="form-text text-muted">Scale: 1-10</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="AdoptionTimeline" class="control-label"></label>
+                                    <input asp-for="AdoptionTimeline" class="form-control" />
+                                    <span asp-validation-for="AdoptionTimeline" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="BusinessImpact" class="control-label"></label>
+                            <textarea asp-for="BusinessImpact" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="BusinessImpact" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="TechnicalRequirements" class="control-label"></label>
+                            <textarea asp-for="TechnicalRequirements" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="TechnicalRequirements" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="InvestmentRequired" class="control-label"></label>
+                                    <input asp-for="InvestmentRequired" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="InvestmentRequired" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="RiskAssessment" class="control-label"></label>
+                                    <select asp-for="RiskAssessment" class="form-control">
+                                        <option value="">Select Risk Level</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Critical">Critical</option>
+                                    </select>
+                                    <span asp-validation-for="RiskAssessment" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="RecommendedActions" class="control-label"></label>
+                            <textarea asp-for="RecommendedActions" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="RecommendedActions" class="text-danger"></span>
+                        </div>
+
+                        @if (Model.UserCreated != null)
+                        {
+                            <div class="alert alert-light mt-3">
+                                <small class="text-muted">
+                                    Originally created by @Model.UserCreated on @(Model.DateCreated?.ToString("MMM dd, yyyy HH:mm"))
+                                </small>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

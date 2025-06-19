@@ -1,0 +1,238 @@
+@model SIMEA.Models.SystemToBusinessCrossReference
+
+@{
+    ViewData["Title"] = "Create System to Business Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create System to Business Cross Reference</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/SystemToBusiness/Index">System to Business Cross References</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Cross Reference
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SystemName" class="control-label">System Name</label>
+                            <input asp-for="SystemName" class="form-control" required />
+                            <span asp-validation-for="SystemName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="BusinessUnit" class="control-label">Business Unit</label>
+                            <input asp-for="BusinessUnit" class="form-control" required />
+                            <span asp-validation-for="BusinessUnit" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="BusinessProcessSupported" class="control-label">Business Process Supported</label>
+                        <textarea asp-for="BusinessProcessSupported" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="BusinessProcessSupported" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Criticality" class="control-label">Criticality</label>
+                            <select asp-for="Criticality" class="form-control" required>
+                                <option value="">Select Criticality</option>
+                                <option value="Critical">Critical</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                            <span asp-validation-for="Criticality" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SecurityRequirements" class="control-label">Security Requirements</label>
+                        <textarea asp-for="SecurityRequirements" class="form-control" rows="2" required></textarea>
+                        <span asp-validation-for="SecurityRequirements" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Performance Metrics</label>
+                        <div class="input-group">
+                            <input type="text" id="metricInput" class="form-control" placeholder="Add performance metric">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addMetric" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="metricsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-metrics">No performance metrics added</span>
+                        </div>
+                        <div id="metricsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Handle adding performance metrics
+            $("#addMetric").click(function() {
+                const value = $("#metricInput").val().trim();
+                
+                if (value) {
+                    addMetric(value);
+                    $("#metricInput").val("");
+                }
+            });
+            
+            // Enter key for dependencies
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Enter key for metrics
+            $("#metricInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addMetric").click();
+                }
+            });
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a performance metric
+            function addMetric(value) {
+                // Remove "no metrics" badge if it exists
+                $("#metricsList .no-metrics").remove();
+                
+                // Check if this metric already exists
+                if ($(`#metricsContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#metricsContainer").append(`<input type="hidden" name="PerformanceMetrics" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#metricsList").append(`
+                        <span class="badge badge-info mr-1 mb-1 metric-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="metric" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Function to remove a performance metric
+            function removeMetric(value) {
+                // Remove the hidden input
+                $(`#metricsContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#metricsList .metric-badge[data-value="${value}"]`).remove();
+                
+                // Add "no metrics" badge if there are no more metrics
+                if ($("#metricsContainer input").length === 0) {
+                    $("#metricsList").html('<span class="badge badge-secondary mr-1 mb-1 no-metrics">No performance metrics added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "dependency") {
+                    removeDependency(value);
+                } else if (type === "metric") {
+                    removeMetric(value);
+                }
+            });
+        });
+    </script>
+}

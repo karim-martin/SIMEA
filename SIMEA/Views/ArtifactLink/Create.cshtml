@@ -1,0 +1,429 @@
+@model SIMEA.Models.ArtifactLink
+
+@{
+    ViewData["Title"] = "Create Artifact Link";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-plus-circle mr-2"></i> Create New Artifact Link
+            </h6>
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-8">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Create a relationship between two architecture artifacts to define how they connect.
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label asp-for="SourceArtifactType" class="control-label font-weight-bold">
+                                    <i class="fas fa-cube mr-1 text-primary"></i> Source Artifact Type
+                                </label>
+                                <select asp-for="SourceArtifactType" class="form-control shadow-sm" asp-items="ViewBag.ArtifactTypes" id="sourceArtifactType">
+                                    <option value="">-- Select Source Type --</option>
+                                </select>
+                                <span asp-validation-for="SourceArtifactType" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="col-md-6 form-group">
+                                <label asp-for="TargetArtifactType" class="control-label font-weight-bold">
+                                    <i class="fas fa-cube mr-1 text-success"></i> Target Artifact Type
+                                </label>
+                                <select asp-for="TargetArtifactType" class="form-control shadow-sm" asp-items="ViewBag.ArtifactTypes" id="targetArtifactType">
+                                    <option value="">-- Select Target Type --</option>
+                                </select>
+                                <span asp-validation-for="TargetArtifactType" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row mb-3">
+                            <div class="col-md-6">
+                                <div class="card border-left-primary shadow h-100">
+                                    <div class="card-body p-3">
+                                        <label asp-for="SourceArtifactId" class="control-label font-weight-bold">
+                                            <i class="fas fa-project-diagram mr-1"></i> Source Artifact
+                                        </label>
+                                        <select asp-for="SourceArtifactId" class="form-control" id="sourceArtifactId">
+                                            <option value="">-- Select Source Artifact --</option>
+                                        </select>
+                                        <span asp-validation-for="SourceArtifactId" class="text-danger"></span>
+                                        <small class="form-text text-muted">Select the source artifact to link from</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card border-left-success shadow h-100">
+                                    <div class="card-body p-3">
+                                        <label asp-for="TargetArtifactId" class="control-label font-weight-bold">
+                                            <i class="fas fa-project-diagram mr-1"></i> Target Artifact
+                                        </label>
+                                        <select asp-for="TargetArtifactId" class="form-control" id="targetArtifactId">
+                                            <option value="">-- Select Target Artifact --</option>
+                                        </select>
+                                        <span asp-validation-for="TargetArtifactId" class="text-danger"></span>
+                                        <small class="form-text text-muted">Select the target artifact to link to</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card border-left-info shadow mb-4">
+                            <div class="card-body p-3">
+                                <label asp-for="LinkDescription" class="control-label font-weight-bold">
+                                    <i class="fas fa-link mr-1 text-info"></i> Relationship Description
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light">Source</span>
+                                    </div>
+                                    <textarea asp-for="LinkDescription" class="form-control shadow-sm" rows="2" 
+                                              placeholder="e.g., 'implements', 'depends on', 'supports', etc."></textarea>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-light">Target</span>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Describe the relationship between these artifacts</small>
+                                <span asp-validation-for="LinkDescription" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4 text-right">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times mr-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save mr-1"></i> Create Link
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="m-0 font-weight-bold text-gray-700">
+                                <i class="fas fa-info-circle mr-2"></i> Creating Artifact Links
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small text-muted mb-3">
+                                <p><strong>Follow these steps to create a link:</strong></p>
+                                <ol>
+                                    <li>Select the source artifact type from the dropdown</li>
+                                    <li>Choose the specific source artifact</li>
+                                    <li>Select the target artifact type</li>
+                                    <li>Choose the specific target artifact</li>
+                                    <li>Define the relationship between these artifacts</li>
+                                </ol>
+                                
+                                <hr>
+                                
+                                <p><strong>Common relationship descriptions:</strong></p>
+                                <div class="d-flex flex-wrap">
+                                    <span class="badge badge-light m-1 p-2">implements</span>
+                                    <span class="badge badge-light m-1 p-2">depends on</span>
+                                    <span class="badge badge-light m-1 p-2">supports</span>
+                                    <span class="badge badge-light m-1 p-2">is component of</span>
+                                    <span class="badge badge-light m-1 p-2">controls</span>
+                                    <span class="badge badge-light m-1 p-2">is derived from</span>
+                                    <span class="badge badge-light m-1 p-2">managed by</span>
+                                    <span class="badge badge-light m-1 p-2">extends</span>
+                                    <span class="badge badge-light m-1 p-2">provides data to</span>
+                                    <span class="badge badge-light m-1 p-2">sends requests to</span>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="card bg-gradient-primary text-white shadow-sm mb-3">
+                                    <div class="card-body p-3">
+                                        <p class="mb-0"><i class="fas fa-lightbulb mr-1"></i> <strong>Tip:</strong> Clear relationship descriptions help visualize architecture dependencies.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="card bg-gradient-info text-white shadow-sm">
+                                    <div class="card-body p-3">
+                                        <p class="mb-0"><i class="fas fa-info-circle mr-1"></i> <strong>Note:</strong> Links can connect artifacts from different architecture domains.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-project-diagram mr-2"></i> Preview
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="linkPreview" class="text-center p-3 bg-light rounded" style="min-height: 200px;">
+                                <div class="source-preview p-2 mb-3" style="border: 2px dashed #4e73df; border-radius: 5px; display: inline-block; min-width: 200px;">
+                                    <div class="bg-primary text-white p-1 rounded">
+                                        <span id="sourceTypePreview">Source Type</span>
+                                    </div>
+                                    <div class="p-2 font-weight-bold">
+                                        <span id="sourceNamePreview">Select a source artifact</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="arrow-connector mb-2">
+                                    <div class="connector-line mx-auto" style="height: 20px; width: 2px; background-color: #858796;"></div>
+                                    <div class="link-label px-3 py-1 mx-auto" style="max-width: 150px; border: 1px dashed #858796; border-radius: 15px; font-size: 12px; background-color: white;">
+                                        <span id="linkDescriptionPreview">relationship</span>
+                                    </div>
+                                    <div class="connector-line mx-auto" style="height: 20px; width: 2px; background-color: #858796;"></div>
+                                    <div class="arrow-head text-center" style="color: #858796;">
+                                        <i class="fas fa-chevron-down" style="font-size: 16px;"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="target-preview p-2" style="border: 2px dashed #1cc88a; border-radius: 5px; display: inline-block; min-width: 200px;">
+                                    <div class="bg-success text-white p-1 rounded">
+                                        <span id="targetTypePreview">Target Type</span>
+                                    </div>
+                                    <div class="p-2 font-weight-bold">
+                                        <span id="targetNamePreview">Select a target artifact</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-gradient-primary {
+            background-color: #4e73df;
+            background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            background-size: cover;
+        }
+        
+        .bg-gradient-info {
+            background-color: #36b9cc;
+            background-image: linear-gradient(180deg, #36b9cc 10%, #258391 100%);
+            background-size: cover;
+        }
+        
+        select.form-control {
+            height: calc(2.25rem + 5px);
+        }
+        
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .badge {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .badge:hover {
+            background-color: #4e73df !important;
+            color: white;
+        }
+        
+        .border-left-primary {
+            border-left: 0.25rem solid #4e73df !important;
+        }
+        
+        .border-left-success {
+            border-left: 0.25rem solid #1cc88a !important;
+        }
+        
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+        
+        .arrow-connector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .source-preview, .target-preview {
+            transition: all 0.3s ease;
+        }
+        
+        .source-preview.active {
+            border: 2px solid #4e73df;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(78, 115, 223, 0.15);
+        }
+        
+        .target-preview.active {
+            border: 2px solid #1cc88a;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(28, 200, 138, 0.15);
+        }
+        
+        .loading-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function () {
+            // Event handlers for source artifact type selection
+            $('#sourceArtifactType').change(function () {
+                var selectedType = $(this).val();
+                updatePreview();
+                
+                if (selectedType) {
+                    // Show loading indicator
+                    $('#sourceArtifactId').closest('.card-body').css('position', 'relative')
+                        .append('<div class="loading-indicator"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i></div>');
+                    
+                    loadArtifactIds(selectedType, '#sourceArtifactId');
+                } else {
+                    $('#sourceArtifactId').empty().append('<option value="">-- Select Source Artifact --</option>');
+                }
+            });
+            
+            // Event handlers for target artifact type selection
+            $('#targetArtifactType').change(function () {
+                var selectedType = $(this).val();
+                updatePreview();
+                
+                if (selectedType) {
+                    // Show loading indicator
+                    $('#targetArtifactId').closest('.card-body').css('position', 'relative')
+                        .append('<div class="loading-indicator"><i class="fas fa-spinner fa-spin fa-2x text-success"></i></div>');
+                    
+                    loadArtifactIds(selectedType, '#targetArtifactId');
+                } else {
+                    $('#targetArtifactId').empty().append('<option value="">-- Select Target Artifact --</option>');
+                }
+            });
+            
+            // Update preview when source artifact changes
+            $('#sourceArtifactId').change(function() {
+                updatePreview();
+                $('.source-preview').addClass('active');
+            });
+            
+            // Update preview when target artifact changes
+            $('#targetArtifactId').change(function() {
+                updatePreview();
+                $('.target-preview').addClass('active');
+            });
+            
+            // Update preview when link description changes
+            $('#LinkDescription').on('input', function() {
+                updatePreview();
+            });
+            
+            // Click on relationship badges to insert them
+            $('.badge').click(function() {
+                $('#LinkDescription').val($(this).text());
+                updatePreview();
+            });
+            
+            // Function to update preview
+            function updatePreview() {
+                // Source preview
+                var sourceType = $('#sourceArtifactType option:selected').text();
+                if (sourceType && sourceType !== '-- Select Source Type --') {
+                    $('#sourceTypePreview').text(sourceType);
+                } else {
+                    $('#sourceTypePreview').text('Source Type');
+                }
+                
+                var sourceName = $('#sourceArtifactId option:selected').text();
+                if (sourceName && sourceName !== '-- Select Source Artifact --') {
+                    $('#sourceNamePreview').text(sourceName);
+                } else {
+                    $('#sourceNamePreview').text('Select a source artifact');
+                }
+                
+                // Target preview
+                var targetType = $('#targetArtifactType option:selected').text();
+                if (targetType && targetType !== '-- Select Target Type --') {
+                    $('#targetTypePreview').text(targetType);
+                } else {
+                    $('#targetTypePreview').text('Target Type');
+                }
+                
+                var targetName = $('#targetArtifactId option:selected').text();
+                if (targetName && targetName !== '-- Select Target Artifact --') {
+                    $('#targetNamePreview').text(targetName);
+                } else {
+                    $('#targetNamePreview').text('Select a target artifact');
+                }
+                
+                // Link description
+                var linkDesc = $('#LinkDescription').val().trim();
+                if (linkDesc) {
+                    $('#linkDescriptionPreview').text(linkDesc);
+                } else {
+                    $('#linkDescriptionPreview').text('relationship');
+                }
+            }
+            
+            // Function to load artifact IDs based on selected type
+            function loadArtifactIds(artifactType, selectElement) {
+                $.ajax({
+                    url: '@Url.Action("GetArtifactIds", "ArtifactLink")',
+                    type: 'GET',
+                    data: { artifactType: artifactType },
+                    success: function (data) {
+                        var select = $(selectElement);
+                        select.empty();
+                        select.append('<option value="">-- Select Artifact --</option>');
+                        
+                        $.each(data, function (i, item) {
+                            select.append($('<option>').val(item.id).text(item.name));
+                        });
+                        
+                        // Remove loading indicator
+                        $(selectElement).closest('.card-body').find('.loading-indicator').remove();
+                        
+                        // Highlight
+                        $(selectElement).closest('.card').addClass('highlight-pulse');
+                        setTimeout(function() {
+                            $(selectElement).closest('.card').removeClass('highlight-pulse');
+                        }, 1000);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error loading artifacts:', error);
+                        alert('Error loading artifacts. Please try again.');
+                        
+                        // Remove loading indicator
+                        $(selectElement).closest('.card-body').find('.loading-indicator').remove();
+                    }
+                });
+            }
+            
+            // Initialize preview
+            updatePreview();
+        });
+    </script>
+}

@@ -1,0 +1,790 @@
+@model SIMEA.Models.ViewModels.BusinessProcessTechAlignmentViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-success">Business Process to Tech Stack Alignment Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This view helps evaluate how well technology stacks align with business processes, identifying areas where technology may need enhancement to better support the business.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alignment Score Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Alignment Score by Business Process</h6>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-primary active" data-score-filter="all">All Scores</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-score-filter="low">Low (1-2)</button>
+                        <button type="button" class="btn btn-sm btn-outline-warning" data-score-filter="medium">Medium (3)</button>
+                        <button type="button" class="btn btn-sm btn-outline-success" data-score-filter="high">High (4-5)</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.Mappings != null && Model.Mappings.Any())
+                    {
+                        <div id="alignment-score-chart" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Technology Mapping Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Process to Technology Mapping</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="mappingTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Business Process</th>
+                                    <th>Application</th>
+                                    <th>Technology Stack</th>
+                                    <th>Alignment Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Mappings != null && Model.Mappings.Any())
+                                {
+                                    foreach (var mapping in Model.Mappings)
+                                    {
+                                        <tr class="mapping-row" data-score="@mapping.AlignmentScore">
+                                            <td>@mapping.ProcessName</td>
+                                            <td>@mapping.ApplicationName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(mapping.TechnologyStack))
+                                                {
+                                                    <span class="tech-stack">@mapping.TechnologyStack</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No tech stack information</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 mr-2">
+                                                        <div class="progress-bar 
+                                                            @(mapping.AlignmentScore >= 4 ? "bg-success" : 
+                                                            mapping.AlignmentScore == 3 ? "bg-warning" : 
+                                                            "bg-danger")" 
+                                                             role="progressbar" 
+                                                             style="width: @(mapping.AlignmentScore * 20)%" 
+                                                             aria-valuenow="@mapping.AlignmentScore" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="5">
+                                                        </div>
+                                                    </div>
+                                                    <span class="font-weight-bold">@mapping.AlignmentScore</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No process-tech mapping data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Processes and Applications -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Business Processes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="processesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Process Name</th>
+                                    <th>Description</th>
+                                    <th>Owner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.BusinessProcesses != null && Model.BusinessProcesses.Any())
+                                {
+                                    foreach (var process in Model.BusinessProcesses)
+                                    {
+                                        <tr>
+                                            <td>@process.ProcessName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(process.ProcessDescription))
+                                                {
+                                                    @(process.ProcessDescription.Length > 50 
+                                                        ? process.ProcessDescription.Substring(0, 50) + "..." 
+                                                        : process.ProcessDescription)
+                                                }
+                                            </td>
+                                            <td>@process.Owner</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No business process data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Applications</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="applicationsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Application</th>
+                                    <th>Description</th>
+                                    <th>Tech Stack</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Applications != null && Model.Applications.Any())
+                                {
+                                    foreach (var app in Model.Applications)
+                                    {
+                                        <tr>
+                                            <td>@app.ApplicationName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(app.ApplicationDescription))
+                                                {
+                                                    @(app.ApplicationDescription.Length > 50 
+                                                        ? app.ApplicationDescription.Substring(0, 50) + "..." 
+                                                        : app.ApplicationDescription)
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (app.TechnologyStack != null && app.TechnologyStack.Any())
+                                                {
+                                                    <span>@string.Join(", ", app.TechnologyStack.Take(3))</span>
+                                                    @if (app.TechnologyStack.Count > 3)
+                                                    {
+                                                        <span>...</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No tech stack info</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No application data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Stack Analysis -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Technology Stack Analysis</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Mappings != null && Model.Mappings.Any())
+                    {
+                        <div id="tech-stack-chart" style="height: 400px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            var mappingTable, processesTable, applicationsTable;
+            
+            if ($('#mappingTable tbody tr').length > 1) {
+                mappingTable = $('#mappingTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            if ($('#processesTable tbody tr').length > 1) {
+                processesTable = $('#processesTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#applicationsTable tbody tr').length > 1) {
+                applicationsTable = $('#applicationsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            // Alignment score filter buttons
+            $('.btn-group [data-score-filter]').click(function() {
+                $('.btn-group [data-score-filter]').removeClass('active');
+                $(this).addClass('active');
+                
+                var scoreFilter = $(this).data('score-filter');
+                
+                if (mappingTable) {
+                    if (scoreFilter === 'all') {
+                        mappingTable.search('').draw();
+                    } else if (scoreFilter === 'low') {
+                        mappingTable.search('1|2').draw();
+                    } else if (scoreFilter === 'medium') {
+                        mappingTable.search('3').draw();
+                    } else if (scoreFilter === 'high') {
+                        mappingTable.search('4|5').draw();
+                    }
+                } else {
+                    // Fallback for when DataTables isn't initialized
+                    $('.mapping-row').show();
+                    
+                    if (scoreFilter === 'low') {
+                        $('.mapping-row').hide();
+                        $('.mapping-row[data-score="1"], .mapping-row[data-score="2"]').show();
+                    } else if (scoreFilter === 'medium') {
+                        $('.mapping-row').hide();
+                        $('.mapping-row[data-score="3"]').show();
+                    } else if (scoreFilter === 'high') {
+                        $('.mapping-row').hide();
+                        $('.mapping-row[data-score="4"], .mapping-row[data-score="5"]').show();
+                    }
+                }
+            });
+            
+            // Initialize Alignment Score Chart if element exists
+            var alignmentChartElement = document.getElementById('alignment-score-chart');
+            if (alignmentChartElement && @(Model.Mappings != null && Model.Mappings.Any() ? "true" : "false")) {
+                console.log("Initializing alignment score chart");
+                
+                // Process data for the chart
+                var processScores = {};
+                var processApps = {};
+                
+                @if (Model.Mappings != null && Model.Mappings.Any())
+                {
+                    <text>
+                    var mappings = @Html.Raw(Json.Serialize(Model.Mappings.Select(m => new { 
+                        Process = m.ProcessName, 
+                        Application = m.ApplicationName,
+                        TechStack = m.TechnologyStack,
+                        Score = m.AlignmentScore
+                    })));
+                    
+                    // Group by process and calculate average alignment score
+                    mappings.forEach(function(mapping) {
+                        if (!mapping.Process) return;
+                        
+                        if (!processScores[mapping.Process]) {
+                            processScores[mapping.Process] = [];
+                            processApps[mapping.Process] = [];
+                        }
+                        
+                        var score = mapping.Score || 0;
+                        processScores[mapping.Process].push(score);
+                        processApps[mapping.Process].push({
+                            app: mapping.Application || 'Unknown',
+                            techStack: mapping.TechStack || '',
+                            score: score
+                        });
+                    });
+                    </text>
+                }
+                
+                // Calculate averages and prepare chart data
+                var processes = [];
+                var avgScores = [];
+                var appCounts = [];
+                var detailData = [];
+                
+                for (var process in processScores) {
+                    processes.push(process);
+                    
+                    var scores = processScores[process];
+                    var avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    avgScores.push(avgScore.toFixed(1));
+                    
+                    appCounts.push(scores.length);
+                    
+                    detailData.push({
+                        process: process,
+                        avgScore: avgScore.toFixed(1),
+                        appCount: scores.length,
+                        apps: processApps[process]
+                    });
+                }
+                
+                // Use the chart helper to handle empty data
+                handleEmptyChart(alignmentChartElement, detailData.length > 0 ? detailData : null, function(alignmentChart) {
+                    // Sort by average score ascending
+                    var sortedData = detailData.slice().sort((a, b) => a.avgScore - b.avgScore);
+                    var sortedProcesses = sortedData.map(item => item.process);
+                    var sortedScores = sortedData.map(item => item.avgScore);
+                    var sortedAppCounts = sortedData.map(item => item.appCount);
+                    
+                    // Chart options
+                    var alignmentOption = {
+                        title: {
+                            text: 'Business Process to Tech Stack Alignment',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            formatter: function(params) {
+                                try {
+                                    var process = params[0].name;
+                                    var processDetail = detailData.find(p => p.process === process);
+                                    
+                                    if (!processDetail) {
+                                        return 'No Data';
+                                    }
+                                    
+                                    var tooltip = process + '<br/>' +
+                                                'Average Alignment: ' + (processDetail.avgScore || '0') + '/5<br/>' +
+                                                'Supporting Applications: ' + (processDetail.appCount || '0') + '<br/><br/>';
+                                    
+                                    tooltip += '<strong>Supporting Applications:</strong><br/>';
+                                    if (processDetail.apps && processDetail.apps.length > 0) {
+                                        processDetail.apps.forEach(function(app) {
+                                            tooltip += (app.app || 'Unknown') + ' (Score: ' + (app.score || '0') + ')<br/>';
+                                        });
+                                    } else {
+                                        tooltip += 'No applications<br/>';
+                                    }
+                                    
+                                    return tooltip;
+                                } catch (e) {
+                                    return 'No Data';
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['Alignment Score', 'App Count'],
+                            bottom: 0
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '10%',
+                            top: '10%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'value',
+                            max: 5,
+                            name: 'Alignment Score',
+                            nameLocation: 'middle',
+                            nameGap: 30,
+                            axisLabel: {
+                                formatter: '{value}'
+                            },
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    type: 'dashed'
+                                }
+                            }
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: sortedProcesses,
+                            axisLabel: {
+                                formatter: function(value) {
+                                    if (value.length > 20) {
+                                        return value.substring(0, 17) + '...';
+                                    }
+                                    return value;
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: 'Alignment Score',
+                                type: 'bar',
+                                data: sortedScores,
+                                itemStyle: {
+                                    color: function(params) {
+                                        var score = parseFloat(params.value);
+                                        if (score >= 4) return '#1cc88a';
+                                        if (score >= 3) return '#f6c23e';
+                                        return '#e74a3b';
+                                    }
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: '{c}'
+                                }
+                            },
+                            {
+                                name: 'App Count',
+                                type: 'scatter',
+                                yAxisIndex: 0,
+                                xAxisIndex: 0,
+                                data: sortedAppCounts.map((count, index) => [count, index]),
+                                symbol: 'circle',
+                                symbolSize: 10,
+                                itemStyle: {
+                                    color: '#4e73df'
+                                }
+                            }
+                        ]
+                    };
+                    
+                    // Apply options
+                    alignmentChart.setOption(alignmentOption);
+                    
+                    // Fullscreen toggle
+                    document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                        if (alignmentChartElement.classList.contains('fullscreen')) {
+                            alignmentChartElement.classList.remove('fullscreen');
+                            this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                            alignmentChartElement.style.height = '500px';
+                        } else {
+                            alignmentChartElement.classList.add('fullscreen');
+                            this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                            alignmentChartElement.style.height = '85vh';
+                        }
+                        
+                        // Resize chart after container size change
+                        setTimeout(function() {
+                            alignmentChart.resize();
+                        }, 100);
+                    });
+                    
+                    // Export button
+                    document.getElementById('exportBtn').addEventListener('click', function() {
+                        var dataURL = alignmentChart.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff'
+                        });
+                        
+                        // Create an invisible anchor element to trigger download
+                        var downloadLink = document.createElement('a');
+                        downloadLink.href = dataURL;
+                        downloadLink.download = 'tech-alignment.png';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    });
+                });
+            } else {
+                // Hide buttons if no chart
+                document.getElementById('toggleFullscreen').style.display = 'none';
+                document.getElementById('exportBtn').style.display = 'none';
+            }
+            
+            // Initialize Technology Stack Analysis Chart if element exists
+            var techStackChartElement = document.getElementById('tech-stack-chart');
+            if (techStackChartElement && @(Model.Mappings != null && Model.Mappings.Any() ? "true" : "false")) {
+                console.log("Initializing tech stack chart");
+                
+                // Process data for the tech stack analysis
+                var techStacks = {};
+                var techStackScores = {};
+                
+                @if (Model.Mappings != null && Model.Mappings.Any())
+                {
+                    <text>
+                    // Extract tech stacks and average scores
+                    mappings.forEach(function(mapping) {
+                        if (!mapping.TechnologyStack) return;
+                        
+                        var techs = mapping.TechnologyStack.split(',').map(s => s.trim());
+                        
+                        techs.forEach(function(tech) {
+                            if (!tech) return;
+                            
+                            if (!techStacks[tech]) {
+                                techStacks[tech] = 0;
+                                techStackScores[tech] = [];
+                            }
+                            
+                            techStacks[tech]++;
+                            techStackScores[tech].push(mapping.AlignmentScore || mapping.Score || 3);
+                        });
+                    });
+                    </text>
+                }
+                
+                // Calculate average scores and prepare chart data
+                var techData = [];
+                
+                for (var tech in techStacks) {
+                    if (tech === '') continue;
+                    
+                    var scores = techStackScores[tech];
+                    var avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+                    
+                    techData.push({
+                        name: tech,
+                        usage: techStacks[tech],
+                        avgScore: avgScore.toFixed(1)
+                    });
+                }
+                
+                // Sort by usage count descending
+                techData.sort((a, b) => b.usage - a.usage);
+                
+                // Limit to top 15 for readability
+                if (techData.length > 15) {
+                    techData = techData.slice(0, 15);
+                }
+                
+                // Use the chart helper to handle empty data
+                handleEmptyChart(techStackChartElement, techData.length > 0 ? techData : null, function(techStackChart) {
+                    // Chart options
+                    var techStackOption = {
+                        title: {
+                            text: 'Technology Stack Analysis',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            formatter: function(params) {
+                                try {
+                                    var tech = params[0].name || 'Unknown';
+                                    var usage = params[0].value || '0';
+                                    var score = params[1] ? (params[1].value || '0') : '0';
+                                    
+                                    return tech + '<br/>' +
+                                           'Usage Count: ' + usage + '<br/>' +
+                                           'Avg. Alignment Score: ' + score;
+                                } catch (e) {
+                                    return 'No Data';
+                                }
+                            }
+                        },
+                        legend: {
+                            data: ['Usage Count', 'Alignment Score'],
+                            bottom: 0
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '10%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: techData.map(item => item.name),
+                            axisLabel: {
+                                interval: 0,
+                                rotate: 45
+                            }
+                        },
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: 'Usage Count',
+                                position: 'left'
+                            },
+                            {
+                                type: 'value',
+                                name: 'Alignment Score',
+                                min: 0,
+                                max: 5,
+                                position: 'right',
+                                axisLine: {
+                                    show: true,
+                                    lineStyle: {
+                                        color: '#f6c23e'
+                                    }
+                                },
+                                axisLabel: {
+                                    formatter: '{value}'
+                                }
+                            }
+                        ],
+                        series: [
+                            {
+                                name: 'Usage Count',
+                                type: 'bar',
+                                data: techData.map(item => item.usage),
+                                itemStyle: {
+                                    color: '#4e73df'
+                                }
+                            },
+                            {
+                                name: 'Alignment Score',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: techData.map(item => item.avgScore),
+                                itemStyle: {
+                                    color: '#f6c23e'
+                                },
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: '{c}'
+                                }
+                            }
+                        ]
+                    };
+                    
+                    // Apply options
+                    techStackChart.setOption(techStackOption);
+                });
+            }
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+        
+        .btn-outline-primary.active {
+            background-color: #4e73df;
+            color: white;
+        }
+        
+        .progress {
+            height: 1.2rem;
+        }
+        
+        .tech-stack {
+            font-family: monospace;
+            font-size: 90%;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}

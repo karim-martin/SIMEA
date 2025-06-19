@@ -1,0 +1,153 @@
+@model SIMEA.Models.BusinessProductServiceView
+
+@{
+    ViewData["Title"] = "Product/Service Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Business Product/Service Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ProductServiceName):</label>
+                                    <p>@Html.DisplayFor(model => model.ProductServiceName)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.RevenueModel):</label>
+                                    <p>@Html.DisplayFor(model => model.RevenueModel)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Description):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.Description)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.TargetMarketCustomer):</label>
+                            <p>@Html.DisplayFor(model => model.TargetMarketCustomer)</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ValueProposition):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.ValueProposition)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Key Features</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.KeyFeatures != null && Model.KeyFeatures.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var feature in Model.KeyFeatures)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-check-circle mr-2 text-success"></i> @feature
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No key features defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Competitors</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Competitors != null && Model.Competitors.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var competitor in Model.Competitors)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-building mr-2 text-warning"></i> @competitor
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No competitors defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Dependencies != null && Model.Dependencies.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var dependency in Model.Dependencies)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-link mr-2 text-primary"></i> @dependency
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No dependencies defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-edit"></i> Edit Product/Service
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-block mb-2">
+                                <i class="fas fa-trash"></i> Delete Product/Service
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-block">
+                                <i class="fas fa-list"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

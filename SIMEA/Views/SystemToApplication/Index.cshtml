@@ -1,0 +1,100 @@
+@model IEnumerable<SIMEA.Models.SystemToApplicationCrossReference>
+
+@{
+    ViewData["Title"] = "System to Application Cross References";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">System to Application Cross References</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="systemAppTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.SystemName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ApplicationName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.IntegrationType)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Frequency)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Owner)
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.SystemName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ApplicationName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.IntegrationType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Frequency)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Owner)
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#systemAppTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search references:",
+                    "lengthMenu": "Show _MENU_ references per page",
+                    "zeroRecords": "No references found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No references available",
+                    "infoFiltered": "(filtered from _MAX_ total references)"
+                }
+            });
+        });
+    </script>
+}

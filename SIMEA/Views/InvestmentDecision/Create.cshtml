@@ -1,0 +1,191 @@
+@model SIMEA.Models.InvestmentDecisionModel
+
+@{
+    ViewData["Title"] = "Create Investment Decision";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="InvestmentName" class="control-label"></label>
+                                    <input asp-for="InvestmentName" class="form-control" />
+                                    <span asp-validation-for="InvestmentName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="InvestmentType" class="control-label"></label>
+                                    <select asp-for="InvestmentType" class="form-control">
+                                        <option value="">Select Type</option>
+                                        <option value="Technology">Technology</option>
+                                        <option value="Process">Process</option>
+                                        <option value="People">People</option>
+                                        <option value="Infrastructure">Infrastructure</option>
+                                        <option value="Innovation">Innovation</option>
+                                    </select>
+                                    <span asp-validation-for="InvestmentType" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="InvestmentCategory" class="control-label"></label>
+                                    <select asp-for="InvestmentCategory" class="form-control">
+                                        <option value="">Select Category</option>
+                                        <option value="Strategic">Strategic</option>
+                                        <option value="Operational">Operational</option>
+                                        <option value="Compliance">Compliance</option>
+                                        <option value="Innovation">Innovation</option>
+                                    </select>
+                                    <span asp-validation-for="InvestmentCategory" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="BusinessDriver" class="control-label"></label>
+                            <textarea asp-for="BusinessDriver" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="BusinessDriver" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="TotalInvestment" class="control-label"></label>
+                                    <input asp-for="TotalInvestment" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="TotalInvestment" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="ExpectedBenefits" class="control-label"></label>
+                                    <input asp-for="ExpectedBenefits" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="ExpectedBenefits" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="PaybackPeriodMonths" class="control-label"></label>
+                                    <input asp-for="PaybackPeriodMonths" class="form-control" type="number" min="0" max="120" />
+                                    <span asp-validation-for="PaybackPeriodMonths" class="text-danger"></span>
+                                    <small class="form-text text-muted">Months (0-120)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="ROIPercentage" class="control-label"></label>
+                                    <input asp-for="ROIPercentage" class="form-control" type="number" step="0.1" min="0" max="1000" />
+                                    <span asp-validation-for="ROIPercentage" class="text-danger"></span>
+                                    <small class="form-text text-muted">Percentage (0-1000%)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="NPV" class="control-label"></label>
+                                    <input asp-for="NPV" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="NPV" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="IRRPercentage" class="control-label"></label>
+                                    <input asp-for="IRRPercentage" class="form-control" type="number" step="0.1" />
+                                    <span asp-validation-for="IRRPercentage" class="text-danger"></span>
+                                    <small class="form-text text-muted">Percentage</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="PriorityScore" class="control-label"></label>
+                                    <input asp-for="PriorityScore" class="form-control" type="number" min="1" max="10" />
+                                    <span asp-validation-for="PriorityScore" class="text-danger"></span>
+                                    <small class="form-text text-muted">Scale: 1-10</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ImplementationTimeline" class="control-label"></label>
+                            <input asp-for="ImplementationTimeline" class="form-control" />
+                            <span asp-validation-for="ImplementationTimeline" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="DecisionStatus" class="control-label"></label>
+                                    <select asp-for="DecisionStatus" class="form-control">
+                                        <option value="">Select Status</option>
+                                        <option value="Under Review">Under Review</option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Rejected">Rejected</option>
+                                        <option value="Deferred">Deferred</option>
+                                        <option value="Implemented">Implemented</option>
+                                    </select>
+                                    <span asp-validation-for="DecisionStatus" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="DecisionDate" class="control-label"></label>
+                                    <input asp-for="DecisionDate" class="form-control" type="date" />
+                                    <span asp-validation-for="DecisionDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="DecisionMaker" class="control-label"></label>
+                                    <input asp-for="DecisionMaker" class="form-control" />
+                                    <span asp-validation-for="DecisionMaker" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="DecisionRationale" class="control-label"></label>
+                            <textarea asp-for="DecisionRationale" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="DecisionRationale" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

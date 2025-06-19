@@ -1,0 +1,157 @@
+@model SIMEA.Models.InformationHierarchyView
+
+@{
+    ViewData["Title"] = "Information Hierarchy Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Information Hierarchy Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.InformationLevel):</label>
+                                    <p>@Html.DisplayFor(model => model.InformationLevel)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SecurityLevel):</label>
+                                    <p>
+                                        <span class="badge badge-pill 
+                                            @(Model.SecurityLevel == "Confidential" ? "badge-danger" : 
+                                            Model.SecurityLevel == "Internal" ? "badge-warning" : 
+                                            Model.SecurityLevel == "Public" ? "badge-success" :
+                                            "badge-info")">
+                                            @Html.DisplayFor(model => model.SecurityLevel)
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Description):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.Description)
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Usage):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.Usage)
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                                    <p>@Html.DisplayFor(model => model.Owner)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ParentInformation):</label>
+                                    <p>
+                                        @if (string.IsNullOrEmpty(Model.ParentInformation))
+                                        {
+                                            <span class="text-muted">None (Top Level)</span>
+                                        }
+                                        else
+                                        {
+                                            @Html.DisplayFor(model => model.ParentInformation)
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Child Information</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.ChildInformation != null && Model.ChildInformation.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var child in Model.ChildInformation)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-sitemap mr-2 text-primary"></i> @child
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No child information defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Dependencies</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Dependencies != null && Model.Dependencies.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var dependency in Model.Dependencies)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-link mr-2 text-secondary"></i> @dependency
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No dependencies defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-block mb-2">
+                                <i class="fas fa-edit"></i> Edit Information Hierarchy
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-block mb-2">
+                                <i class="fas fa-trash"></i> Delete Information Hierarchy
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-block">
+                                <i class="fas fa-list"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

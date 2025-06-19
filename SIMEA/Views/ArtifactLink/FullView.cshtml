@@ -1,0 +1,666 @@
+@model SIMEA.Models.ViewModels.VisualizationViewModel
+@{
+    ViewData["Title"] = "Enterprise Architecture Artifacts Visualization";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Enterprise Architecture Visualization</h1>
+        <hr />
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Enterprise Architecture Artifacts and Relationships</span>
+                            <div>
+                                <div class="btn-group" role="group">
+                                    <a href="@Url.Action("FullView", new { domain = "" })" class="btn btn-sm @(string.IsNullOrEmpty(Model.SelectedDomain) ? "btn-light" : "btn-outline-light")">All</a>
+                                    <a href="@Url.Action("FullView", new { domain = "Business" })" class="btn btn-sm @(Model.SelectedDomain == "Business" ? "btn-light" : "btn-outline-light")">Business</a>
+                                    <a href="@Url.Action("FullView", new { domain = "Application" })" class="btn btn-sm @(Model.SelectedDomain == "Application" ? "btn-light" : "btn-outline-light")">Application</a>
+                                    <a href="@Url.Action("FullView", new { domain = "Data" })" class="btn btn-sm @(Model.SelectedDomain == "Data" ? "btn-light" : "btn-outline-light")">Data</a>
+                                    <a href="@Url.Action("FullView", new { domain = "Infrastructure" })" class="btn btn-sm @(Model.SelectedDomain == "Infrastructure" ? "btn-light" : "btn-outline-light")">Infrastructure</a>
+                                </div>
+                                <button id="zoomOut" class="btn btn-sm btn-outline-light" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                                <button id="zoomReset" class="btn btn-sm btn-outline-light" title="Reset Zoom"><i class="fas fa-undo"></i></button>
+                                <button id="zoomIn" class="btn btn-sm btn-outline-light" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                                <button id="toggleFullscreen" class="btn btn-sm btn-outline-light" title="Toggle Fullscreen"><i class="fas fa-expand"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="visualization-container">
+                            <div id="mermaid-diagram" class="text-center py-4">
+                                <!-- Diagram will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <div class="mr-3">
+                            <i class="fas fa-info-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-1">Visualization Legend</h5>
+                            <div class="d-flex flex-wrap">
+                                <div class="mr-4 mb-2">
+                                    <span class="badge badge-pill badge-light border" style="background-color: #f9d5e5;">Business</span>
+                                    <span class="badge badge-pill badge-light border" style="background-color: #eeeeee;">Application</span>
+                                    <span class="badge badge-pill badge-light border" style="background-color: #ddebf7;">Data</span>
+                                    <span class="badge badge-pill badge-light border" style="background-color: #e2f0d9;">Infrastructure</span>
+                                </div>
+                                <div class="mr-4 mb-2">
+                                    <span class="mr-2">—</span> Same domain relationship
+                                    <span class="mr-2" style="border-bottom: 2px dotted #666;">- - -</span> Cross-domain relationship
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        Artifact Connections
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Source</th>
+                                        <th>Relationship</th>
+                                        <th>Target</th>
+                                        <th>Type</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var connection in Model.Connections)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge badge-light" title="@connection.SourceType">@connection.SourceName</span>
+                                            </td>
+                                            <td>
+                                                @(string.IsNullOrEmpty(connection.Description) ? "is linked to" : connection.Description)
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-light" title="@connection.TargetType">@connection.TargetName</span>
+                                            </td>
+                                            <td>
+                                                @if (connection.IsCrossDomain)
+                                                {
+                                                    <span class="badge badge-warning">Cross-Domain</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-info">Same-Domain</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Details", new { id = connection.Id })" class="btn btn-sm btn-outline-primary">View</a>
+                                                <a href="@Url.Action("Edit", new { id = connection.Id })" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <style>
+        #visualization-container {
+            min-height: 600px;
+            overflow: auto;
+        }
+        
+        #mermaid-diagram {
+            min-width: 100%;
+            min-height: 600px;
+            transform-origin: center center;
+            transition: transform 0.2s ease-out;
+        }
+        
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            overflow: auto;
+        }
+        
+        .fullscreen #mermaid-diagram {
+            min-height: 100vh;
+        }
+        
+        #zoom-controls {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            z-index: 1000;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.1.3/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize mermaid
+            mermaid.initialize({ 
+                startOnLoad: false,
+                theme: 'default',
+                flowchart: {
+                    useMaxWidth: false,
+                    htmlLabels: true,
+                    curve: 'basis'
+                },
+                securityLevel: 'loose'
+            });
+            
+            // Generate mermaid diagram
+            try {
+                const diagram = generateMermaidDiagram();
+                const diagramContainer = document.getElementById('mermaid-diagram');
+                diagramContainer.innerHTML = diagram;
+                
+                // Re-render mermaid diagram
+                mermaid.init(undefined, diagramContainer);
+            } catch (error) {
+                console.error("Mermaid error:", error);
+                document.getElementById('mermaid-diagram').innerHTML = 
+                    '<div class="alert alert-danger">Error rendering diagram: ' + error.message + '</div>';
+            }
+            
+            // Handle fullscreen toggle
+            const toggleFullscreen = document.getElementById('toggleFullscreen');
+            const visualizationContainer = document.getElementById('visualization-container');
+            
+            toggleFullscreen.addEventListener('click', function() {
+                if (visualizationContainer.classList.contains('fullscreen')) {
+                    visualizationContainer.classList.remove('fullscreen');
+                    toggleFullscreen.innerHTML = '<i class="fas fa-expand"></i>';
+                } else {
+                    visualizationContainer.classList.add('fullscreen');
+                    toggleFullscreen.innerHTML = '<i class="fas fa-compress"></i>';
+                }
+                
+                // Force re-render of the diagram
+                setTimeout(function() {
+                    mermaid.init(undefined, document.getElementById('mermaid-diagram'));
+                }, 100);
+            });
+            
+            // Zoom functionality
+            const diagramElement = document.getElementById('mermaid-diagram');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const zoomResetBtn = document.getElementById('zoomReset');
+            
+            let currentZoom = 1.0;
+            const zoomStep = 0.1;
+            const minZoom = 0.5;
+            const maxZoom = 2.5;
+            
+            // Update zoom
+            function updateZoom() {
+                diagramElement.style.transform = `scale(${currentZoom})`;
+            }
+            
+            // Zoom in
+            zoomInBtn.addEventListener('click', function() {
+                if (currentZoom < maxZoom) {
+                    currentZoom += zoomStep;
+                    updateZoom();
+                }
+            });
+            
+            // Zoom out
+            zoomOutBtn.addEventListener('click', function() {
+                if (currentZoom > minZoom) {
+                    currentZoom -= zoomStep;
+                    updateZoom();
+                }
+            });
+            
+            // Reset zoom
+            zoomResetBtn.addEventListener('click', function() {
+                currentZoom = 1.0;
+                updateZoom();
+            });
+            
+            // Add mouse wheel zoom support
+            visualizationContainer.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    e.preventDefault(); // Prevent default zoom behavior
+                    
+                    if (e.deltaY < 0 && currentZoom < maxZoom) {
+                        // Zoom in
+                        currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+                    } else if (e.deltaY > 0 && currentZoom > minZoom) {
+                        // Zoom out
+                        currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+                    }
+                    
+                    updateZoom();
+                }
+            });
+        });
+        
+        function generateMermaidDiagram() {
+            // Start with the mermaid flowchart definition
+            let diagram = 'flowchart TD\n';
+            
+            // Business Architecture Domain
+            diagram += '    subgraph Business["Business Architecture"]\n';
+            diagram += '        direction TB\n';
+            
+            // Group by artifact type within Business domain
+            let businessArtifactsByType = {};
+            
+            @foreach (var artifact in Model.BusinessArtifacts)
+            {
+                <text>
+                // Add artifact type to tracking object if not exists
+                if (!businessArtifactsByType['@artifact.Type']) {
+                    businessArtifactsByType['@artifact.Type'] = [];
+                }
+                
+                // Add this artifact to its type group
+                businessArtifactsByType['@artifact.Type'].push({
+                    nodeId: '@artifact.NodeId',
+                    name: '@System.Web.HttpUtility.JavaScriptStringEncode(artifact.Name)',
+                    type: '@artifact.Type'
+                });
+                </text>
+            }
+            
+            // Generate subgraphs for each business artifact type
+            diagram += '        %% Business Architecture Artifact Types\n';
+            
+            // Business Strategy artifacts
+            if (businessArtifactsByType['BusinessStrategy'] && businessArtifactsByType['BusinessStrategy'].length > 0) {
+                diagram += '        subgraph BStrategy["Business Strategy"]\n';
+                businessArtifactsByType['BusinessStrategy'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Operation Model artifacts
+            if (businessArtifactsByType['OperationModel'] && businessArtifactsByType['OperationModel'].length > 0) {
+                diagram += '        subgraph BOperation["Operation Model"]\n';
+                businessArtifactsByType['OperationModel'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Organization View artifacts
+            if (businessArtifactsByType['OrganizationView'] && businessArtifactsByType['OrganizationView'].length > 0) {
+                diagram += '        subgraph BOrganization["Organization View"]\n';
+                businessArtifactsByType['OrganizationView'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Capability Map artifacts
+            if (businessArtifactsByType['CapabilityMap'] && businessArtifactsByType['CapabilityMap'].length > 0) {
+                diagram += '        subgraph BCapability["Capability Map"]\n';
+                businessArtifactsByType['CapabilityMap'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Process Model artifacts
+            if (businessArtifactsByType['ProcessModel'] && businessArtifactsByType['ProcessModel'].length > 0) {
+                diagram += '        subgraph BProcess["Process Model"]\n';
+                businessArtifactsByType['ProcessModel'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Business Product/Service artifacts
+            if (businessArtifactsByType['BusinessProductService'] && businessArtifactsByType['BusinessProductService'].length > 0) {
+                diagram += '        subgraph BProduct["Products/Services"]\n';
+                businessArtifactsByType['BusinessProductService'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            diagram += '    end\n\n';
+            
+            // Application Architecture Domain
+            diagram += '    subgraph Application["Application Architecture"]\n';
+            diagram += '        direction TB\n';
+            
+            // Group by artifact type within Application domain
+            let applicationArtifactsByType = {};
+            
+            @foreach (var artifact in Model.ApplicationArtifacts)
+            {
+                <text>
+                // Add artifact type to tracking object if not exists
+                if (!applicationArtifactsByType['@artifact.Type']) {
+                    applicationArtifactsByType['@artifact.Type'] = [];
+                }
+                
+                // Add this artifact to its type group
+                applicationArtifactsByType['@artifact.Type'].push({
+                    nodeId: '@artifact.NodeId',
+                    name: '@System.Web.HttpUtility.JavaScriptStringEncode(artifact.Name)',
+                    type: '@artifact.Type'
+                });
+                </text>
+            }
+            
+            // Generate subgraphs for each application artifact type
+            diagram += '        %% Application Architecture Artifact Types\n';
+            
+            // Application Framework artifacts
+            if (applicationArtifactsByType['ApplicationFramework'] && applicationArtifactsByType['ApplicationFramework'].length > 0) {
+                diagram += '        subgraph AFramework["Application Framework"]\n';
+                applicationArtifactsByType['ApplicationFramework'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Application Business Requirement artifacts
+            if (applicationArtifactsByType['ApplicationBusinessRequirement'] && applicationArtifactsByType['ApplicationBusinessRequirement'].length > 0) {
+                diagram += '        subgraph ARequirement["Business Requirements"]\n';
+                applicationArtifactsByType['ApplicationBusinessRequirement'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Service Catalogue artifacts
+            if (applicationArtifactsByType['ServiceCatalogue'] && applicationArtifactsByType['ServiceCatalogue'].length > 0) {
+                diagram += '        subgraph ACatalogue["Service Catalogue"]\n';
+                applicationArtifactsByType['ServiceCatalogue'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Application Cross Reference artifacts
+            if (applicationArtifactsByType['ApplicationCrossReference'] && applicationArtifactsByType['ApplicationCrossReference'].length > 0) {
+                diagram += '        subgraph ACrossRef["App Cross-References"]\n';
+                applicationArtifactsByType['ApplicationCrossReference'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Application Security artifacts
+            if (applicationArtifactsByType['ApplicationSecurity'] && applicationArtifactsByType['ApplicationSecurity'].length > 0) {
+                diagram += '        subgraph ASecurity["Application Security"]\n';
+                applicationArtifactsByType['ApplicationSecurity'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Application Data Cross Reference artifacts
+            if (applicationArtifactsByType['ApplicationDataCrossReference'] && applicationArtifactsByType['ApplicationDataCrossReference'].length > 0) {
+                diagram += '        subgraph ADataCrossRef["App-Data Cross-Refs"]\n';
+                applicationArtifactsByType['ApplicationDataCrossReference'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            diagram += '    end\n\n';
+            
+            // Data Architecture Domain
+            diagram += '    subgraph Data["Data Architecture"]\n';
+            diagram += '        direction TB\n';
+            
+            // Define nodes within Data domain
+            let dataArtifactsByType = {};
+            
+            @foreach (var artifact in Model.DataArtifacts)
+            {
+                <text>
+                // Add artifact type to tracking object if not exists
+                if (!dataArtifactsByType['@artifact.Type']) {
+                    dataArtifactsByType['@artifact.Type'] = [];
+                }
+                
+                // Add this artifact to its type group
+                dataArtifactsByType['@artifact.Type'].push({
+                    nodeId: '@artifact.NodeId',
+                    name: '@System.Web.HttpUtility.JavaScriptStringEncode(artifact.Name)',
+                    type: '@artifact.Type'
+                });
+                </text>
+            }
+            
+            // Generate subgraphs for each data artifact type
+            diagram += '        %% Data Architecture Artifact Types\n';
+            
+            // Data Governance artifacts
+            if (dataArtifactsByType['DataGovernance'] && dataArtifactsByType['DataGovernance'].length > 0) {
+                diagram += '        subgraph DGovernance["Data Governance"]\n';
+                dataArtifactsByType['DataGovernance'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Information Hierarchy artifacts
+            if (dataArtifactsByType['InformationHierarchy'] && dataArtifactsByType['InformationHierarchy'].length > 0) {
+                diagram += '        subgraph DHierarchy["Information Hierarchy"]\n';
+                dataArtifactsByType['InformationHierarchy'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Information Requirements artifacts
+            if (dataArtifactsByType['InformationRequirements'] && dataArtifactsByType['InformationRequirements'].length > 0) {
+                diagram += '        subgraph DRequirements["Information Requirements"]\n';
+                dataArtifactsByType['InformationRequirements'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Data Flow artifacts
+            if (dataArtifactsByType['DataFlow'] && dataArtifactsByType['DataFlow'].length > 0) {
+                diagram += '        subgraph DFlow["Data Flow"]\n';
+                dataArtifactsByType['DataFlow'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Logical Data artifacts
+            if (dataArtifactsByType['LogicalData'] && dataArtifactsByType['LogicalData'].length > 0) {
+                diagram += '        subgraph DLogical["Logical Data Model"]\n';
+                dataArtifactsByType['LogicalData'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Data Security artifacts
+            if (dataArtifactsByType['DataSecurity'] && dataArtifactsByType['DataSecurity'].length > 0) {
+                diagram += '        subgraph DSecurity["Data Security"]\n';
+                dataArtifactsByType['DataSecurity'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            diagram += '    end\n\n';
+            
+            // Infrastructure Architecture Domain
+            diagram += '    subgraph Infrastructure["Infrastructure Architecture"]\n';
+            diagram += '        direction TB\n';
+            
+            // Define nodes within Infrastructure domain
+            let infrastructureArtifactsByType = {};
+            
+            @foreach (var artifact in Model.InfrastructureArtifacts)
+            {
+                <text>
+                // Add artifact type to tracking object if not exists
+                if (!infrastructureArtifactsByType['@artifact.Type']) {
+                    infrastructureArtifactsByType['@artifact.Type'] = [];
+                }
+                
+                // Add this artifact to its type group
+                infrastructureArtifactsByType['@artifact.Type'].push({
+                    nodeId: '@artifact.NodeId',
+                    name: '@System.Web.HttpUtility.JavaScriptStringEncode(artifact.Name)',
+                    type: '@artifact.Type'
+                });
+                </text>
+            }
+            
+            // Generate subgraphs for each infrastructure artifact type
+            diagram += '        %% Infrastructure Architecture Artifact Types\n';
+            
+            // Infrastructure Business Requirement artifacts
+            if (infrastructureArtifactsByType['InfrastructureBusinessRequirement'] && infrastructureArtifactsByType['InfrastructureBusinessRequirement'].length > 0) {
+                diagram += '        subgraph IRequirements["Business Requirements"]\n';
+                infrastructureArtifactsByType['InfrastructureBusinessRequirement'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // System To Application artifacts
+            if (infrastructureArtifactsByType['SystemToApplication'] && infrastructureArtifactsByType['SystemToApplication'].length > 0) {
+                diagram += '        subgraph ISysToApp["System-to-Application"]\n';
+                infrastructureArtifactsByType['SystemToApplication'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Resource Needs artifacts
+            if (infrastructureArtifactsByType['ResourceNeeds'] && infrastructureArtifactsByType['ResourceNeeds'].length > 0) {
+                diagram += '        subgraph IResources["Resource Needs"]\n';
+                infrastructureArtifactsByType['ResourceNeeds'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // System To Business artifacts
+            if (infrastructureArtifactsByType['SystemToBusiness'] && infrastructureArtifactsByType['SystemToBusiness'].length > 0) {
+                diagram += '        subgraph ISysToBusiness["System-to-Business"]\n';
+                infrastructureArtifactsByType['SystemToBusiness'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // Infrastructure Security artifacts
+            if (infrastructureArtifactsByType['InfrastructureSecurity'] && infrastructureArtifactsByType['InfrastructureSecurity'].length > 0) {
+                diagram += '        subgraph ISecurity["Infrastructure Security"]\n';
+                infrastructureArtifactsByType['InfrastructureSecurity'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            // System Data artifacts
+            if (infrastructureArtifactsByType['SystemData'] && infrastructureArtifactsByType['SystemData'].length > 0) {
+                diagram += '        subgraph ISysData["System Data"]\n';
+                infrastructureArtifactsByType['SystemData'].forEach(function(artifact) {
+                    diagram += '            ' + artifact.nodeId + '["' + artifact.name + '"]' + '\n';
+                });
+                diagram += '        end\n\n';
+            }
+            
+            diagram += '    end\n\n';
+            
+            // Define connections after all nodes
+            diagram += '    %% Connections\n';
+            
+            @foreach (var connection in Model.Connections)
+            {
+                if (connection.IsCrossDomain)
+                {
+                    <text>diagram += '    @(connection.SourceNodeId) -.-> @(connection.TargetNodeId)'+'\n';</text>
+                }
+                else
+                {
+                    <text>diagram += '    @(connection.SourceNodeId) --> @(connection.TargetNodeId)'+'\n';</text>
+                }
+            }
+            
+            // Add styling
+            diagram += '\n    %% Styling\n';
+            diagram += '    classDef business fill:#f9d5e5,stroke:#333,stroke-width:1px\n';
+            diagram += '    classDef application fill:#eeeeee,stroke:#333,stroke-width:1px\n';
+            diagram += '    classDef data fill:#ddebf7,stroke:#333,stroke-width:1px\n';
+            diagram += '    classDef infrastructure fill:#e2f0d9,stroke:#333,stroke-width:1px\n';
+            diagram += '    classDef domainHeading fill:none,stroke:#333,stroke-width:2px,stroke-dasharray:5 5\n';
+            diagram += '    classDef artifactType fill:none,stroke:#555,stroke-width:1px\n\n';
+            
+            // Apply classes to nodes
+            diagram += '    %% Apply styles to nodes\n';
+            
+            @if (Model.BusinessArtifacts.Any())
+            {
+                <text>diagram += '    class @(string.Join(",", Model.BusinessArtifacts.Select(a => a.NodeId))) business\n';</text>
+            }
+            
+            @if (Model.ApplicationArtifacts.Any())
+            {
+                <text>diagram += '    class @(string.Join(",", Model.ApplicationArtifacts.Select(a => a.NodeId))) application\n';</text>
+            }
+            
+            @if (Model.DataArtifacts.Any())
+            {
+                <text>diagram += '    class @(string.Join(",", Model.DataArtifacts.Select(a => a.NodeId))) data\n';</text>
+            }
+            
+            @if (Model.InfrastructureArtifacts.Any())
+            {
+                <text>diagram += '    class @(string.Join(",", Model.InfrastructureArtifacts.Select(a => a.NodeId))) infrastructure\n';</text>
+            }
+            
+            // Apply styles to domain and artifact type subgraphs
+            diagram += '    class Business,Application,Data,Infrastructure domainHeading\n';
+            diagram += '    class BStrategy,BOperation,BOrganization,BCapability,BProcess,BProduct,';
+            diagram += 'AFramework,ARequirement,ACatalogue,ACrossRef,ASecurity,ADataCrossRef,';
+            diagram += 'DGovernance,DHierarchy,DRequirements,DFlow,DLogical,DSecurity,';
+            diagram += 'IRequirements,ISysToApp,IResources,ISysToBusiness,ISecurity,ISysData artifactType\n';
+            
+            console.log("Generated Mermaid diagram:"); 
+            console.log(diagram);
+            
+            return diagram;
+        }
+    </script>
+}

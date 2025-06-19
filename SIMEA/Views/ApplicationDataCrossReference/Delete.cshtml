@@ -1,0 +1,130 @@
+@model SIMEA.Models.ApplicationDataCrossReference
+
+@{
+    ViewData["Title"] = "Delete Data Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Application Data Cross Reference</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this cross reference? This action cannot be undone.
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col text-center">
+                                        <div class="border rounded p-3 bg-light">
+                                            <h5 class="font-weight-bold">Application</h5>
+                                            <p class="lead mb-0 text-primary">@Html.DisplayFor(model => model.ApplicationName)</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-center d-flex align-items-center justify-content-center">
+                                        <div>
+                                            <i class="fas fa-database fa-2x text-danger"></i>
+                                            <p class="small mt-2 mb-0">uses</p>
+                                        </div>
+                                    </div>
+                                    <div class="col text-center">
+                                        <div class="border rounded p-3 bg-light">
+                                            <h5 class="font-weight-bold">Data Entity</h5>
+                                            <p class="lead mb-0 text-primary">@Html.DisplayFor(model => model.DataEntity)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DataUsage):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.DataUsage)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DataSensitivity):</label>
+                            <p>
+                                <span class="badge badge-pill 
+                                    @(Model.DataSensitivity == "High" ? "badge-danger" : 
+                                    Model.DataSensitivity == "Medium" ? "badge-warning" : 
+                                    Model.DataSensitivity == "Low" ? "badge-info" : 
+                                    "badge-secondary")">
+                                    @Html.DisplayFor(model => model.DataSensitivity)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                            <p>@Html.DisplayFor(model => model.Owner)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DataRetentionPolicy):</label>
+                            <p>@Html.DisplayFor(model => model.DataRetentionPolicy)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.AccessControls):</label>
+                            <p>@Html.DisplayFor(model => model.AccessControls)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Dependencies:</label>
+                            @if (Model.Dependencies != null && Model.Dependencies.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var dependency in Model.Dependencies)
+                                    {
+                                        <span class="badge badge-secondary p-2 mr-2 mb-2">@dependency</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No dependencies defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this cross reference?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

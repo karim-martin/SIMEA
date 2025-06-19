@@ -1,0 +1,431 @@
+@model SIMEA.Models.ProcessModel
+
+@{
+    ViewData["Title"] = "Process Model Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Process Model Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ProcessName):</label>
+                                    <p class="lead">@Html.DisplayFor(model => model.ProcessName)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                                    <p>@Html.DisplayFor(model => model.Owner)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ProcessDescription):</label>
+                            <div class="p-3 bg-light rounded">
+                                @Html.DisplayFor(model => model.ProcessDescription)
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Inputs:</label>
+                                    @if (Model.Inputs != null && Model.Inputs.Any())
+                                    {
+                                        <ul class="list-group">
+                                            @foreach (var input in Model.Inputs)
+                                            {
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-arrow-right mr-2 text-info"></i> @input
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No inputs defined</p>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Outputs:</label>
+                                    @if (Model.Outputs != null && Model.Outputs.Any())
+                                    {
+                                        <ul class="list-group">
+                                            @foreach (var output in Model.Outputs)
+                                            {
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-arrow-left mr-2 text-success"></i> @output
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No outputs defined</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Steps/Workflow</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.StepsWorkflow != null && Model.StepsWorkflow.Any())
+                        {
+                            <ol class="list-group list-group-numbered">
+                                @foreach (var step in Model.StepsWorkflow)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <span class="badge badge-primary rounded-circle mr-2">@(Model.StepsWorkflow.IndexOf(step) + 1)</span>
+                                        @step
+                                    </li>
+                                }
+                            </ol>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No workflow steps defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Tools/Systems Used</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.ToolsSystemsUsed != null && Model.ToolsSystemsUsed.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var tool in Model.ToolsSystemsUsed)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-tools mr-2 text-warning"></i> @tool
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No tools/systems defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Performance Metrics</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.PerformanceMetrics != null && Model.PerformanceMetrics.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var metric in Model.PerformanceMetrics)
+                                {
+                                    <li class="list-group-item d-flex align-items-center">
+                                        <i class="fas fa-chart-line mr-2 text-info"></i> @metric
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No performance metrics defined</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Process Model Flow Diagram</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="model-flow-diagram p-3">
+                            <div class="diagram-container">
+                                <!-- Process Flow Visualization -->
+                                <div class="process-flow">
+                                    <div class="diagram-box input-box">
+                                        <h6 class="diagram-title"><i class="fas fa-sign-in-alt mr-2"></i>Inputs</h6>
+                                        <div class="diagram-content">
+                                            @if (Model.Inputs != null && Model.Inputs.Any())
+                                            {
+                                                <ul class="list-unstyled">
+                                                    @foreach (var input in Model.Inputs)
+                                                    {
+                                                        <li><i class="fas fa-angle-right text-info mr-2"></i> @input</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No inputs defined</p>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="arrow-right">
+                                        <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="diagram-box process-box">
+                                        <h6 class="diagram-title"><i class="fas fa-cogs mr-2"></i>Process</h6>
+                                        <div class="diagram-content">
+                                            <p class="lead mb-1">@Model.ProcessName</p>
+                                            <small class="text-muted">Owner: @Model.Owner</small>
+                                            @if (Model.StepsWorkflow != null && Model.StepsWorkflow.Any())
+                                            {
+                                                <hr class="my-2">
+                                                <div class="steps-mini mt-2">
+                                                    <small class="text-muted">Key Steps:</small>
+                                                    <ol class="pl-3 mb-0 small">
+                                                        @foreach (var step in Model.StepsWorkflow.Take(3))
+                                                        {
+                                                            <li>@step</li>
+                                                        }
+                                                        @if (Model.StepsWorkflow.Count() > 3)
+                                                        {
+                                                            <li class="text-muted">+ @(Model.StepsWorkflow.Count() - 3) more steps</li>
+                                                        }
+                                                    </ol>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="arrow-right">
+                                        <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="diagram-box output-box">
+                                        <h6 class="diagram-title"><i class="fas fa-sign-out-alt mr-2"></i>Outputs</h6>
+                                        <div class="diagram-content">
+                                            @if (Model.Outputs != null && Model.Outputs.Any())
+                                            {
+                                                <ul class="list-unstyled">
+                                                    @foreach (var output in Model.Outputs)
+                                                    {
+                                                        <li><i class="fas fa-angle-right text-success mr-2"></i> @output</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No outputs defined</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Resources Section -->
+                                <div class="resources-section mt-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="resource-box tools-box">
+                                                <h6 class="diagram-title"><i class="fas fa-tools text-warning mr-2"></i>Tools & Systems</h6>
+                                                <div class="diagram-content bg-light p-3 rounded">
+                                                    @if (Model.ToolsSystemsUsed != null && Model.ToolsSystemsUsed.Any())
+                                                    {
+                                                        <ul class="list-unstyled">
+                                                            @foreach (var tool in Model.ToolsSystemsUsed)
+                                                            {
+                                                                <li><i class="fas fa-check-circle text-success mr-2"></i> @tool</li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted">No tools/systems defined</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="resource-box metrics-box">
+                                                <h6 class="diagram-title"><i class="fas fa-chart-line text-info mr-2"></i>Key Metrics</h6>
+                                                <div class="diagram-content bg-light p-3 rounded">
+                                                    @if (Model.PerformanceMetrics != null && Model.PerformanceMetrics.Any())
+                                                    {
+                                                        <ul class="list-unstyled">
+                                                            @foreach (var metric in Model.PerformanceMetrics)
+                                                            {
+                                                                <li><i class="fas fa-tachometer-alt text-primary mr-2"></i> @metric</li>
+                                                            }
+                                                        </ul>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted">No performance metrics defined</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Workflow Steps</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.StepsWorkflow != null && Model.StepsWorkflow.Any())
+                        {
+                            <div class="workflow-flow">
+                                @foreach (var step in Model.StepsWorkflow)
+                                {
+                                    <div class="workflow-step d-flex align-items-center mb-2">
+                                        <div class="step-number rounded-circle bg-primary text-white mr-3">
+                                            @(Model.StepsWorkflow.IndexOf(step) + 1)
+                                        </div>
+                                        <div class="step-content">
+                                            @step
+                                        </div>
+                                    </div>
+                                    @if (Model.StepsWorkflow.IndexOf(step) < Model.StepsWorkflow.Count - 1)
+                                    {
+                                        <div class="step-connector ml-3 mb-2">
+                                            <i class="fas fa-arrow-down text-primary"></i>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No workflow steps defined</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary mr-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mr-2">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .model-flow-diagram {
+        font-family: Arial, sans-serif;
+    }
+
+    .diagram-container {
+        width: 100%;
+    }
+
+    .process-flow {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .diagram-box {
+        flex: 1;
+        min-width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin: 10px;
+        padding: 15px;
+    }
+
+    .input-box {
+        background-color: #e8f4f8;
+        border-color: #4e73df;
+    }
+
+    .process-box {
+        background-color: #f8f9fc;
+        border-color: #4e73df;
+        flex: 2;
+    }
+
+    .output-box {
+        background-color: #e8f8ef;
+        border-color: #1cc88a;
+    }
+
+    .diagram-title {
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        color: #4e73df;
+    }
+
+    .arrow-right {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 5px;
+    }
+
+    .resources-section {
+        margin-top: 30px;
+    }
+
+    .resource-box {
+        margin-bottom: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .process-flow {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .arrow-right {
+            transform: rotate(90deg);
+            margin: 10px 0;
+        }
+    }
+</style>

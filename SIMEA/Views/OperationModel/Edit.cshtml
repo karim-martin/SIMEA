@@ -1,0 +1,296 @@
+@model SIMEA.Models.OperationModel
+
+@{
+    ViewData["Title"] = "Edit Operation Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Operation Model</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="OperationalProcess" class="control-label"></label>
+                            <input asp-for="OperationalProcess" class="form-control" />
+                            <span asp-validation-for="OperationalProcess" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ProcessOwner" class="control-label"></label>
+                            <input asp-for="ProcessOwner" class="form-control" />
+                            <span asp-validation-for="ProcessOwner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Inputs Section -->
+                    <div class="form-group">
+                        <label class="control-label">Inputs</label>
+                        <div class="input-group">
+                            <input type="text" id="inputItem" class="form-control" placeholder="Add input" />
+                            <div class="input-group-append">
+                                <button type="button" id="addInput" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#inputsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="inputsList" class="mt-2">
+                            <!-- Existing inputs will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Outputs Section -->
+                    <div class="form-group">
+                        <label class="control-label">Outputs</label>
+                        <div class="input-group">
+                            <input type="text" id="outputItem" class="form-control" placeholder="Add output" />
+                            <div class="input-group-append">
+                                <button type="button" id="addOutput" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#outputsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="outputsList" class="mt-2">
+                            <!-- Existing outputs will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Key Activities Section -->
+                    <div class="form-group">
+                        <label class="control-label">Key Activities</label>
+                        <div class="input-group">
+                            <input type="text" id="activityItem" class="form-control" placeholder="Add activity" />
+                            <div class="input-group-append">
+                                <button type="button" id="addActivity" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#activitiesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="activitiesList" class="mt-2">
+                            <!-- Existing activities will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Resources Required Section -->
+                    <div class="form-group">
+                        <label class="control-label">Required Resources</label>
+                        <div class="input-group">
+                            <input type="text" id="resourceItem" class="form-control" placeholder="Add resource" />
+                            <div class="input-group-append">
+                                <button type="button" id="addResource" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#resourcesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="resourcesList" class="mt-2">
+                            <!-- Existing resources will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics Section -->
+                    <div class="form-group">
+                        <label class="control-label">Performance Metrics</label>
+                        <div class="input-group">
+                            <input type="text" id="metricItem" class="form-control" placeholder="Add metric" />
+                            <div class="input-group-append">
+                                <button type="button" id="addMetric" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#metricsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="metricsList" class="mt-2">
+                            <!-- Existing metrics will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Challenges Section -->
+                    <div class="form-group">
+                        <label class="control-label">Challenges</label>
+                        <div class="input-group">
+                            <input type="text" id="challengeItem" class="form-control" placeholder="Add challenge" />
+                            <div class="input-group-append">
+                                <button type="button" id="addChallenge" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#challengesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="challengesList" class="mt-2">
+                            <!-- Existing challenges will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals for each list type -->
+    @{
+        var listTypes = new[] {
+            new { Name = "inputs", Title = "Inputs", PropertyName = "Inputs" },
+            new { Name = "outputs", Title = "Outputs", PropertyName = "Outputs" },
+            new { Name = "activities", Title = "Activities", PropertyName = "KeyActivities" },
+            new { Name = "resources", Title = "Resources", PropertyName = "ResourcesRequired" },
+            new { Name = "metrics", Title = "Metrics", PropertyName = "PerformanceMetrics" },
+            new { Name = "challenges", Title = "Challenges", PropertyName = "Challenges" }
+        };
+    }
+
+    @foreach (var listType in listTypes)
+    {
+        <div class="modal fade" id="@(listType.Name)Modal" tabindex="-1" role="dialog" aria-labelledby="@(listType.Name)ModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="@(listType.Name)ModalLabel">Manage @(listType.Title)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group" id="@(listType.Name)ModalList">
+                            <!-- Items will be added here -->
+                        </ul>
+                        <div class="input-group mt-3">
+                            <input type="text" id="@(listType.Name.TrimEnd('s'))ModalInput" class="form-control" placeholder="Add new @(listType.Name.TrimEnd('s'))" />
+                            <div class="input-group-append">
+                                <button type="button" id="add@(listType.Name.TrimEnd('s').First().ToString().ToUpper() + listType.Name.TrimEnd('s').Substring(1))Modal" class="btn btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let inputs = @Html.Raw(Json.Serialize(Model.Inputs ?? new List<string>()));
+            let outputs = @Html.Raw(Json.Serialize(Model.Outputs ?? new List<string>()));
+            let activities = @Html.Raw(Json.Serialize(Model.KeyActivities ?? new List<string>()));
+            let resources = @Html.Raw(Json.Serialize(Model.ResourcesRequired ?? new List<string>()));
+            let metrics = @Html.Raw(Json.Serialize(Model.PerformanceMetrics ?? new List<string>()));
+            let challenges = @Html.Raw(Json.Serialize(Model.Challenges ?? new List<string>()));
+            
+            // Setup list handlers for each type
+            setupListHandlers('input', 'Inputs', inputs, 'info');
+            setupListHandlers('output', 'Outputs', outputs, 'success');
+            setupListHandlers('activity', 'KeyActivities', activities, 'primary');
+            setupListHandlers('resource', 'ResourcesRequired', resources, 'warning');
+            setupListHandlers('metric', 'PerformanceMetrics', metrics, 'secondary');
+            setupListHandlers('challenge', 'Challenges', challenges, 'danger');
+
+            // Function to setup handlers for list type
+            function setupListHandlers(itemType, propertyName, items, badgeColor) {
+                const singularName = itemType;
+                const pluralName = singularName + 's';
+                
+                // Update the UI for this list
+                function updateList() {
+                    let html = '';
+                    items.forEach((item, index) => {
+                        html += `<div class="badge badge-${badgeColor} mr-2 mb-2 p-2">${item}
+                            <a href="#" class="text-white ml-1 remove-${singularName}" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            <input type="hidden" name="${propertyName}[${index}]" value="${item}" />
+                        </div>`;
+                    });
+                    $(`#${pluralName}List`).html(html);
+                    updateModal(pluralName, items);
+                }
+                
+                // Update the modal for this list
+                function updateModal(pluralName, items) {
+                    let html = '';
+                    items.forEach((item, index) => {
+                        html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${item}
+                            <button type="button" class="btn btn-sm btn-danger remove-${singularName}-modal" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </li>`;
+                    });
+                    $(`#${pluralName}ModalList`).html(html);
+                }
+                
+                // Initial display
+                updateList();
+                
+                // Add item from main form
+                $(`#add${capitalizeFirstLetter(singularName)}`).click(function () {
+                    const item = $(`#${singularName}Item`).val().trim();
+                    if (item && !items.includes(item)) {
+                        items.push(item);
+                        updateList();
+                        $(`#${singularName}Item`).val('');
+                    }
+                });
+                
+                // Add item from modal
+                $(`#add${capitalizeFirstLetter(singularName)}Modal`).click(function () {
+                    const item = $(`#${singularName}ModalInput`).val().trim();
+                    if (item && !items.includes(item)) {
+                        items.push(item);
+                        updateList();
+                        $(`#${singularName}ModalInput`).val('');
+                    }
+                });
+                
+                // Remove item from main form
+                $(document).on('click', `.remove-${singularName}`, function (e) {
+                    e.preventDefault();
+                    const index = $(this).data('index');
+                    items.splice(index, 1);
+                    updateList();
+                });
+                
+                // Remove item from modal
+                $(document).on('click', `.remove-${singularName}-modal`, function () {
+                    const index = $(this).data('index');
+                    items.splice(index, 1);
+                    updateList();
+                });
+                
+                // Handle Enter key in inputs
+                $(`#${singularName}Item`).keypress(function (e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
+                        $(`#add${capitalizeFirstLetter(singularName)}`).click();
+                    }
+                });
+                
+                $(`#${singularName}ModalInput`).keypress(function (e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
+                        $(`#add${capitalizeFirstLetter(singularName)}Modal`).click();
+                    }
+                });
+            }
+        });
+    </script>
+}

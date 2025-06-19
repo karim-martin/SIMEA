@@ -1,0 +1,237 @@
+@model SIMEA.Models.EnhancedBusinessOutcomeModel
+
+@{
+    ViewData["Title"] = "Enhanced Business Outcome Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="text-primary">@Model.OutcomeName</h4>
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <strong>Category:</strong><br>
+                                    <span class="badge badge-info">@Model.OutcomeCategory</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Priority:</strong><br>
+                                    @{
+                                        var priorityClass = Model.PriorityLevel switch
+                                        {
+                                            "Critical" => "badge-danger",
+                                            "High" => "badge-warning",
+                                            "Medium" => "badge-primary",
+                                            "Low" => "badge-secondary",
+                                            _ => "badge-light"
+                                        };
+                                    }
+                                    <span class="badge @priorityClass">@Model.PriorityLevel</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Status:</strong><br>
+                                    @{
+                                        var statusClass = Model.Status switch
+                                        {
+                                            "Completed" => "badge-success",
+                                            "On Track" => "badge-success",
+                                            "In Progress" => "badge-primary",
+                                            "At Risk" => "badge-warning",
+                                            "Delayed" => "badge-danger",
+                                            "Not Started" => "badge-secondary",
+                                            _ => "badge-light"
+                                        };
+                                    }
+                                    <span class="badge @statusClass">@Model.Status</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Description:</strong><br>
+                                <p class="text-muted">@Model.Description</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Strategic Alignment:</strong><br>
+                                <p class="text-muted">@Model.StrategicAlignment</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-primary">
+                                    <i class="fas fa-chart-line"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Progress</span>
+                                                        <span class="info-box-number">@Model.ProgressPercentage%</span>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: @Model.ProgressPercentage%" 
+                             aria-valuenow="@Model.ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="mt-4 mb-3">Measurement & Progress</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="small-box bg-info">
+                                        <div class="inner">
+                                                                        <h3>@Model.ExpectedValue</h3>
+                            <p>Current Value</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-tachometer-alt"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small-box bg-success">
+                                        <div class="inner">
+                                                                        <h3>@Model.ExpectedValue</h3>
+                            <p>Target Value</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-bullseye"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="small-box bg-warning">
+                                        <div class="inner">
+                                                                        @{
+                                var variance = Model.ExpectedValue - Model.ExpectedValue;
+                                var variancePercentage = Model.ExpectedValue != 0 ? Math.Abs(variance) / Model.ExpectedValue * 100 : 0;
+                            }
+                                            <h3>@variance.ToString("F1")</h3>
+                                            <p>Variance (@variancePercentage.ToString("F1")%)</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mt-4 mb-3">Timeline</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Target Date:</dt>
+                                <dd class="col-sm-8">@(Model.TargetDate?.ToString("MMM dd, yyyy") ?? "Not Set")</dd>
+                                <dt class="col-sm-4">Actual Date:</dt>
+                                <dd class="col-sm-8">@(Model.ActualDate?.ToString("MMM dd, yyyy") ?? "Not Completed")</dd>
+                                @if (Model.TargetDate.HasValue && Model.ActualDate.HasValue)
+                                {
+                                    var daysDifference = (Model.ActualDate.Value - Model.TargetDate.Value).Days;
+                                    <dt class="col-sm-4">Performance:</dt>
+                                    <dd class="col-sm-8">
+                                        @if (daysDifference <= 0)
+                                        {
+                                            <span class="badge badge-success">On Time / Early</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">@daysDifference days late</span>
+                                        }
+                                    </dd>
+                                }
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mt-4 mb-3">Ownership</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Owner:</dt>
+                                <dd class="col-sm-8">@Model.OwnerName</dd>
+                                <dt class="col-sm-4">Sponsor:</dt>
+                                <dd class="col-sm-8">@Model.SponsorName</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.BusinessImpact))
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mt-4 mb-3">Business Impact</h5>
+                                <div class="alert alert-info">
+                                    <p class="mb-0">@Model.BusinessImpact</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.ValueRealization != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mt-4 mb-3">Value Realization</h5>
+                                <div class="alert alert-success">
+                                    <p class="mb-0">Planned: @Model.ValueRealization.PlannedValue.ToString("C"), Realized: @Model.ValueRealization.RealizedValue.ToString("C")</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.ReviewNotes))
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mt-4 mb-3">Review Notes</h5>
+                                <div class="alert alert-secondary">
+                                    <p class="mb-0">@Model.ReviewNotes</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <h6 class="text-muted">Record Information</h6>
+                            <small class="text-muted">
+                                Created by @(Model.UserCreated ?? "System") on @(Model.DateCreated?.ToString("MMM dd, yyyy HH:mm") ?? "Unknown")
+                                @if (Model.UserModified != null)
+                                {
+                                    <br /><text>Last modified by </text>@Model.UserModified<text> on </text>@Model.DateModified?.ToString("MMM dd, yyyy HH:mm")
+                                }
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

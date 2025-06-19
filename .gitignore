@@ -1,0 +1,7 @@
+# ASP.NET Core
+SIMEA/bin/
+SIMEA/.mono/
+SIMEA/obj/
+SIMEA/Logs/
+.mono
+publish

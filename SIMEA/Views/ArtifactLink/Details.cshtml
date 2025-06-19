@@ -1,0 +1,288 @@
+@model SIMEA.Models.ArtifactLink
+
+@{
+    ViewData["Title"] = "Artifact Link Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-info-circle mr-2"></i> Artifact Link Details
+            </h6>
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit mr-1"></i> Edit
+                </a>
+                <a asp-action="Index" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- UML Diagram -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-gradient-primary text-white py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-project-diagram mr-2"></i> Link Visualization
+                            </h6>
+                        </div>
+                        <div class="card-body p-4 bg-light">
+                            <div id="umlDiagram" class="text-center py-4" style="border-radius: 8px; background-color: white; box-shadow: 0 0 15px rgba(0,0,0,0.05); padding: 20px;">
+                                <!-- Source Artifact -->
+                                <div class="source-artifact p-3 mb-4" style="border: 2px solid #4e73df; border-radius: 8px; display: inline-block; min-width: 250px; max-width: 90%; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                    <div class="bg-gradient-primary text-white p-2 mb-2 rounded">
+                                        <i class="@GetIconForType(Model.SourceArtifactType.ToString()) mr-2"></i>
+                                        @Model.SourceArtifactType
+                                    </div>
+                                    <div class="p-2 text-truncate font-weight-bold" title="@ViewBag.SourceArtifactInfo?.Name">
+                                        @ViewBag.SourceArtifactInfo?.Name
+                                    </div>
+                                    <div class="small text-muted d-none">ID: @Model.SourceArtifactId</div>
+                                </div>
+                                
+                                <!-- Connection Arrow -->
+                                <div class="arrow-connector mb-3 position-relative">
+                                    <div class="connector-line mx-auto" style="height: 30px; width: 2px; background-color: #4e73df;"></div>
+                                    <div class="link-label px-3 py-2 mx-auto" style="max-width: 250px; border: 1px dashed #4e73df; border-radius: 20px; font-size: 14px; background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                        <i class="fas fa-link mr-1"></i>
+                                        @(string.IsNullOrEmpty(Model.LinkDescription) ? "Links to" : Model.LinkDescription)
+                                    </div>
+                                    <div class="connector-line mx-auto" style="height: 30px; width: 2px; background-color: #1cc88a;"></div>
+                                    <div class="arrow-head text-center" style="margin-top: -5px; color: #1cc88a;">
+                                        <i class="fas fa-chevron-down" style="font-size: 20px;"></i>
+                                    </div>
+                                </div>
+                                
+                                <!-- Target Artifact -->
+                                <div class="target-artifact p-3" style="border: 2px solid #1cc88a; border-radius: 8px; display: inline-block; min-width: 250px; max-width: 90%; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                    <div class="bg-gradient-success text-white p-2 mb-2 rounded">
+                                        <i class="@GetIconForType(Model.TargetArtifactType.ToString()) mr-2"></i>
+                                        @Model.TargetArtifactType
+                                    </div>
+                                    <div class="p-2 text-truncate font-weight-bold" title="@ViewBag.TargetArtifactInfo?.Name">
+                                        @ViewBag.TargetArtifactInfo?.Name
+                                    </div>
+                                    <div class="small text-muted d-none">ID: @Model.TargetArtifactId</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Link Details -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-gradient-info text-white py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-info-circle mr-2"></i> Link Details
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="small text-gray-600">Link ID</label>
+                                <div class="border rounded p-2 bg-light">@Model.Id</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="small text-gray-600">Description</label>
+                                <div class="border rounded p-2 bg-light">
+                                    @(string.IsNullOrEmpty(Model.LinkDescription) ? "No description provided" : Model.LinkDescription)
+                                </div>
+                            </div>
+                            
+                            <!-- Application Information -->
+                            @if (Model.SourceArtifactType.ToString().Contains("Application"))
+                            {
+                                <div class="mb-3">
+                                    <label class="small text-gray-600">Source Application</label>
+                                    <div class="border rounded p-2 bg-light">
+                                        @ViewBag.SourceArtifactInfo?.Name
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (Model.TargetArtifactType.ToString().Contains("Application"))
+                            {
+                                <div class="mb-3">
+                                    <label class="small text-gray-600">Target Application</label>
+                                    <div class="border rounded p-2 bg-light">
+                                        @ViewBag.TargetArtifactInfo?.Name
+                                    </div>
+                                </div>
+                            }
+                            
+                            <!-- Add DateTime Information -->
+                            <div class="mb-3">
+                                <label class="small text-gray-600">Created Date</label>
+                                <div class="border rounded p-2 bg-light">
+                                    @Model.LinkCreatedDate.ToString("yyyy-MM-dd HH:mm")
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="small text-gray-600">Created By</label>
+                                <div class="border rounded p-2 bg-light">
+                                    @(string.IsNullOrEmpty(Model.CreatedBy) ? "System" : Model.CreatedBy)
+                                </div>
+                            </div>
+                            
+                            @if (Model.LastModifiedDate.HasValue)
+                            {
+                                <div class="mb-3">
+                                    <label class="small text-gray-600">Last Modified</label>
+                                    <div class="border rounded p-2 bg-light">
+                                        @Model.LastModifiedDate.Value.ToString("yyyy-MM-dd HH:mm")
+                                        @if (!string.IsNullOrEmpty(Model.LastModifiedBy))
+                                        {
+                                            <small class="ml-2 text-muted">by @Model.LastModifiedBy</small>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            
+                            <!-- Link Relationships -->
+                            <div class="mb-3">
+                                <label class="small text-gray-600">Source Artifact Type</label>
+                                <div class="border rounded p-2 bg-primary text-white">
+                                    <i class="@GetIconForType(Model.SourceArtifactType.ToString()) mr-1"></i>
+                                    @Model.SourceArtifactType
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="small text-gray-600">Target Artifact Type</label>
+                                <div class="border rounded p-2 bg-success text-white">
+                                    <i class="@GetIconForType(Model.TargetArtifactType.ToString()) mr-1"></i>
+                                    @Model.TargetArtifactType
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Links -->
+            @if (ViewBag.RelatedLinks != null && ViewBag.RelatedLinks.Count > 0)
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-project-diagram mr-2"></i> Related Links
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="relatedLinksTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Source</th>
+                                        <th>Target</th>
+                                        <th>Description</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var link in ViewBag.RelatedLinks)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge badge-primary">@link.SourceArtifactType</span>
+                                                <span class="ml-1">@link.SourceArtifactName</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-success">@link.TargetArtifactType</span>
+                                                <span class="ml-1">@link.TargetArtifactName</span>
+                                            </td>
+                                            <td>@(string.IsNullOrEmpty(link.LinkDescription) ? "Links to" : link.LinkDescription)</td>
+                                            <td>@link.LinkCreatedDate.ToString("yyyy-MM-dd")</td>
+                                            <td>
+                                                <a asp-action="Details" asp-route-id="@link.Id" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-info-circle"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#relatedLinksTable').DataTable({
+                "pageLength": 5,
+                "lengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]]
+            });
+        });
+    </script>
+}
+
+@functions {
+    public string GetIconForType(string artifactType)
+    {
+        switch (artifactType)
+        {
+            case "BusinessStrategy":
+                return "fas fa-chess";
+            case "OperationModel":
+                return "fas fa-cogs";
+            case "OrganizationView":
+                return "fas fa-sitemap";
+            case "CapabilityMap":
+                return "fas fa-cubes";
+            case "ProcessModel":
+                return "fas fa-project-diagram";
+            case "BusinessProductService":
+                return "fas fa-shopping-cart";
+            case "ApplicationFramework":
+                return "fas fa-laptop-code";
+            case "ApplicationBusinessRequirement":
+                return "fas fa-tasks";
+            case "ServiceCatalogue":
+                return "fas fa-concierge-bell";
+            case "ApplicationCrossReference":
+                return "fas fa-exchange-alt";
+            case "ApplicationSecurity":
+                return "fas fa-shield-alt";
+            case "ApplicationDataCrossReference":
+                return "fas fa-database";
+            case "DataGovernance":
+                return "fas fa-gavel";
+            case "InformationHierarchy":
+                return "fas fa-sitemap";
+            case "InformationRequirements":
+                return "fas fa-clipboard-list";
+            case "DataFlow":
+                return "fas fa-stream";
+            case "LogicalData":
+                return "fas fa-table";
+            case "DataSecurity":
+                return "fas fa-user-shield";
+            case "InfrastructureBusinessRequirement":
+                return "fas fa-clipboard-check";
+            case "SystemToApplication":
+                return "fas fa-server";
+            case "ResourceNeeds":
+                return "fas fa-puzzle-piece";
+            case "SystemToBusiness":
+                return "fas fa-network-wired";
+            case "InfrastructureSecurity":
+                return "fas fa-lock";
+            case "SystemData":
+                return "fas fa-database";
+            default:
+                return "fas fa-question-circle";
+        }
+    }
+}

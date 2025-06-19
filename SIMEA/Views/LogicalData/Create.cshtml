@@ -1,0 +1,298 @@
+@model SIMEA.Models.LogicalDataModel
+
+@{
+    ViewData["Title"] = "Create Logical Data Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Logical Data Model</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/LogicalData/Index">Logical Data Models</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Logical Data Model
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="LogicalData" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="EntityName" class="control-label">Entity Name</label>
+                            <input asp-for="EntityName" class="form-control" required />
+                            <span asp-validation-for="EntityName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label">Owner</label>
+                            <input asp-for="Owner" class="form-control" required />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="PrimaryKey" class="control-label">Primary Key</label>
+                            <input asp-for="PrimaryKey" class="form-control" required />
+                            <span asp-validation-for="PrimaryKey" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ForeignKey" class="control-label">Foreign Key</label>
+                            <input asp-for="ForeignKey" class="form-control" />
+                            <span asp-validation-for="ForeignKey" class="text-danger"></span>
+                            <small class="form-text text-muted">Optional. Leave empty if not applicable.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Attributes</label>
+                        <div class="input-group">
+                            <input type="text" id="attributeInput" class="form-control" placeholder="Add attribute (e.g., name VARCHAR(100) NOT NULL)">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addAttribute" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="attributesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-attributes">No attributes added</span>
+                        </div>
+                        <div id="attributesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Relationships</label>
+                        <div class="input-group">
+                            <input type="text" id="relationshipInput" class="form-control" placeholder="Add relationship (e.g., Has-Many Orders)">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addRelationship" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="relationshipsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-relationships">No relationships added</span>
+                        </div>
+                        <div id="relationshipsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Logical Data Model</button>
+                        <a asp-action="Index" asp-controller="LogicalData" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding attributes
+            $("#addAttribute").click(function() {
+                const value = $("#attributeInput").val().trim();
+                
+                if (value) {
+                    addAttribute(value);
+                    $("#attributeInput").val("");
+                }
+            });
+            
+            // Handle adding relationships
+            $("#addRelationship").click(function() {
+                const value = $("#relationshipInput").val().trim();
+                
+                if (value) {
+                    addRelationship(value);
+                    $("#relationshipInput").val("");
+                }
+            });
+            
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Enter key for attributes
+            $("#attributeInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addAttribute").click();
+                }
+            });
+            
+            // Enter key for relationships
+            $("#relationshipInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addRelationship").click();
+                }
+            });
+            
+            // Enter key for dependencies
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Function to add an attribute
+            function addAttribute(value) {
+                // Remove "no attributes" badge if it exists
+                $("#attributesList .no-attributes").remove();
+                
+                // Check if this attribute already exists
+                if ($(`#attributesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#attributesContainer").append(`<input type="hidden" name="Attributes" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#attributesList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 attribute-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="attribute" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a relationship
+            function addRelationship(value) {
+                // Remove "no relationships" badge if it exists
+                $("#relationshipsList .no-relationships").remove();
+                
+                // Check if this relationship already exists
+                if ($(`#relationshipsContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#relationshipsContainer").append(`<input type="hidden" name="Relationships" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#relationshipsList").append(`
+                        <span class="badge badge-success mr-1 mb-1 relationship-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="relationship" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-info mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove an attribute
+            function removeAttribute(value) {
+                // Remove the hidden input
+                $(`#attributesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#attributesList .attribute-badge[data-value="${value}"]`).remove();
+                
+                // Add "no attributes" badge if there are no more attributes
+                if ($("#attributesContainer input").length === 0) {
+                    $("#attributesList").html('<span class="badge badge-secondary mr-1 mb-1 no-attributes">No attributes added</span>');
+                }
+            }
+            
+            // Function to remove a relationship
+            function removeRelationship(value) {
+                // Remove the hidden input
+                $(`#relationshipsContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#relationshipsList .relationship-badge[data-value="${value}"]`).remove();
+                
+                // Add "no relationships" badge if there are no more relationships
+                if ($("#relationshipsContainer input").length === 0) {
+                    $("#relationshipsList").html('<span class="badge badge-secondary mr-1 mb-1 no-relationships">No relationships added</span>');
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "attribute") {
+                    removeAttribute(value);
+                } else if (type === "relationship") {
+                    removeRelationship(value);
+                } else if (type === "dependency") {
+                    removeDependency(value);
+                }
+            });
+        });
+    </script>
+}

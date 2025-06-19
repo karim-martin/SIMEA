@@ -1,0 +1,101 @@
+@model IEnumerable<SIMEA.Models.BusinessStrategyView>
+
+@{
+    ViewData["Title"] = "Business Strategies";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Business Strategies</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="strategyTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BusinessGoal)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.StrategicObjective)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Timeframe)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.KeyPerformanceIndicators)
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.BusinessGoal)
+                                    </td>
+                                    <td>
+                                        @(item.StrategicObjective != null && item.StrategicObjective.Length > 50 ? item.StrategicObjective.Substring(0, 47) + "..." : item.StrategicObjective)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Timeframe)
+                                    </td>
+                                    <td>
+                                        @if (item.KeyPerformanceIndicators != null && item.KeyPerformanceIndicators.Any())
+                                        {
+                                            <span>@string.Join(", ", item.KeyPerformanceIndicators.Take(2))</span>
+                                            if (item.KeyPerformanceIndicators.Count() > 2)
+                                            {
+                                                <span>...</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#strategyTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search strategies:",
+                    "lengthMenu": "Show _MENU_ strategies per page",
+                    "zeroRecords": "No strategies found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No strategies available",
+                    "infoFiltered": "(filtered from _MAX_ total strategies)"
+                }
+            });
+        });
+    </script>
+}

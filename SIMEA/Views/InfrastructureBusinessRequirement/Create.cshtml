@@ -1,0 +1,176 @@
+@model SIMEA.Models.InfrastructureBusinessRequirementsView
+
+@{
+    ViewData["Title"] = "Create Infrastructure Business Requirement";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Infrastructure Business Requirement</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/InfrastructureBusinessRequirements/Index">Infrastructure Business Requirements</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Requirement
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="InfrastructureBusinessRequirements" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="RequirementId" class="control-label">Requirement ID</label>
+                            <input asp-for="RequirementId" class="form-control" required />
+                            <span asp-validation-for="RequirementId" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Priority" class="control-label">Priority</label>
+                            <select asp-for="Priority" class="form-control" required>
+                                <option value="">Select Priority</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                            <span asp-validation-for="Priority" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Status" class="control-label">Status</label>
+                            <select asp-for="Status" class="form-control" required>
+                                <option value="">Select Status</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Implemented">Implemented</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RequirementDescription" class="control-label">Requirement Description</label>
+                        <textarea asp-for="RequirementDescription" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="RequirementDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="BusinessUnit" class="control-label">Business Unit</label>
+                        <input asp-for="BusinessUnit" class="form-control" required />
+                        <span asp-validation-for="BusinessUnit" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="AssignedTo" class="control-label">Assigned To</label>
+                            <input asp-for="AssignedTo" class="form-control" required />
+                            <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="DueDate" class="control-label">Due Date</label>
+                            <input asp-for="DueDate" class="form-control" type="date" required />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stakeholders</label>
+                        <div class="input-group">
+                            <input type="text" id="stakeholderInput" class="form-control" placeholder="Add stakeholder">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addStakeholder" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="stakeholdersList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-stakeholders">No stakeholders added</span>
+                        </div>
+                        <div id="stakeholdersContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Requirement</button>
+                        <a asp-action="Index" asp-controller="InfrastructureBusinessRequirements" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding stakeholders
+            $("#addStakeholder").click(function() {
+                const value = $("#stakeholderInput").val().trim();
+                
+                if (value) {
+                    addStakeholder(value);
+                    $("#stakeholderInput").val("");
+                }
+            });
+            
+            // Enter key for stakeholders
+            $("#stakeholderInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addStakeholder").click();
+                }
+            });
+            
+            // Function to add a stakeholder
+            function addStakeholder(value) {
+                // Remove "no stakeholders" badge if it exists
+                $("#stakeholdersList .no-stakeholders").remove();
+                
+                // Check if this stakeholder already exists
+                if ($(`#stakeholdersContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#stakeholdersContainer").append(`<input type="hidden" name="Stakeholders" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#stakeholdersList").append(`
+                        <span class="badge badge-info mr-1 mb-1 stakeholder-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="stakeholder" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a stakeholder
+            function removeStakeholder(value) {
+                // Remove the hidden input
+                $(`#stakeholdersContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#stakeholdersList .stakeholder-badge[data-value="${value}"]`).remove();
+                
+                // Add "no stakeholders" badge if there are no more stakeholders
+                if ($("#stakeholdersContainer input").length === 0) {
+                    $("#stakeholdersList").html('<span class="badge badge-secondary mr-1 mb-1 no-stakeholders">No stakeholders added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "stakeholder") {
+                    removeStakeholder(value);
+                }
+            });
+        });
+    </script>
+}

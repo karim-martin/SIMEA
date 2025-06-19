@@ -1,0 +1,356 @@
+@model SIMEA.Models.BusinessStrategyView
+
+@{
+    ViewData["Title"] = "Create Business Strategy";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Business Strategy</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/BusinessStrategy/Index">Business Strategies</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Strategy
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" id="createForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="BusinessGoal" class="control-label">Business Goal*</label>
+                            <input asp-for="BusinessGoal" class="form-control" required />
+                            <span asp-validation-for="BusinessGoal" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Timeframe" class="control-label">Timeframe*</label>
+                            <input asp-for="Timeframe" class="form-control" required />
+                            <span asp-validation-for="Timeframe" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="StrategicObjective" class="control-label">Strategic Objective*</label>
+                        <textarea asp-for="StrategicObjective" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="StrategicObjective" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="OrganizationalVisionAlignment" class="control-label">Organizational Vision Alignment</label>
+                        <textarea asp-for="OrganizationalVisionAlignment" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="OrganizationalVisionAlignment" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Key Performance Indicators (KPIs)</label>
+                        <div class="input-group">
+                            <input type="text" id="kpiInput" class="form-control" placeholder="Add KPI">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addKpi" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="kpiList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-kpis">No KPIs added</span>
+                        </div>
+                        <div id="kpiContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stakeholders</label>
+                        <div class="input-group">
+                            <input type="text" id="stakeholderInput" class="form-control" placeholder="Add stakeholder">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addStakeholder" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="stakeholdersList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-stakeholders">No stakeholders added</span>
+                        </div>
+                        <div id="stakeholdersContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Risks</label>
+                        <div class="input-group">
+                            <input type="text" id="riskInput" class="form-control" placeholder="Add risk">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addRisk" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="risksList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-risks">No risks added</span>
+                        </div>
+                        <div id="risksContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addDependency" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="dependenciesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>
+                        </div>
+                        <div id="dependenciesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Handle adding KPIs
+            $("#addKpi").click(function() {
+                const value = $("#kpiInput").val().trim();
+                
+                if (value) {
+                    addKpi(value);
+                    $("#kpiInput").val("");
+                }
+            });
+            
+            // Handle adding stakeholders
+            $("#addStakeholder").click(function() {
+                const value = $("#stakeholderInput").val().trim();
+                
+                if (value) {
+                    addStakeholder(value);
+                    $("#stakeholderInput").val("");
+                }
+            });
+            
+            // Handle adding risks
+            $("#addRisk").click(function() {
+                const value = $("#riskInput").val().trim();
+                
+                if (value) {
+                    addRisk(value);
+                    $("#riskInput").val("");
+                }
+            });
+            
+            // Handle adding dependencies
+            $("#addDependency").click(function() {
+                const value = $("#dependencyInput").val().trim();
+                
+                if (value) {
+                    addDependency(value);
+                    $("#dependencyInput").val("");
+                }
+            });
+            
+            // Enter key handling for input fields
+            $("#kpiInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addKpi").click();
+                }
+            });
+            
+            $("#stakeholderInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addStakeholder").click();
+                }
+            });
+            
+            $("#riskInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addRisk").click();
+                }
+            });
+            
+            $("#dependencyInput").keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $("#addDependency").click();
+                }
+            });
+            
+            // Function to add a KPI
+            function addKpi(value) {
+                // Remove "no KPIs" badge if it exists
+                $("#kpiList .no-kpis").remove();
+                
+                // Check if this KPI already exists
+                if ($(`#kpiContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#kpiContainer").append(`<input type="hidden" name="KeyPerformanceIndicators" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#kpiList").append(`
+                        <span class="badge badge-info mr-1 mb-1 kpi-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="kpi" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a stakeholder
+            function addStakeholder(value) {
+                // Remove "no stakeholders" badge if it exists
+                $("#stakeholdersList .no-stakeholders").remove();
+                
+                // Check if this stakeholder already exists
+                if ($(`#stakeholdersContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#stakeholdersContainer").append(`<input type="hidden" name="Stakeholders" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#stakeholdersList").append(`
+                        <span class="badge badge-primary mr-1 mb-1 stakeholder-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="stakeholder" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a risk
+            function addRisk(value) {
+                // Remove "no risks" badge if it exists
+                $("#risksList .no-risks").remove();
+                
+                // Check if this risk already exists
+                if ($(`#risksContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#risksContainer").append(`<input type="hidden" name="Risks" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#risksList").append(`
+                        <span class="badge badge-danger mr-1 mb-1 risk-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="risk" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to add a dependency
+            function addDependency(value) {
+                // Remove "no dependencies" badge if it exists
+                $("#dependenciesList .no-dependencies").remove();
+                
+                // Check if this dependency already exists
+                if ($(`#dependenciesContainer input[value="${value}"]`).length === 0) {
+                    // Add the hidden input
+                    $("#dependenciesContainer").append(`<input type="hidden" name="Dependencies" value="${value}">`);
+                    
+                    // Add the badge to the display
+                    $("#dependenciesList").append(`
+                        <span class="badge badge-secondary mr-1 mb-1 dependency-badge" data-value="${value}">
+                            ${value} <i class="fas fa-times ml-1 remove-badge" data-type="dependency" data-value="${value}"></i>
+                        </span>
+                    `);
+                }
+            }
+            
+            // Function to remove a KPI
+            function removeKpi(value) {
+                // Remove the hidden input
+                $(`#kpiContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#kpiList .kpi-badge[data-value="${value}"]`).remove();
+                
+                // Add "no KPIs" badge if there are no more KPIs
+                if ($("#kpiContainer input").length === 0) {
+                    $("#kpiList").html('<span class="badge badge-secondary mr-1 mb-1 no-kpis">No KPIs added</span>');
+                }
+            }
+            
+            // Function to remove a stakeholder
+            function removeStakeholder(value) {
+                // Remove the hidden input
+                $(`#stakeholdersContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#stakeholdersList .stakeholder-badge[data-value="${value}"]`).remove();
+                
+                // Add "no stakeholders" badge if there are no more stakeholders
+                if ($("#stakeholdersContainer input").length === 0) {
+                    $("#stakeholdersList").html('<span class="badge badge-secondary mr-1 mb-1 no-stakeholders">No stakeholders added</span>');
+                }
+            }
+            
+            // Function to remove a risk
+            function removeRisk(value) {
+                // Remove the hidden input
+                $(`#risksContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#risksList .risk-badge[data-value="${value}"]`).remove();
+                
+                // Add "no risks" badge if there are no more risks
+                if ($("#risksContainer input").length === 0) {
+                    $("#risksList").html('<span class="badge badge-secondary mr-1 mb-1 no-risks">No risks added</span>');
+                }
+            }
+            
+            // Function to remove a dependency
+            function removeDependency(value) {
+                // Remove the hidden input
+                $(`#dependenciesContainer input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`#dependenciesList .dependency-badge[data-value="${value}"]`).remove();
+                
+                // Add "no dependencies" badge if there are no more dependencies
+                if ($("#dependenciesContainer input").length === 0) {
+                    $("#dependenciesList").html('<span class="badge badge-secondary mr-1 mb-1 no-dependencies">No dependencies added</span>');
+                }
+            }
+            
+            // Remove badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                if (type === "kpi") {
+                    removeKpi(value);
+                } else if (type === "stakeholder") {
+                    removeStakeholder(value);
+                } else if (type === "risk") {
+                    removeRisk(value);
+                } else if (type === "dependency") {
+                    removeDependency(value);
+                }
+            });
+        });
+    </script>
+}

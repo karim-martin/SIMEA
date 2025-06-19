@@ -1,0 +1,292 @@
+@model SIMEA.Models.BusinessProductServiceView
+
+@{
+    ViewData["Title"] = "Edit Business Product/Service";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Business Product/Service</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="ProductServiceName" class="control-label"></label>
+                            <input asp-for="ProductServiceName" class="form-control" />
+                            <span asp-validation-for="ProductServiceName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="RevenueModel" class="control-label"></label>
+                            <input asp-for="RevenueModel" class="form-control" />
+                            <span asp-validation-for="RevenueModel" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="TargetMarketCustomer" class="control-label"></label>
+                        <input asp-for="TargetMarketCustomer" class="form-control" />
+                        <span asp-validation-for="TargetMarketCustomer" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ValueProposition" class="control-label"></label>
+                        <textarea asp-for="ValueProposition" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ValueProposition" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Key Features</label>
+                        <div class="input-group">
+                            <input type="text" id="featureInput" class="form-control" placeholder="Add feature" />
+                            <div class="input-group-append">
+                                <button type="button" id="addFeature" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#featuresModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="featuresList" class="mt-2">
+                            <!-- Existing features will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependenciesList" class="mt-2">
+                            <!-- Existing dependencies will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Competitors</label>
+                        <div class="input-group">
+                            <input type="text" id="competitorInput" class="form-control" placeholder="Add competitor" />
+                            <div class="input-group-append">
+                                <button type="button" id="addCompetitor" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#competitorsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="competitorsList" class="mt-2">
+                            <!-- Existing competitors will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Modal -->
+    <div class="modal fade" id="featuresModal" tabindex="-1" role="dialog" aria-labelledby="featuresModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="featuresModalLabel">Manage Features</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="featuresModalList">
+                        <!-- Features will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="featureModalInput" class="form-control" placeholder="Add new feature" />
+                        <div class="input-group-append">
+                            <button type="button" id="addFeatureModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Competitors Modal -->
+    <div class="modal fade" id="competitorsModal" tabindex="-1" role="dialog" aria-labelledby="competitorsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="competitorsModalLabel">Manage Competitors</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="competitorsModalList">
+                        <!-- Competitors will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="competitorModalInput" class="form-control" placeholder="Add new competitor" />
+                        <div class="input-group-append">
+                            <button type="button" id="addCompetitorModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let features = @Html.Raw(Json.Serialize(Model.KeyFeatures ?? new List<string>()));
+            let dependencies = @Html.Raw(Json.Serialize(Model.Dependencies ?? new List<string>()));
+            let competitors = @Html.Raw(Json.Serialize(Model.Competitors ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateFeaturesList() {
+                let html = '';
+                features.forEach((feature, index) => {
+                    html += `<div class="badge badge-success mr-2 mb-2 p-2">${feature}
+                        <a href="#" class="text-white ml-1 remove-feature" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="KeyFeatures[${index}]" value="${feature}" />
+                    </div>`;
+                });
+                $('#featuresList').html(html);
+                updateFeaturesModal();
+            }
+
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<div class="badge badge-primary mr-2 mb-2 p-2">${dependency}
+                        <a href="#" class="text-white ml-1 remove-dependency" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Dependencies[${index}]" value="${dependency}" />
+                    </div>`;
+                });
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateCompetitorsList() {
+                let html = '';
+                competitors.forEach((competitor, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${competitor}
+                        <button type="button" class="btn btn-sm btn-danger remove-competitor-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#competitorsModalList').html(html); += `<div class="badge badge-warning mr-2 mb-2 p-2">${competitor}
+                        <a href="#" class="text-white ml-1 remove-competitor" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Competitors[${index}]" value="${competitor}" />
+                    </div>`;
+                });
+                $('#competitorsList').html(html);
+                updateCompetitorsModal();
+            }
+
+            function updateFeaturesModal() {
+                let html = '';
+                features.forEach((feature, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${feature}
+                        <button type="button" class="btn btn-sm btn-danger remove-feature-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#featuresModalList').html(html);
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger remove-dependency-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#dependenciesModalList').html(html);
+            }
+
+            function updateCompetitorsModal() {
+                let html = '';
+                competitors.forEach((competitor, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${competitor}
+                        <button type="button" class="btn btn-sm btn-danger remove-competitor-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#competitorsModalList').html(html);
+            }   
+        });
+    </script>
+}

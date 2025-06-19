@@ -1,0 +1,115 @@
+@model SIMEA.Models.InformationHierarchyView
+
+@{
+    ViewData["Title"] = "Delete Information Hierarchy";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Information Hierarchy</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this information hierarchy? This action cannot be undone.
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.InformationLevel):</label>
+                            <p>@Html.DisplayFor(model => model.InformationLevel)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SecurityLevel):</label>
+                            <p>
+                                <span class="badge badge-pill 
+                                    @(Model.SecurityLevel == "Confidential" ? "badge-danger" : 
+                                    Model.SecurityLevel == "Internal" ? "badge-warning" : 
+                                    Model.SecurityLevel == "Public" ? "badge-success" :
+                                    "badge-info")">
+                                    @Html.DisplayFor(model => model.SecurityLevel)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Description):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.Description)
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                            <p>@Html.DisplayFor(model => model.Owner)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Usage):</label>
+                            <p>@Html.DisplayFor(model => model.Usage)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Child Information:</label>
+                            @if (Model.ChildInformation != null && Model.ChildInformation.Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var child in Model.ChildInformation)
+                                    {
+                                        <li class="list-group-item">@child</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No child information defined</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Dependencies:</label>
+                            @if (Model.Dependencies != null && Model.Dependencies.Any())
+                            {
+                                <ul class="list-group">
+                                    @foreach (var dependency in Model.Dependencies)
+                                    {
+                                        <li class="list-group-item">@dependency</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No dependencies defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this information hierarchy?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,403 @@
+@model SIMEA.Models.ViewModels.ValueStreamModelingViewModel
+
+@{
+    ViewData["Title"] = "Value Stream Modeling";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+    <div>
+        <button class="btn btn-primary btn-sm shadow-sm" id="printBtn">
+            <i class="fas fa-print fa-sm"></i> Print
+        </button>
+        <button class="btn btn-success btn-sm shadow-sm" id="exportBtn">
+            <i class="fas fa-file-excel fa-sm"></i> Export
+        </button>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Overview</h6>
+    </div>
+    <div class="card-body">
+        <p>@Model.Description</p>
+        <p class="small text-muted mb-0">Generated on: @Model.GeneratedDate.ToString("MM/dd/yyyy HH:mm") by @Model.GeneratedBy</p>
+        <p class="small text-muted">Last modified on: @Model.LastModifiedDate.ToString("MM/dd/yyyy HH:mm") by @Model.LastModifiedBy</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6 col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Value Stream Summary</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="valueStreamTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Value Stream</th>
+                                <th>Lead Time</th>
+                                <th>Cycle Efficiency</th>
+                                <th>Customer Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var process in Model.BusinessProcesses.Where(p => p.CustomerType != null && p.LeadTime.HasValue))
+                            {
+                                <tr>
+                                    <td>@process.ProcessName</td>
+                                    <td>@process.LeadTime?.TotalDays days</td>
+                                    <td>@(process.CycleEfficiency * 100)%</td>
+                                    <td>@process.CustomerType</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm view-stream-details" data-id="@process.Id">
+                                            <i class="fas fa-eye fa-sm"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Value Stream Metrics</h6>
+            </div>
+            <div class="card-body">
+                <div id="valueStreamMetricsChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach (var process in Model.BusinessProcesses.Where(p => p.CustomerType != null && p.Stages != null))
+{
+    <div class="value-stream-details" id="stream-@process.Id" style="display: none;">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">@process.ProcessName Value Stream</h6>
+                <div>
+                    <button class="btn btn-secondary btn-sm back-to-summary">
+                        <i class="fas fa-arrow-left fa-sm"></i> Back to Summary
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Overview</h5>
+                        <p><strong>Description:</strong> @process.ProcessDescription</p>
+                        <p><strong>Customer Type:</strong> @process.CustomerType</p>
+                        <p><strong>Lead Time:</strong> @process.LeadTime?.TotalDays days</p>
+                        <p><strong>Cycle Efficiency:</strong> @(process.CycleEfficiency * 100)%</p>
+                        <p><strong>Mapped on:</strong> @process.MappingDate?.ToString("MM/dd/yyyy")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Key Metrics</h5>
+                        <ul class="list-group">
+                            @if (process.KeyMetrics != null)
+                            {
+                                foreach (var metric in process.KeyMetrics)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-chart-line text-primary mr-2"></i> @metric
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                
+                <h5 class="mb-3">Value Stream Flow</h5>
+                <div class="value-stream-flow">
+                    <div class="row mb-3">
+                        @if (process.Stages != null)
+                        {
+                            foreach (var stage in process.Stages)
+                            {
+                                <div class="col">
+                                    <div class="card shadow-sm h-100 @(stage.IsValueAdd ? "border-left-success" : "border-left-warning")">
+                                        <div class="card-body text-center p-2">
+                                            <h6 class="card-title">@stage.Name</h6>
+                                            <div class="small">Process: @stage.ProcessTime.TotalHours hours</div>
+                                            <div class="small">Wait: @stage.WaitTime.TotalHours hours</div>
+                                            <div class="mt-2">
+                                                <span class="badge @(stage.IsValueAdd ? "badge-success" : "badge-warning")">
+                                                    @(stage.IsValueAdd ? "Value-Add" : "Non-Value-Add")
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (process.Stages.IndexOf(stage) < process.Stages.Count - 1)
+                                {
+                                    <div class="col-auto d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5>Bottlenecks</h5>
+                        <ul class="list-group">
+                            @if (process.Bottlenecks != null)
+                            {
+                                foreach (var bottleneck in process.Bottlenecks)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-exclamation-triangle text-danger mr-2"></i> @bottleneck
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Improvement Opportunities</h5>
+                        <ul class="list-group">
+                            @if (process.ImprovementOpportunities != null)
+                            {
+                                foreach (var opportunity in process.ImprovementOpportunities)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-lightbulb text-warning mr-2"></i> @opportunity
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Stakeholder Value</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Stakeholder</th>
+                                        <th>Value Description</th>
+                                        <th>Priority</th>
+                                        <th>Metric of Success</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (process.StakeholderValues != null)
+                                    {
+                                        foreach (var stakeholderValue in process.StakeholderValues)
+                                        {
+                                            <tr>
+                                                <td>@stakeholderValue.StakeholderType</td>
+                                                <td>@stakeholderValue.ValueDescription</td>
+                                                <td>
+                                                    <div class="progress">
+                                                        <div class="progress-bar bg-primary" role="progressbar" 
+                                                            style="width: @(stakeholderValue.Priority * 10)%" 
+                                                            aria-valuenow="@stakeholderValue.Priority" 
+                                                            aria-valuemin="0" 
+                                                            aria-valuemax="10">
+                                                            @stakeholderValue.Priority
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>@stakeholderValue.MetricOfSuccess</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5>Stage Details</h5>
+                        <div class="accordion" id="stageAccordion-@process.Id">
+                            @if (process.Stages != null)
+                            {
+                                foreach (var stage in process.Stages)
+                                {
+                                    <div class="card">
+                                        <div class="card-header" id="heading-@stage.Id">
+                                            <h2 class="mb-0">
+                                                <button class="btn btn-link btn-block text-left" type="button" 
+                                                        data-toggle="collapse" data-target="#collapse-@stage.Id" 
+                                                        aria-expanded="false" aria-controls="collapse-@stage.Id">
+                                                    <span class="font-weight-bold">@stage.Name</span>
+                                                    <span class="badge @(stage.IsValueAdd ? "badge-success" : "badge-warning") float-right">
+                                                        @(stage.IsValueAdd ? "Value-Add" : "Non-Value-Add")
+                                                    </span>
+                                                </button>
+                                            </h2>
+                                        </div>
+                                        <div id="collapse-@stage.Id" class="collapse" 
+                                            aria-labelledby="heading-@stage.Id" 
+                                            data-parent="#stageAccordion-@process.Id">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <p><strong>Description:</strong> @stage.Description</p>
+                                                        <p><strong>Process Time:</strong> @stage.ProcessTime.TotalHours hours</p>
+                                                        <p><strong>Wait Time:</strong> @stage.WaitTime.TotalHours hours</p>
+                                                        <p><strong>Percent Complete:</strong> @stage.PercentComplete%</p>
+                                                        <p><strong>Defect Rate:</strong> @stage.DefectRate%</p>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        @if (stage.Issues != null && stage.Issues.Any())
+                                                        {
+                                                            <h6>Issues</h6>
+                                                            <ul class="list-group">
+                                                                @foreach (var issue in stage.Issues)
+                                                                {
+                                                                    <li class="list-group-item d-flex align-items-center">
+                                                                        <i class="fas fa-exclamation-circle text-danger mr-2"></i> @issue
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables
+            $('#valueStreamTable').DataTable({
+                "pageLength": 10,
+                "order": [[0, "asc"]]
+            });
+            
+            // Initialize Chart
+            var valueStreamData = @Html.Raw(Json.Serialize(Model.BusinessProcesses
+                .Where(p => p.LeadTime.HasValue && p.CycleEfficiency.HasValue)
+                .Select(p => new { 
+                    name = p.ProcessName, 
+                    leadTime = p.LeadTime?.TotalDays ?? 0, 
+                    cycleEfficiency = p.CycleEfficiency ?? 0 
+                })));
+            
+            var chart = echarts.init(document.getElementById('valueStreamMetricsChart'));
+            
+            var option = {
+                title: {
+                    text: 'Value Stream Performance',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['Lead Time (days)', 'Cycle Efficiency (%)'],
+                    top: 30
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: valueStreamData.map(function(item) {
+                            return item.name;
+                        })
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: 'Days',
+                        min: 0,
+                        axisLabel: {
+                            formatter: '{value} days'
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: 'Efficiency',
+                        min: 0,
+                        max: 100,
+                        axisLabel: {
+                            formatter: '{value}%'
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: 'Lead Time (days)',
+                        type: 'bar',
+                        data: valueStreamData.map(function(item) {
+                            return item.leadTime;
+                        })
+                    },
+                    {
+                        name: 'Cycle Efficiency (%)',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: valueStreamData.map(function(item) {
+                            return (item.cycleEfficiency * 100).toFixed(1);
+                        })
+                    }
+                ]
+            };
+            
+            chart.setOption(option);
+            
+            // View Stream Details
+            $('.view-stream-details').on('click', function() {
+                var streamId = $(this).data('id');
+                $('.value-stream-details').hide();
+                $('#stream-' + streamId).show();
+            });
+            
+            // Back to Summary
+            $('.back-to-summary').on('click', function() {
+                $('.value-stream-details').hide();
+            });
+            
+            // Print Button
+            $('#printBtn').on('click', function() {
+                window.print();
+            });
+            
+            // Export Button
+            $('#exportBtn').on('click', function() {
+                alert("Export functionality would be implemented here");
+            });
+            
+            // Handle window resize
+            $(window).on('resize', function() {
+                chart.resize();
+            });
+        });
+    </script>
+} 

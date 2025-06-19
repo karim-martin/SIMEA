@@ -1,0 +1,117 @@
+@model IEnumerable<SIMEA.Models.ApplicationArchitectureFramework>
+
+@{
+    ViewData["Title"] = "Application Architecture Frameworks";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Application Architecture Frameworks</h6>
+                <div class="dropdown no-arrow">
+                    <a class="btn btn-primary btn-sm" asp-action="Create">
+                        <i class="fas fa-plus fa-sm"></i> Create New
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="appFrameworkTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ApplicationName)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Version)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BusinessFunctionSupported)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.DeploymentEnvironment)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Owner)
+                                </th>
+                                <th>Tech Stack</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ApplicationName)
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-pill badge-primary">
+                                            @Html.DisplayFor(modelItem => item.Version)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @(item.BusinessFunctionSupported?.Length > 50 ? item.BusinessFunctionSupported.Substring(0, 47) + "..." : item.BusinessFunctionSupported)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.DeploymentEnvironment)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Owner)
+                                    </td>
+                                    <td>
+                                        @if (item.TechnologyStack != null && item.TechnologyStack.Any())
+                                        {
+                                            @foreach (var tech in item.TechnologyStack.Take(2))
+                                            {
+                                                <span class="badge badge-pill badge-info mr-1">@tech</span>
+                                            }
+                                            
+                                            @if (item.TechnologyStack.Count > 2)
+                                            {
+                                                <small class="text-muted">+@(item.TechnologyStack.Count - 2) more</small>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#appFrameworkTable').DataTable({
+                "responsive": true,
+                "language": {
+                    "search": "Search frameworks:",
+                    "lengthMenu": "Show _MENU_ frameworks per page",
+                    "zeroRecords": "No frameworks found",
+                    "info": "Showing page _PAGE_ of _PAGES_",
+                    "infoEmpty": "No frameworks available",
+                    "infoFiltered": "(filtered from _MAX_ total frameworks)"
+                }
+            });
+        });
+    </script>
+}

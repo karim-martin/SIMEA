@@ -1,0 +1,46 @@
+﻿
+<div class="class=" row"">
+    <div class="modal fade  " id="cardOTPdialog" tabindex="-1" role="dialog" aria-labelledby="dialog" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header activation-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>  
+                <div class="modal-body align-content-center pop-up-modal">
+                    <div class="row">
+                        <form id="otp-verification-form">
+                            @Html.AntiForgeryToken()
+                            <p class="blue-color-text verification-title-text text-center">Enter Verification Code</p>
+                            <p class="text-center text-black-50 verification-main-text">Please enter the six-digit verification code you received via <span id="otpDesc">SMS</span></p>
+                            <div class="input-box d-flex justify-content-center">
+                                <input name="sq1" id="sq1" class="ver-sq" type="text" maxlength="1" autocomplete="off" required>
+                                <input name="sq2" id="sq2" class="ver-sq" type="text" maxlength="1" autocomplete="off" required>
+                                <input name="sq3" id="sq3" class="ver-sq" type="text" maxlength="1" autocomplete="off" required>
+                                <input name="sq4" id="sq4" class="ver-sq" type="text" maxlength="1" autocomplete="off" required>
+                                <input name="sq5" id="sq5" class="ver-sq" type="text" maxlength="1" autocomplete="off" required>
+                                <input name="sq6" id="sq6" class="ver-sq" type="text" maxlength="1" autocomplete="off" required>
+                            </div>
+                            <p id="otp-validation-message" class="text-center text-danger" style="margin-top:10px;margin-bottom:-10px;">
+
+                            </p>
+                            <p class="text-center text-black-50 verification-subtext">
+                                If you haven't received a verification code select <span style="font-weight:bold;">Resend Verification Code</span> below.
+                            </p>
+                            <div class="verification-btns row">
+                                <div class="col-12 col-sm-6" style="margin-bottom:20px;">
+                                    <input type="submit" id="submitOTPVer" class="btn submit-btn vm-color btn-light text-white" value="Submit Code">
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <input type="button" id="reSubmitOTPVer" class="btn submit-btn btn-light blue-color-text" value="Resend Verification Code" />
+                                </div>
+                                <div class="loader-float-center" id="otp-loader"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

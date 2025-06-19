@@ -1,0 +1,235 @@
+@model SIMEA.Models.OrganizationView
+
+@{
+    ViewData["Title"] = "Create Organization View";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Organization View</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/OrganizationView/Index">Organization Views</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Organization
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="OrganizationView" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-group">
+                        <label asp-for="DepartmentOrUnit" class="control-label">Department/Unit</label>
+                        <input asp-for="DepartmentOrUnit" class="form-control" required />
+                        <span asp-validation-for="DepartmentOrUnit" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RolesAndResponsibilities" class="control-label">Roles & Responsibilities</label>
+                        <textarea asp-for="RolesAndResponsibilities" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="RolesAndResponsibilities" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ReportingStructure" class="control-label">Reporting Structure</label>
+                        <textarea asp-for="ReportingStructure" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="ReportingStructure" class="text-danger"></span>
+                    </div>
+
+                    <!-- Key Personnel Section -->
+                    <div class="form-group">
+                        <label>Key Personnel</label>
+                        <div class="input-group">
+                            <input type="text" id="personnelItem" class="form-control" placeholder="Add personnel">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addPersonnel" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="personnelList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-personnel">No personnel added</span>
+                        </div>
+                        <div id="personnelContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Collaboration Points Section -->
+                    <div class="form-group">
+                        <label>Collaboration Points</label>
+                        <div class="input-group">
+                            <input type="text" id="collaborationItem" class="form-control" placeholder="Add collaboration point">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addCollaboration" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="collaborationList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-collaborations">No collaboration points added</span>
+                        </div>
+                        <div id="collaborationContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Organizational Goals Section -->
+                    <div class="form-group">
+                        <label>Organizational Goals</label>
+                        <div class="input-group">
+                            <input type="text" id="goalItem" class="form-control" placeholder="Add organizational goal">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addGoal" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="goalList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-goals">No goals added</span>
+                        </div>
+                        <div id="goalContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Challenges Section -->
+                    <div class="form-group">
+                        <label>Challenges</label>
+                        <div class="input-group">
+                            <input type="text" id="challengeItem" class="form-control" placeholder="Add challenge">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addChallenge" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="challengeList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-challenges">No challenges added</span>
+                        </div>
+                        <div id="challengeContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Organization</button>
+                        <a asp-action="Index" asp-controller="OrganizationView" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Setup handlers for each list type
+            setupListHandlers('personnel', 'KeyPersonnel', 'primary');
+            setupListHandlers('collaboration', 'CollaborationPoints', 'info');
+            setupListHandlers('goal', 'OrganizationalGoals', 'success');
+            setupListHandlers('challenge', 'Challenges', 'danger');
+            
+            // Function to set up handlers for a specific list type
+            function setupListHandlers(itemType, propertyName, badgeColor) {
+                const addBtnId = `#add${capitalizeFirstLetter(itemType)}`;
+                const inputId = `#${itemType}Item`;
+                const listId = `#${itemType}List`;
+                const containerId = `#${itemType}Container`;
+                const noneClass = `.no-${itemType}s`;
+                const badgeClass = `${itemType}-badge`;
+                
+                // Add item button click
+                $(addBtnId).click(function() {
+                    const value = $(inputId).val().trim();
+                    
+                    if (value) {
+                        addListItem(itemType, propertyName, value, badgeColor);
+                        $(inputId).val("");
+                    }
+                });
+                
+                // Enter key in input field
+                $(inputId).keypress(function(e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
+                        $(addBtnId).click();
+                    }
+                });
+                
+                // Function to add an item to a list
+                function addListItem(itemType, propertyName, value, badgeColor) {
+                    // Remove "no items" badge if it exists
+                    $(`${listId} ${noneClass}`).remove();
+                    
+                    // Check if this item already exists
+                    if ($(`${containerId} input[value="${value}"]`).length === 0) {
+                        // Add the hidden input
+                        $(containerId).append(`<input type="hidden" name="${propertyName}" value="${value}">`);
+                        
+                        // Add the badge to the display
+                        $(listId).append(`
+                            <span class="badge badge-${badgeColor} mr-1 mb-1 ${badgeClass}" data-value="${value}">
+                                ${value} <i class="fas fa-times ml-1 remove-badge" data-type="${itemType}" data-value="${value}"></i>
+                            </span>
+                        `);
+                    }
+                }
+            }
+            
+            // Handle removing badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                removeListItem(type, value);
+            });
+            
+            // Function to remove an item from a list
+            function removeListItem(itemType, value) {
+                const containerId = `#${itemType}Container`;
+                const listId = `#${itemType}List`;
+                const badgeClass = `.${itemType}-badge`;
+                const noneClass = `no-${itemType}s`;
+                const propertyName = getPropertyName(itemType);
+                
+                // Remove the hidden input
+                $(`${containerId} input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`${listId} ${badgeClass}[data-value="${value}"]`).remove();
+                
+                // Add "no items" badge if there are no more items
+                if ($(`${containerId} input`).length === 0) {
+                    $(listId).html(`<span class="badge badge-secondary mr-1 mb-1 ${noneClass}">No ${itemType}s added</span>`);
+                }
+            }
+            
+            // Helper function to capitalize the first letter
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+            
+            // Helper function to get property name based on item type
+            function getPropertyName(itemType) {
+                switch(itemType) {
+                    case 'personnel': return 'KeyPersonnel';
+                    case 'collaboration': return 'CollaborationPoints';
+                    case 'goal': return 'OrganizationalGoals';
+                    case 'challenge': return 'Challenges';
+                    default: return itemType + 's';
+                }
+            }
+        });
+    </script>
+}

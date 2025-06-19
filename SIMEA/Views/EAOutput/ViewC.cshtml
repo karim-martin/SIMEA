@@ -1,0 +1,287 @@
+@model SIMEA.Models.ViewModels.ArchitectureRoadmapViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Add EA Output Metadata -->
+    <partial name="_EAOutputMetadata" model="Model" />
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Architecture Roadmap Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This roadmap visualizes the planned architecture evolution across all domains (Business, Application, Data, and Infrastructure) over time.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Architecture Evolution Timeline</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.RoadmapItems != null && Model.RoadmapItems.Any() && Model.TimelinePhases != null && Model.TimelinePhases.Any())
+                    {
+                        <div id="timeline-chart" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> No roadmap items available.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Roadmap Items Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Roadmap Items Detail</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="roadmapTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Domain</th>
+                                    <th>Phase</th>
+                                    <th>Description</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Dependencies</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.RoadmapItems)
+                                {
+                                    <tr>
+                                        <td>@item.Name</td>
+                                        <td>
+                                            <span class="badge @GetBadgeClassForDomain(item.Domain)">
+                                                @item.Domain
+                                            </span>
+                                        </td>
+                                        <td>@item.Phase</td>
+                                        <td>@item.Description</td>
+                                        <td>@(item.StartDate.HasValue ? item.StartDate.Value.ToString("yyyy-MM-dd") : "Not set")</td>
+                                        <td>@(item.EndDate.HasValue ? item.EndDate.Value.ToString("yyyy-MM-dd") : "Not set")</td>
+                                        <td>
+                                            @if (item.Dependencies != null && item.Dependencies.Any())
+                                            {
+                                                <ul class="list-unstyled mb-0">
+                                                    @foreach (var dep in item.Dependencies)
+                                                    {
+                                                        <li><small><i class="fas fa-link mr-1"></i> @dep</small></li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">None</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.0/dist/echarts.min.js"></script>
+    <script>
+    // View-specific JavaScript
+    $(document).ready(function() {
+        $('#roadmapTable').DataTable({
+            order: [[2, 'asc']], // Sort by phase
+            columnDefs: [
+                { width: "20%", targets: 3 } // Description column width
+            ]
+        });
+
+        // Handle fullscreen toggle
+        $('#toggleFullscreen').click(function () {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                $(this).html('<i class="fas fa-compress"></i> Exit Fullscreen');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    $(this).html('<i class="fas fa-expand"></i> Fullscreen');
+                }
+            }
+        });
+
+        // Handle export
+        $('#exportBtn').click(function (e) {
+            e.preventDefault();
+            alert('Export functionality will be implemented here.');
+        });
+
+        // Initialize the Roadmap Timeline chart
+        initTimelineChart();
+    });
+
+    function initTimelineChart() {
+        var chartDom = document.getElementById('timeline-chart');
+        var myChart = echarts.init(chartDom);
+        var option;
+
+        try {
+            // Prepare data for the chart
+            var phases = @Html.Raw(Json.Serialize(Model.TimelinePhases)) || [];
+            var items = @Html.Raw(Json.Serialize(Model.RoadmapItems)) || [];
+            
+            // Ensure data is valid
+            if (!Array.isArray(phases) || !Array.isArray(items) || phases.length === 0) {
+                throw new Error("Invalid or missing timeline data");
+            }
+            
+            // Group items by domain
+            var domains = [...new Set(items.filter(item => item && item.domain).map(item => item.domain))];
+            if (domains.length === 0) {
+                domains = ['No Data'];
+            }
+            
+            var domainColors = {
+                'Business': '#36b9cc',
+                'Application': '#4e73df',
+                'Data': '#1cc88a',
+                'Infrastructure': '#f6c23e',
+                'No Data': '#858796'
+            };
+            
+            var series = domains.map(function(domain) {
+                return {
+                    name: domain,
+                    type: 'bar',
+                    stack: 'roadmap',
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: phases.map(function(phase) {
+                        return items.filter(item => item && item.domain === domain && item.phase === phase).length;
+                    }),
+                    itemStyle: {
+                        color: domainColors[domain] || '#858796'
+                    }
+                };
+            });
+            
+            option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        try {
+                            var tooltip = params[0].axisValueLabel + '<br/>';
+                            params.forEach(function(param) {
+                                if(param && param.value > 0) {
+                                    tooltip += '<div style="display:flex;justify-content:space-between;">' +
+                                        '<div><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + (param.color || '#858796') + ';"></span>' + 
+                                        (param.seriesName || 'Unknown') + ':</div>' +
+                                        '<div style="margin-left:15px;font-weight:bold;">' + param.value + '</div></div>';
+                                }
+                            });
+                            return tooltip;
+                        } catch (e) {
+                            console.error("Error in tooltip formatter:", e);
+                            return "Error displaying tooltip";
+                        }
+                    }
+                },
+                legend: {
+                    data: domains
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: phases
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '# of Items'
+                },
+                series: series
+            };
+
+            myChart.setOption(option);
+        } catch (e) {
+            console.error("Error initializing timeline chart:", e);
+            if (chartDom) {
+                chartDom.innerHTML = '<div class="alert alert-danger text-center">' +
+                    '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                    'Error generating chart: ' + e.message +
+                    '</div>';
+            }
+        }
+        
+        // Make chart responsive
+        window.addEventListener('resize', function() {
+            if (myChart) {
+                myChart.resize();
+            }
+        });
+    }
+    </script>
+}
+
+@functions {
+    public string GetBadgeClassForDomain(string domain)
+    {
+        switch (domain)
+        {
+            case "Business":
+                return "badge-info";
+            case "Application":
+                return "badge-primary";
+            case "Data":
+                return "badge-success";
+            case "Infrastructure":
+                return "badge-warning";
+            default:
+                return "badge-secondary";
+        }
+    }
+}

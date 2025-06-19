@@ -1,0 +1,286 @@
+@model SIMEA.Models.OperationModel
+
+@{
+    ViewData["Title"] = "Create Operation Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <h1 class="mt-4">Create Operation Model</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/Home/Index">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/OperationModel/Index">Operation Models</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-plus-circle mr-1"></i>
+                Add New Operation Model
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" asp-controller="OperationModel" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="OperationalProcess" class="control-label">Operational Process</label>
+                            <input asp-for="OperationalProcess" class="form-control" required />
+                            <span asp-validation-for="OperationalProcess" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="ProcessOwner" class="control-label">Process Owner</label>
+                            <input asp-for="ProcessOwner" class="form-control" required />
+                            <span asp-validation-for="ProcessOwner" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Inputs Section -->
+                    <div class="form-group">
+                        <label>Inputs</label>
+                        <div class="input-group">
+                            <input type="text" id="inputItem" class="form-control" placeholder="Add input">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addInput" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="inputsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-inputs">No inputs added</span>
+                        </div>
+                        <div id="inputsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Outputs Section -->
+                    <div class="form-group">
+                        <label>Outputs</label>
+                        <div class="input-group">
+                            <input type="text" id="outputItem" class="form-control" placeholder="Add output">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addOutput" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="outputsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-outputs">No outputs added</span>
+                        </div>
+                        <div id="outputsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Key Activities Section -->
+                    <div class="form-group">
+                        <label>Key Activities</label>
+                        <div class="input-group">
+                            <input type="text" id="activityItem" class="form-control" placeholder="Add key activity">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addActivity" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="activitiesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-activities">No activities added</span>
+                        </div>
+                        <div id="activitiesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Resources Required Section -->
+                    <div class="form-group">
+                        <label>Required Resources</label>
+                        <div class="input-group">
+                            <input type="text" id="resourceItem" class="form-control" placeholder="Add resource">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addResource" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="resourcesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-resources">No resources added</span>
+                        </div>
+                        <div id="resourcesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics Section -->
+                    <div class="form-group">
+                        <label>Performance Metrics</label>
+                        <div class="input-group">
+                            <input type="text" id="metricItem" class="form-control" placeholder="Add performance metric">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addMetric" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="metricsList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-metrics">No metrics added</span>
+                        </div>
+                        <div id="metricsContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Challenges Section -->
+                    <div class="form-group">
+                        <label>Challenges</label>
+                        <div class="input-group">
+                            <input type="text" id="challengeItem" class="form-control" placeholder="Add challenge">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="addChallenge" type="button">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2" id="challengesList">
+                            <span class="badge badge-secondary mr-1 mb-1 no-challenges">No challenges added</span>
+                        </div>
+                        <div id="challengesContainer">
+                            <!-- Hidden inputs will be created here dynamically -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Operation Model</button>
+                        <a asp-action="Index" asp-controller="OperationModel" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Setup handlers for each list type
+            setupListHandlers('input', 'Inputs');
+            setupListHandlers('output', 'Outputs');
+            setupListHandlers('activity', 'KeyActivities');
+            setupListHandlers('resource', 'ResourcesRequired');
+            setupListHandlers('metric', 'PerformanceMetrics');
+            setupListHandlers('challenge', 'Challenges');
+            
+            // Function to set up handlers for a specific list type
+            function setupListHandlers(itemType, propertyName) {
+                const addBtnId = `#add${capitalizeFirstLetter(itemType)}`;
+                const inputId = `#${itemType}Item`;
+                const listId = `#${itemType}sList`;
+                const containerId = `#${itemType}sContainer`;
+                const noneClass = `.no-${itemType}s`;
+                const badgeClass = `${itemType}-badge`;
+                
+                // Add item button click
+                $(addBtnId).click(function() {
+                    const value = $(inputId).val().trim();
+                    
+                    if (value) {
+                        addListItem(itemType, propertyName, value);
+                        $(inputId).val("");
+                    }
+                });
+                
+                // Enter key in input field
+                $(inputId).keypress(function(e) {
+                    if (e.which === 13) {
+                        e.preventDefault();
+                        $(addBtnId).click();
+                    }
+                });
+                
+                // Function to add an item to a list
+                function addListItem(itemType, propertyName, value) {
+                    // Remove "no items" badge if it exists
+                    $(`${listId} ${noneClass}`).remove();
+                    
+                    // Check if this item already exists
+                    if ($(`${containerId} input[value="${value}"]`).length === 0) {
+                        // Add the hidden input
+                        $(containerId).append(`<input type="hidden" name="${propertyName}" value="${value}">`);
+                        
+                        // Add the badge to the display with a color based on item type
+                        const badgeColor = getBadgeColor(itemType);
+                        $(listId).append(`
+                            <span class="badge badge-${badgeColor} mr-1 mb-1 ${badgeClass}" data-value="${value}">
+                                ${value} <i class="fas fa-times ml-1 remove-badge" data-type="${itemType}" data-value="${value}"></i>
+                            </span>
+                        `);
+                    }
+                }
+            }
+            
+            // Function to get badge color based on item type
+            function getBadgeColor(itemType) {
+                switch(itemType) {
+                    case 'input': return 'info';
+                    case 'output': return 'success';
+                    case 'activity': return 'primary';
+                    case 'resource': return 'warning';
+                    case 'metric': return 'secondary';
+                    case 'challenge': return 'danger';
+                    default: return 'secondary';
+                }
+            }
+            
+            // Handle removing badges when clicking the X
+            $(document).on("click", ".remove-badge", function() {
+                const type = $(this).data("type");
+                const value = $(this).data("value");
+                
+                removeListItem(type, value);
+            });
+            
+            // Function to remove an item from a list
+            function removeListItem(itemType, value) {
+                const containerId = `#${itemType}sContainer`;
+                const listId = `#${itemType}sList`;
+                const badgeClass = `.${itemType}-badge`;
+                const noneClass = `no-${itemType}s`;
+                const propertyName = getPropertyName(itemType);
+                
+                // Remove the hidden input
+                $(`${containerId} input[value="${value}"]`).remove();
+                
+                // Remove the badge
+                $(`${listId} ${badgeClass}[data-value="${value}"]`).remove();
+                
+                // Add "no items" badge if there are no more items
+                if ($(`${containerId} input`).length === 0) {
+                    $(listId).html(`<span class="badge badge-secondary mr-1 mb-1 ${noneClass}">No ${itemType}s added</span>`);
+                }
+            }
+            
+            // Helper function to capitalize the first letter
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+            
+            // Helper function to get property name based on item type
+            function getPropertyName(itemType) {
+                switch(itemType) {
+                    case 'input': return 'Inputs';
+                    case 'output': return 'Outputs';
+                    case 'activity': return 'KeyActivities';
+                    case 'resource': return 'ResourcesRequired';
+                    case 'metric': return 'PerformanceMetrics';
+                    case 'challenge': return 'Challenges';
+                    default: return itemType + 's';
+                }
+            }
+        });
+    </script>
+}

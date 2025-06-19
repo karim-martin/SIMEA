@@ -1,0 +1,647 @@
+@model SIMEA.Models.ViewModels.ApplicationRationalizationViewModel
+
+@{
+    ViewData["Title"] = "Application Rationalization";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+    <div>
+        <button class="btn btn-primary btn-sm shadow-sm" id="printBtn">
+            <i class="fas fa-print fa-sm"></i> Print
+        </button>
+        <button class="btn btn-success btn-sm shadow-sm" id="exportBtn">
+            <i class="fas fa-file-excel fa-sm"></i> Export
+        </button>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Overview</h6>
+    </div>
+    <div class="card-body">
+        <p>@Model.Description</p>
+        <p class="small text-muted mb-0">Generated on: @Model.GeneratedDate.ToString("MM/dd/yyyy HH:mm") by @Model.GeneratedBy</p>
+        <p class="small text-muted">Last modified on: @Model.LastModifiedDate.ToString("MM/dd/yyyy HH:mm") by @Model.LastModifiedBy</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8 col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Application Portfolio Assessment</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="applicationTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Application</th>
+                                <th>Category</th>
+                                <th>Business Value</th>
+                                <th>Tech Fit</th>
+                                <th>Risk</th>
+                                <th>Annual Cost</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var app in Model.Applications.Where(a => !string.IsNullOrEmpty(a.RationalizationCategory)))
+                            {
+                                string categoryColorClass = app.RationalizationCategory switch
+                                {
+                                    "Tolerate" => "text-warning",
+                                    "Invest" => "text-success",
+                                    "Migrate" => "text-primary",
+                                    "Eliminate" => "text-danger",
+                                    _ => "text-secondary"
+                                };
+                                
+                                <tr>
+                                    <td>@app.ApplicationName</td>
+                                    <td><span class="font-weight-bold @categoryColorClass">@app.RationalizationCategory</span></td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                style="width: @(app.BusinessValue * 10)%" 
+                                                aria-valuenow="@app.BusinessValue" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="10">
+                                                @app.BusinessValue
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" role="progressbar" 
+                                                style="width: @(app.TechnicalFit * 10)%" 
+                                                aria-valuenow="@app.TechnicalFit" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="10">
+                                                @app.TechnicalFit
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar @(app.RiskScore > 7 ? "bg-danger" : app.RiskScore > 4 ? "bg-warning" : "bg-success")" role="progressbar" 
+                                                style="width: @(app.RiskScore * 10)%" 
+                                                aria-valuenow="@app.RiskScore" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="10">
+                                                @app.RiskScore
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@(app.AnnualCost.HasValue ? app.AnnualCost.Value.ToString("C0") : "N/A")</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm view-app-details" data-id="@app.ApplicationId">
+                                            <i class="fas fa-eye fa-sm"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Application Rationalization Summary</h6>
+            </div>
+            <div class="card-body">
+                <div id="applicationCategoriesChart" style="height: 250px;"></div>
+                <div class="mt-4">
+                    <div class="row text-center">
+                        @foreach (var category in Model.CategoryCounts)
+                        {
+                            string cardColorClass = category.Key switch
+                            {
+                                "Tolerate" => "border-left-warning",
+                                "Invest" => "border-left-success",
+                                "Migrate" => "border-left-primary",
+                                "Eliminate" => "border-left-danger",
+                                _ => "border-left-secondary"
+                            };
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="card @cardColorClass shadow-sm h-100">
+                                    <div class="card-body">
+                                        <div class="h5 font-weight-bold text-gray-800">@category.Value</div>
+                                        <div class="text-xs text-uppercase mb-1">@category.Key</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Business Value vs. Technical Fit</h6>
+            </div>
+            <div class="card-body">
+                <div id="rationalizationMatrixChart" style="height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@foreach (var app in Model.Applications.Where(a => !string.IsNullOrEmpty(a.RationalizationCategory)))
+{
+    <div class="app-details" id="app-@app.ApplicationId" style="display: none;">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">@app.ApplicationName Details</h6>
+                <div>
+                    <button class="btn btn-secondary btn-sm back-to-summary">
+                        <i class="fas fa-arrow-left fa-sm"></i> Back to Summary
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Application Overview</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <tr>
+                                    <th width="40%">Application ID</th>
+                                    <td>@app.ApplicationId</td>
+                                </tr>
+                                <tr>
+                                    <th>Application Name</th>
+                                    <td>@app.ApplicationName</td>
+                                </tr>
+                                <tr>
+                                    <th>Description</th>
+                                    <td>@app.ApplicationDescription</td>
+                                </tr>
+                                <tr>
+                                    <th>Owner</th>
+                                    <td>@app.Owner</td>
+                                </tr>
+                                <tr>
+                                    <th>Vendor</th>
+                                    <td>@app.Vendor</td>
+                                </tr>
+                                <tr>
+                                    <th>Annual Cost</th>
+                                    <td>@(app.AnnualCost.HasValue ? app.AnnualCost.Value.ToString("C0") : "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Assessment Date</th>
+                                    <td>@(app.AssessmentDate.HasValue ? app.AssessmentDate.Value.ToString("MM/dd/yyyy") : "N/A")</td>
+                                </tr>
+                                <tr>
+                                    <th>Assessed By</th>
+                                    <td>@(!string.IsNullOrEmpty(app.AssessedBy) ? app.AssessedBy : "N/A")</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Assessment</h5>
+                        <div class="card mb-3 border-left-@(app.RationalizationCategory switch
+                        {
+                            "Tolerate" => "warning",
+                            "Invest" => "success",
+                            "Migrate" => "primary",
+                            "Eliminate" => "danger",
+                            _ => "secondary"
+                        })">
+                            <div class="card-body py-3">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col">
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@app.RationalizationCategory</div>
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Rationalization Category</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas @(app.RationalizationCategory switch
+                                        {
+                                            "Tolerate" => "fa-exclamation-triangle",
+                                            "Invest" => "fa-arrow-up",
+                                            "Migrate" => "fa-exchange-alt",
+                                            "Eliminate" => "fa-times-circle",
+                                            _ => "fa-question-circle"
+                                        }) fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card border-left-success mb-3">
+                                    <div class="card-body py-2">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col">
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">@app.BusinessValue/10</div>
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Business Value</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-left-info mb-3">
+                                    <div class="card-body py-2">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col">
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">@app.TechnicalFit/10</div>
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Technical Fit</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-left-@(app.RiskScore > 7 ? "danger" : app.RiskScore > 4 ? "warning" : "success") mb-3">
+                            <div class="card-body py-2">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col">
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">@app.RiskScore/10</div>
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Risk Score</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow mb-3">
+                            <div class="card-body py-2">
+                                <h6 class="font-weight-bold">Rationalization Rationale</h6>
+                                <p>@app.RationalizationRationale</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Current State</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>@app.CurrentState</p>
+                                @if (app.RedundantWith != null && app.RedundantWith.Any())
+                                {
+                                    <h6 class="font-weight-bold mt-3">Redundant With</h6>
+                                    <ul class="list-group">
+                                        @foreach (var redundantApp in app.RedundantWith)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <i class="fas fa-copy text-warning mr-2"></i> @redundantApp
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Future State</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>@app.FutureState</p>
+                                @if (app.ReplacementOptions != null && app.ReplacementOptions.Any())
+                                {
+                                    <h6 class="font-weight-bold mt-3">Replacement Options</h6>
+                                    <ul class="list-group">
+                                        @foreach (var replacementOption in app.ReplacementOptions)
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <i class="fas fa-exchange-alt text-primary mr-2"></i> @replacementOption
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (app.Recommendations != null && app.Recommendations.Any())
+                {
+                    <h5 class="mb-3">Recommendations</h5>
+                    <div class="row">
+                        @foreach (var recommendation in app.Recommendations)
+                        {
+                            string recColorClass = recommendation.RecommendationType switch
+                            {
+                                "Consolidate" => "info",
+                                "Retire" => "danger",
+                                "Replace" => "warning",
+                                "Invest" => "success",
+                                _ => "secondary"
+                            };
+                            
+                            <div class="col-md-6 mb-4">
+                                <div class="card border-left-@recColorClass shadow h-100">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-@recColorClass">
+                                            <i class="fas @(recommendation.RecommendationType switch
+                                            {
+                                                "Consolidate" => "fa-compress-alt",
+                                                "Retire" => "fa-trash-alt",
+                                                "Replace" => "fa-sync-alt",
+                                                "Invest" => "fa-arrow-up",
+                                                _ => "fa-comment"
+                                            }) mr-1"></i>
+                                            @recommendation.RecommendationType
+                                        </h6>
+                                        <span class="badge badge-@(recommendation.Status switch
+                                        {
+                                            "Pending" => "secondary",
+                                            "Approved" => "success",
+                                            "In Progress" => "primary",
+                                            "Completed" => "info",
+                                            _ => "secondary"
+                                        })">@recommendation.Status</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Description:</strong> @recommendation.Description</p>
+                                        <p><strong>Business Impact:</strong> @recommendation.Business</p>
+                                        <p>
+                                            <strong>Cost Analysis:</strong><br>
+                                            <span class="text-success">Estimated Savings: @recommendation.EstimatedCostSavings.ToString("C0")</span><br>
+                                            <span class="text-danger">Implementation Cost: @recommendation.EstimatedImplementationCost.ToString("C0")</span>
+                                        </p>
+                                        <p><strong>Timeline:</strong> @recommendation.Timeline</p>
+                                        
+                                        @if (recommendation.Dependencies != null && recommendation.Dependencies.Any())
+                                        {
+                                            <p><strong>Dependencies:</strong></p>
+                                            <ul class="small">
+                                                @foreach (var dependency in recommendation.Dependencies)
+                                                {
+                                                    <li>@dependency</li>
+                                                }
+                                            </ul>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#applicationTable').DataTable({
+                "pageLength": 10,
+                "order": [[1, "asc"]]
+            });
+            
+            // Initialize Category Chart
+            var categoryData = [
+                @foreach (var category in Model.CategoryCounts)
+                {
+                    <text>
+                    {
+                        name: '@category.Key',
+                        value: @category.Value,
+                        itemStyle: {
+                            color: '@(category.Key switch
+                            {
+                                "Tolerate" => "#f6c23e",
+                                "Invest" => "#1cc88a",
+                                "Migrate" => "#4e73df",
+                                "Eliminate" => "#e74a3b",
+                                _ => "#858796"
+                            })'
+                        }
+                    },
+                    </text>
+                }
+            ];
+            
+            var categoryChart = echarts.init(document.getElementById('applicationCategoriesChart'));
+            var categoryOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    data: categoryData.map(function(item) { return item.name; })
+                },
+                series: [
+                    {
+                        name: 'Applications',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: categoryData
+                    }
+                ]
+            };
+            
+            categoryChart.setOption(categoryOption);
+            
+            // Initialize Matrix Chart
+            var matrixData = [];
+            var appData = @Html.Raw(Json.Serialize(Model.Applications
+                .Where(a => a.BusinessValue > 0 && a.TechnicalFit > 0)
+                .Select(a => new { 
+                    id = a.ApplicationId, 
+                    name = a.ApplicationName, 
+                    businessValue = a.BusinessValue, 
+                    technicalFit = a.TechnicalFit, 
+                    annualCost = a.AnnualCost ?? 0,
+                    category = a.RationalizationCategory
+                })));
+            
+            appData.forEach(function(app) {
+                matrixData.push({
+                    name: app.name,
+                    value: [app.technicalFit, app.businessValue, app.annualCost],
+                    itemStyle: {
+                        color: app.category === 'Tolerate' ? '#f6c23e' : 
+                               app.category === 'Invest' ? '#1cc88a' : 
+                               app.category === 'Migrate' ? '#4e73df' : 
+                               app.category === 'Eliminate' ? '#e74a3b' : '#858796'
+                    },
+                    id: app.id
+                });
+            });
+            
+            var matrixChart = echarts.init(document.getElementById('rationalizationMatrixChart'));
+            var matrixOption = {
+                title: {
+                    text: 'Application Portfolio Rationalization',
+                    left: 'center'
+                },
+                legend: {
+                    data: ['Tolerate', 'Invest', 'Migrate', 'Eliminate'],
+                    right: 10,
+                    top: 30,
+                    itemStyle: {
+                        color: function(params) {
+                            return params.name === 'Tolerate' ? '#f6c23e' : 
+                                   params.name === 'Invest' ? '#1cc88a' : 
+                                   params.name === 'Migrate' ? '#4e73df' : '#e74a3b';
+                        }
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function (params) {
+                        return params.name + '<br/>' + 
+                               'Technical Fit: ' + params.value[0] + '/10<br/>' + 
+                               'Business Value: ' + params.value[1] + '/10<br/>' + 
+                               'Annual Cost: $' + params.value[2].toLocaleString();
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '8%',
+                    bottom: '10%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    name: 'Technical Fit',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    min: 0,
+                    max: 10,
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Business Value',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    min: 0,
+                    max: 10,
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'Applications',
+                        type: 'scatter',
+                        symbolSize: function (data) {
+                            return Math.sqrt(data[2]) / 50 + 15;
+                        },
+                        data: matrixData,
+                        emphasis: {
+                            label: {
+                                show: true,
+                                formatter: function (param) {
+                                    return param.data.name;
+                                },
+                                position: 'top'
+                            }
+                        }
+                    }
+                ],
+                visualMap: [
+                    {
+                        show: false,
+                        dimension: 2,
+                        min: 0,
+                        max: Math.max(...matrixData.map(item => item.value[2])),
+                        inRange: {
+                            symbolSize: [15, 50]
+                        }
+                    }
+                ],
+                markLine: {
+                    lineStyle: {
+                        type: 'dashed'
+                    },
+                    data: [
+                        {xAxis: 5},
+                        {yAxis: 5}
+                    ]
+                }
+            };
+            
+            matrixChart.setOption(matrixOption);
+            
+            // View App Details
+            $('.view-app-details').on('click', function() {
+                var appId = $(this).data('id');
+                $('.app-details').hide();
+                $('#app-' + appId).show();
+            });
+            
+            // Back to Summary
+            $('.back-to-summary').on('click', function() {
+                $('.app-details').hide();
+            });
+            
+            // Handle click on matrix points
+            matrixChart.on('click', function (params) {
+                if (params.data && params.data.id) {
+                    $('.app-details').hide();
+                    $('#app-' + params.data.id).show();
+                }
+            });
+            
+            // Print Button
+            $('#printBtn').on('click', function() {
+                window.print();
+            });
+            
+            // Export Button
+            $('#exportBtn').on('click', function() {
+                alert("Export functionality would be implemented here");
+            });
+            
+            // Handle window resize
+            $(window).on('resize', function() {
+                categoryChart.resize();
+                matrixChart.resize();
+            });
+        });
+    </script>
+} 

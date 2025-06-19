@@ -1,0 +1,9 @@
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add NewDB
+dotnet ef database update
+dotnet build
+dotnet clean
+dotnet ef migrations script -o ../script.sql
+dotnet publish -c Release -o ../publish
+
+

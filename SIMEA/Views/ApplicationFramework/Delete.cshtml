@@ -1,0 +1,122 @@
+@model SIMEA.Models.ApplicationArchitectureFramework
+
+@{
+    ViewData["Title"] = "Delete Application Framework";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Application Architecture Framework</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this application framework? This action cannot be undone.
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h4 class="font-weight-bold text-danger">@Html.DisplayFor(model => model.ApplicationName)</h4>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <span class="badge badge-pill badge-primary p-2">Version @Html.DisplayFor(model => model.Version)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ApplicationDescription):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.ApplicationDescription)
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.BusinessFunctionSupported):</label>
+                            <p>@Html.DisplayFor(model => model.BusinessFunctionSupported)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                            <p>@Html.DisplayFor(model => model.Owner)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.DeploymentEnvironment):</label>
+                            <p>
+                                <span class="badge badge-pill badge-info">
+                                    @Html.DisplayFor(model => model.DeploymentEnvironment)
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Technology Stack:</label>
+                            @if (Model.TechnologyStack != null && Model.TechnologyStack.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var tech in Model.TechnologyStack)
+                                    {
+                                        <span class="badge badge-info p-2 mr-2 mb-2">@tech</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No technology stack defined</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Integration Points:</label>
+                            @if (Model.IntegrationPoints != null && Model.IntegrationPoints.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var integration in Model.IntegrationPoints)
+                                    {
+                                        <span class="badge badge-secondary p-2 mr-2 mb-2">@integration</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No integration points defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this application framework?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

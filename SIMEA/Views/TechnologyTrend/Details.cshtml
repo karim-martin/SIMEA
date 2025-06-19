@@ -1,0 +1,128 @@
+@model SIMEA.Models.TechnologyTrendModel
+
+@{
+    ViewData["Title"] = "Technology Trend Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.TrendName)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.TrendName)</dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.TechnologyCategory)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.TechnologyCategory)</dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.MaturityLevel)</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @(Model.MaturityLevel == "Emerging" ? "badge-info" : 
+                                                         Model.MaturityLevel == "Growth" ? "badge-success" : 
+                                                         Model.MaturityLevel == "Mature" ? "badge-primary" : "badge-warning")">
+                                        @Html.DisplayFor(model => model.MaturityLevel)
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.AdoptionTimeline)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.AdoptionTimeline)</dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.BusinessImpact)</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @(Model.BusinessImpact == "High" ? "badge-danger" : 
+                                                         Model.BusinessImpact == "Medium" ? "badge-warning" : "badge-secondary")">
+                                        @Html.DisplayFor(model => model.BusinessImpact)
+                                    </span>
+                                </dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.AssessmentStatus)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.AssessmentStatus)</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.StrategicRelevance)</dt>
+                                <dd class="col-sm-8">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: @(Model.StrategicRelevance * 10)%" aria-valuenow="@Model.StrategicRelevance" aria-valuemin="0" aria-valuemax="10">
+                                            @Model.StrategicRelevance/10
+                                        </div>
+                                    </div>
+                                </dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.DisruptionPotential)</dt>
+                                <dd class="col-sm-8">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: @(Model.DisruptionPotential * 10)%" aria-valuenow="@Model.DisruptionPotential" aria-valuemin="0" aria-valuemax="10">
+                                            @Model.DisruptionPotential/10
+                                        </div>
+                                    </div>
+                                </dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.InvestmentRequired)</dt>
+                                <dd class="col-sm-8">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: @(Model.InvestmentRequired * 10)%" aria-valuenow="@Model.InvestmentRequired" aria-valuemin="0" aria-valuemax="10">
+                                            @Model.InvestmentRequired/10
+                                        </div>
+                                    </div>
+                                </dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.RiskLevel)</dt>
+                                <dd class="col-sm-8">
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: @(Model.RiskLevel * 10)%" aria-valuenow="@Model.RiskLevel" aria-valuemin="0" aria-valuemax="10">
+                                            @Model.RiskLevel/10
+                                        </div>
+                                    </div>
+                                </dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.NextReviewDate)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.NextReviewDate)</dd>
+                                
+                                <dt class="col-sm-4">@Html.DisplayNameFor(model => model.ExpectedBusinessValue)</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.ExpectedBusinessValue)</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <hr>
+                            <h5>Description</h5>
+                            <p>@Html.DisplayFor(model => model.Description)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <hr>
+                            <small class="text-muted">
+                                Created by @Model.UserCreated on @Model.DateCreated
+                                @if (Model.UserModified != null)
+                                {
+                                    <br /><text>Last modified by </text>@Model.UserModified<text> on </text>@Model.DateModified?.ToString("MMM dd, yyyy")
+                                }
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

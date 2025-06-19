@@ -1,0 +1,329 @@
+@model SIMEA.Models.SystemToBusinessCrossReference
+
+@{
+    ViewData["Title"] = "Edit System to Business Cross Reference";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit System to Business Cross Reference</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="SystemName" class="control-label"></label>
+                            <input asp-for="SystemName" class="form-control" />
+                            <span asp-validation-for="SystemName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="BusinessUnit" class="control-label"></label>
+                            <input asp-for="BusinessUnit" class="form-control" />
+                            <span asp-validation-for="BusinessUnit" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="BusinessProcessSupported" class="control-label"></label>
+                        <textarea asp-for="BusinessProcessSupported" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="BusinessProcessSupported" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Owner" class="control-label"></label>
+                            <input asp-for="Owner" class="form-control" />
+                            <span asp-validation-for="Owner" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Criticality" class="control-label"></label>
+                            <select asp-for="Criticality" class="form-control">
+                                <option value="">Select Criticality</option>
+                                <option value="Critical">Critical</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                            <span asp-validation-for="Criticality" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="SecurityRequirements" class="control-label"></label>
+                        <textarea asp-for="SecurityRequirements" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="SecurityRequirements" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependenciesList" class="mt-2">
+                            <!-- Existing dependencies will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Performance Metrics</label>
+                        <div class="input-group">
+                            <input type="text" id="metricInput" class="form-control" placeholder="Add performance metric" />
+                            <div class="input-group-append">
+                                <button type="button" id="addMetric" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#metricsModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="metricsList" class="mt-2">
+                            <!-- Existing metrics will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics Modal -->
+    <div class="modal fade" id="metricsModal" tabindex="-1" role="dialog" aria-labelledby="metricsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="metricsModalLabel">Manage Performance Metrics</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="metricsModalList">
+                        <!-- Metrics will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="metricModalInput" class="form-control" placeholder="Add new performance metric" />
+                        <div class="input-group-append">
+                            <button type="button" id="addMetricModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let dependencies = @Html.Raw(Json.Serialize(Model.Dependencies ?? new List<string>()));
+            let performanceMetrics = @Html.Raw(Json.Serialize(Model.PerformanceMetrics ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<div class="badge badge-secondary mr-2 mb-2 p-2">${dependency}
+                        <a href="#" class="text-white ml-1 remove-dependency" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Dependencies[${index}]" value="${dependency}" />
+                    </div>`;
+                });
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateMetricsList() {
+                let html = '';
+                performanceMetrics.forEach((metric, index) => {
+                    html += `<div class="badge badge-info mr-2 mb-2 p-2">${metric}
+                        <a href="#" class="text-white ml-1 remove-metric" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="PerformanceMetrics[${index}]" value="${metric}" />
+                    </div>`;
+                });
+                $('#metricsList').html(html);
+                updateMetricsModal();
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger remove-dependency-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#dependenciesModalList').html(html);
+            }
+
+            function updateMetricsModal() {
+                let html = '';
+                performanceMetrics.forEach((metric, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${metric}
+                        <button type="button" class="btn btn-sm btn-danger remove-metric-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#metricsModalList').html(html);
+            }
+
+            // Initial display
+            updateDependenciesList();
+            updateMetricsList();
+
+            // Add dependency from main form
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyInput').val('');
+                }
+            });
+
+            // Add metric from main form
+            $('#addMetric').click(function () {
+                const metric = $('#metricInput').val().trim();
+                if (metric && !performanceMetrics.includes(metric)) {
+                    performanceMetrics.push(metric);
+                    updateMetricsList();
+                    $('#metricInput').val('');
+                }
+            });
+
+            // Add dependency from modal
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyModalInput').val('');
+                }
+            });
+
+            // Add metric from modal
+            $('#addMetricModal').click(function () {
+                const metric = $('#metricModalInput').val().trim();
+                if (metric && !performanceMetrics.includes(metric)) {
+                    performanceMetrics.push(metric);
+                    updateMetricsList();
+                    $('#metricModalInput').val('');
+                }
+            });
+
+            // Remove dependency from main form
+            $(document).on('click', '.remove-dependency', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Remove metric from main form
+            $(document).on('click', '.remove-metric', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                performanceMetrics.splice(index, 1);
+                updateMetricsList();
+            });
+
+            // Remove dependency from modal
+            $(document).on('click', '.remove-dependency-modal', function () {
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Remove metric from modal
+            $(document).on('click', '.remove-metric-modal', function () {
+                const index = $(this).data('index');
+                performanceMetrics.splice(index, 1);
+                updateMetricsList();
+            });
+
+            // Handle Enter key in inputs
+            $('#dependencyInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependency').click();
+                }
+            });
+
+            $('#metricInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addMetric').click();
+                }
+            });
+
+            $('#dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addDependencyModal').click();
+                }
+            });
+
+            $('#metricModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addMetricModal').click();
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,216 @@
+@model SIMEA.Models.InfrastructureBusinessRequirementsView
+
+@{
+    ViewData["Title"] = "Edit Infrastructure Business Requirement";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Infrastructure Business Requirement</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="RequirementId" class="control-label"></label>
+                            <input asp-for="RequirementId" class="form-control" />
+                            <span asp-validation-for="RequirementId" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Priority" class="control-label"></label>
+                            <select asp-for="Priority" class="form-control">
+                                <option value="">Select Priority</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                            <span asp-validation-for="Priority" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Status" class="control-label"></label>
+                            <select asp-for="Status" class="form-control">
+                                <option value="">Select Status</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Implemented">Implemented</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RequirementDescription" class="control-label"></label>
+                        <textarea asp-for="RequirementDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="RequirementDescription" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="BusinessUnit" class="control-label"></label>
+                        <input asp-for="BusinessUnit" class="form-control" />
+                        <span asp-validation-for="BusinessUnit" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="AssignedTo" class="control-label"></label>
+                            <input asp-for="AssignedTo" class="form-control" />
+                            <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="DueDate" class="control-label"></label>
+                            <input asp-for="DueDate" class="form-control" type="date" />
+                            <span asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Stakeholders</label>
+                        <div class="input-group">
+                            <input type="text" id="stakeholderInput" class="form-control" placeholder="Add stakeholder" />
+                            <div class="input-group-append">
+                                <button type="button" id="addStakeholder" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#stakeholdersModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="stakeholdersList" class="mt-2">
+                            <!-- Existing stakeholders will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stakeholders Modal -->
+    <div class="modal fade" id="stakeholdersModal" tabindex="-1" role="dialog" aria-labelledby="stakeholdersModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="stakeholdersModalLabel">Manage Stakeholders</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="stakeholdersModalList">
+                        <!-- Stakeholders will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="stakeholderModalInput" class="form-control" placeholder="Add new stakeholder" />
+                        <div class="input-group-append">
+                            <button type="button" id="addStakeholderModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let stakeholders = @Html.Raw(Json.Serialize(Model.Stakeholders ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateStakeholdersList() {
+                let html = '';
+                stakeholders.forEach((stakeholder, index) => {
+                    html += `<div class="badge badge-info mr-2 mb-2 p-2">${stakeholder}
+                        <a href="#" class="text-white ml-1 remove-stakeholder" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Stakeholders[${index}]" value="${stakeholder}" />
+                    </div>`;
+                });
+                $('#stakeholdersList').html(html);
+                updateStakeholdersModal();
+            }
+
+            function updateStakeholdersModal() {
+                let html = '';
+                stakeholders.forEach((stakeholder, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${stakeholder}
+                        <button type="button" class="btn btn-sm btn-danger remove-stakeholder-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#stakeholdersModalList').html(html);
+            }
+
+            // Initial display
+            updateStakeholdersList();
+
+            // Add stakeholder from main form
+            $('#addStakeholder').click(function () {
+                const stakeholder = $('#stakeholderInput').val().trim();
+                if (stakeholder && !stakeholders.includes(stakeholder)) {
+                    stakeholders.push(stakeholder);
+                    updateStakeholdersList();
+                    $('#stakeholderInput').val('');
+                }
+            });
+
+            // Add stakeholder from modal
+            $('#addStakeholderModal').click(function () {
+                const stakeholder = $('#stakeholderModalInput').val().trim();
+                if (stakeholder && !stakeholders.includes(stakeholder)) {
+                    stakeholders.push(stakeholder);
+                    updateStakeholdersList();
+                    $('#stakeholderModalInput').val('');
+                }
+            });
+
+            // Remove stakeholder from main form
+            $(document).on('click', '.remove-stakeholder', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                stakeholders.splice(index, 1);
+                updateStakeholdersList();
+            });
+
+            // Remove stakeholder from modal
+            $(document).on('click', '.remove-stakeholder-modal', function () {
+                const index = $(this).data('index');
+                stakeholders.splice(index, 1);
+                updateStakeholdersList();
+            });
+
+            // Handle Enter key in stakeholder inputs
+            $('#stakeholderInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addStakeholder').click();
+                }
+            });
+
+            $('#stakeholderModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addStakeholderModal').click();
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,540 @@
+@model SIMEA.Models.OrganizationView
+
+@{
+    ViewData["Title"] = "Edit Organization View";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Organization View</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-group">
+                        <label asp-for="DepartmentOrUnit" class="control-label"></label>
+                        <input asp-for="DepartmentOrUnit" class="form-control" />
+                        <span asp-validation-for="DepartmentOrUnit" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RolesAndResponsibilities" class="control-label"></label>
+                        <textarea asp-for="RolesAndResponsibilities" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="RolesAndResponsibilities" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ReportingStructure" class="control-label"></label>
+                        <textarea asp-for="ReportingStructure" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ReportingStructure" class="text-danger"></span>
+                    </div>
+
+                    <!-- Key Personnel Section -->
+                    <div class="form-group">
+                        <label class="control-label">Key Personnel</label>
+                        <div class="input-group">
+                            <input type="text" id="personnelItem" class="form-control" placeholder="Add personnel" />
+                            <div class="input-group-append">
+                                <button type="button" id="addPersonnel" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#personnelModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="personnelList" class="mt-2">
+                            <!-- Existing personnel will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Collaboration Points Section -->
+                    <div class="form-group">
+                        <label class="control-label">Collaboration Points</label>
+                        <div class="input-group">
+                            <input type="text" id="collaborationItem" class="form-control" placeholder="Add collaboration point" />
+                            <div class="input-group-append">
+                                <button type="button" id="addCollaboration" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#collaborationModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="collaborationList" class="mt-2">
+                            <!-- Existing collaboration points will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Organizational Goals Section -->
+                    <div class="form-group">
+                        <label class="control-label">Organizational Goals</label>
+                        <div class="input-group">
+                            <input type="text" id="goalItem" class="form-control" placeholder="Add goal" />
+                            <div class="input-group-append">
+                                <button type="button" id="addGoal" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#goalModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="goalList" class="mt-2">
+                            <!-- Existing goals will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Challenges Section -->
+                    <div class="form-group">
+                        <label class="control-label">Challenges</label>
+                        <div class="input-group">
+                            <input type="text" id="challengeItem" class="form-control" placeholder="Add challenge" />
+                            <div class="input-group-append">
+                                <button type="button" id="addChallenge" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#challengeModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="challengeList" class="mt-2">
+                            <!-- Existing challenges will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals for each list type -->
+    <!-- Personnel Modal -->
+    <div class="modal fade" id="personnelModal" tabindex="-1" role="dialog" aria-labelledby="personnelModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="personnelModalLabel">Manage Personnel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="personnelModalList">
+                        <!-- Personnel will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="personnelModalInput" class="form-control" placeholder="Add new personnel" />
+                        <div class="input-group-append">
+                            <button type="button" id="addPersonnelModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collaboration Modal -->
+    <div class="modal fade" id="collaborationModal" tabindex="-1" role="dialog" aria-labelledby="collaborationModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="collaborationModalLabel">Manage Collaboration Points</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="collaborationModalList">
+                        <!-- Collaboration points will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="collaborationModalInput" class="form-control" placeholder="Add new collaboration point" />
+                        <div class="input-group-append">
+                            <button type="button" id="addCollaborationModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goals Modal -->
+    <div class="modal fade" id="goalModal" tabindex="-1" role="dialog" aria-labelledby="goalModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="goalModalLabel">Manage Organizational Goals</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="goalModalList">
+                        <!-- Goals will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="goalModalInput" class="form-control" placeholder="Add new goal" />
+                        <div class="input-group-append">
+                            <button type="button" id="addGoalModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenges Modal -->
+    <div class="modal fade" id="challengeModal" tabindex="-1" role="dialog" aria-labelledby="challengeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="challengeModalLabel">Manage Challenges</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="challengeModalList">
+                        <!-- Challenges will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="challengeModalInput" class="form-control" placeholder="Add new challenge" />
+                        <div class="input-group-append">
+                            <button type="button" id="addChallengeModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let personnel = @Html.Raw(Json.Serialize(Model.KeyPersonnel ?? new List<string>()));
+            let collaborations = @Html.Raw(Json.Serialize(Model.CollaborationPoints ?? new List<string>()));
+            let goals = @Html.Raw(Json.Serialize(Model.OrganizationalGoals ?? new List<string>()));
+            let challenges = @Html.Raw(Json.Serialize(Model.Challenges ?? new List<string>()));
+            
+            // Functions to update UI displays
+            function updatePersonnelList() {
+                let html = '';
+                personnel.forEach((person, index) => {
+                    html += `<div class="badge badge-primary mr-2 mb-2 p-2">${person}
+                        <a href="#" class="text-white ml-1 remove-personnel" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="KeyPersonnel[${index}]" value="${person}" />
+                    </div>`;
+                }
+
+            function updateCollaborationModal() {
+                let html = '';
+                collaborations.forEach((point, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${point}
+                        <button type="button" class="btn btn-sm btn-danger remove-collaboration-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#collaborationModalList').html(html);
+            }
+
+            function updateGoalModal() {
+                let html = '';
+                goals.forEach((goal, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${goal}
+                        <button type="button" class="btn btn-sm btn-danger remove-goal-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#goalModalList').html(html);
+            }
+
+            function updateChallengeModal() {
+                let html = '';
+                challenges.forEach((challenge, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${challenge}
+                        <button type="button" class="btn btn-sm btn-danger remove-challenge-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#challengeModalList').html(html);
+            }
+
+            // Initial display
+            updatePersonnelList();
+            updateCollaborationList();
+            updateGoalList();
+            updateChallengeList();
+
+            // Add item from main form
+            $('#addPersonnel').click(function () {
+                const person = $('#personnelItem').val().trim();
+                if (person && !personnel.includes(person)) {
+                    personnel.push(person);
+                    updatePersonnelList();
+                    $('#personnelItem').val('');
+                }
+            });
+
+            $('#addCollaboration').click(function () {
+                const collaboration = $('#collaborationItem').val().trim();
+                if (collaboration && !collaborations.includes(collaboration)) {
+                    collaborations.push(collaboration);
+                    updateCollaborationList();
+                    $('#collaborationItem').val('');
+                }
+            });
+
+            $('#addGoal').click(function () {
+                const goal = $('#goalItem').val().trim();
+                if (goal && !goals.includes(goal)) {
+                    goals.push(goal);
+                    updateGoalList();
+                    $('#goalItem').val('');
+                }
+            });
+
+            $('#addChallenge').click(function () {
+                const challenge = $('#challengeItem').val().trim();
+                if (challenge && !challenges.includes(challenge)) {
+                    challenges.push(challenge);
+                    updateChallengeList();
+                    $('#challengeItem').val('');
+                }
+            });
+
+            // Add item from modal
+            $('#addPersonnelModal').click(function () {
+                const person = $('#personnelModalInput').val().trim();
+                if (person && !personnel.includes(person)) {
+                    personnel.push(person);
+                    updatePersonnelList();
+                    $('#personnelModalInput').val('');
+                }
+            });
+
+            $('#addCollaborationModal').click(function () {
+                const collaboration = $('#collaborationModalInput').val().trim();
+                if (collaboration && !collaborations.includes(collaboration)) {
+                    collaborations.push(collaboration);
+                    updateCollaborationList();
+                    $('#collaborationModalInput').val('');
+                }
+            });
+
+            $('#addGoalModal').click(function () {
+                const goal = $('#goalModalInput').val().trim();
+                if (goal && !goals.includes(goal)) {
+                    goals.push(goal);
+                    updateGoalList();
+                    $('#goalModalInput').val('');
+                }
+            });
+
+            $('#addChallengeModal').click(function () {
+                const challenge = $('#challengeModalInput').val().trim();
+                if (challenge && !challenges.includes(challenge)) {
+                    challenges.push(challenge);
+                    updateChallengeList();
+                    $('#challengeModalInput').val('');
+                }
+            });
+
+            // Remove item from main form
+            $(document).on('click', '.remove-personnel', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                personnel.splice(index, 1);
+                updatePersonnelList();
+            });
+
+            $(document).on('click', '.remove-collaboration', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                collaborations.splice(index, 1);
+                updateCollaborationList();
+            });
+
+            $(document).on('click', '.remove-goal', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                goals.splice(index, 1);
+                updateGoalList();
+            });
+
+            $(document).on('click', '.remove-challenge', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                challenges.splice(index, 1);
+                updateChallengeList();
+            });
+
+            // Remove item from modal
+            $(document).on('click', '.remove-personnel-modal', function () {
+                const index = $(this).data('index');
+                personnel.splice(index, 1);
+                updatePersonnelList();
+            });
+
+            $(document).on('click', '.remove-collaboration-modal', function () {
+                const index = $(this).data('index');
+                collaborations.splice(index, 1);
+                updateCollaborationList();
+            });
+
+            $(document).on('click', '.remove-goal-modal', function () {
+                const index = $(this).data('index');
+                goals.splice(index, 1);
+                updateGoalList();
+            });
+
+            $(document).on('click', '.remove-challenge-modal', function () {
+                const index = $(this).data('index');
+                challenges.splice(index, 1);
+                updateChallengeList();
+            });
+
+            // Handle Enter key in inputs
+            $('#personnelItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addPersonnel').click();
+                }
+            });
+
+            $('#collaborationItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addCollaboration').click();
+                }
+            });
+
+            $('#goalItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addGoal').click();
+                }
+            });
+
+            $('#challengeItem').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addChallenge').click();
+                }
+            });
+
+            $('#personnelModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addPersonnelModal').click();
+                }
+            });
+
+            $('#collaborationModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addCollaborationModal').click();
+                }
+            });
+
+            $('#goalModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addGoalModal').click();
+                }
+            });
+
+            $('#challengeModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $('#addChallengeModal').click();
+                }
+            }););
+                $('#personnelList').html(html);
+                updatePersonnelModal();
+            }
+
+            function updateCollaborationList() {
+                let html = '';
+                collaborations.forEach((point, index) => {
+                    html += `<div class="badge badge-info mr-2 mb-2 p-2">${point}
+                        <a href="#" class="text-white ml-1 remove-collaboration" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="CollaborationPoints[${index}]" value="${point}" />
+                    </div>`;
+                });
+                $('#collaborationList').html(html);
+                updateCollaborationModal();
+            }
+
+            function updateGoalList() {
+                let html = '';
+                goals.forEach((goal, index) => {
+                    html += `<div class="badge badge-success mr-2 mb-2 p-2">${goal}
+                        <a href="#" class="text-white ml-1 remove-goal" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="OrganizationalGoals[${index}]" value="${goal}" />
+                    </div>`;
+                });
+                $('#goalList').html(html);
+                updateGoalModal();
+            }
+
+            function updateChallengeList() {
+                let html = '';
+                challenges.forEach((challenge, index) => {
+                    html += `<div class="badge badge-danger mr-2 mb-2 p-2">${challenge}
+                        <a href="#" class="text-white ml-1 remove-challenge" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Challenges[${index}]" value="${challenge}" />
+                    </div>`;
+                });
+                $('#challengeList').html(html);
+                updateChallengeModal();
+            }
+
+            function updatePersonnelModal() {
+                let html = '';
+                personnel.forEach((person, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${person}
+                        <button type="button" class="btn btn-sm btn-danger remove-personnel-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#personnelModalList').html(html);
+            }
+        });
+    </script>
+}

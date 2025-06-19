@@ -1,0 +1,517 @@
+@model SIMEA.Models.BusinessStrategyView
+
+@{
+    ViewData["Title"] = "Edit Business Strategy";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Business Strategy</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="BusinessGoal" class="control-label">Business Goal*</label>
+                            <input asp-for="BusinessGoal" class="form-control" required />
+                            <span asp-validation-for="BusinessGoal" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Timeframe" class="control-label">Timeframe*</label>
+                            <input asp-for="Timeframe" class="form-control" required />
+                            <span asp-validation-for="Timeframe" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="StrategicObjective" class="control-label">Strategic Objective*</label>
+                        <textarea asp-for="StrategicObjective" class="form-control" rows="3" required></textarea>
+                        <span asp-validation-for="StrategicObjective" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="OrganizationalVisionAlignment" class="control-label">Organizational Vision Alignment</label>
+                        <textarea asp-for="OrganizationalVisionAlignment" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="OrganizationalVisionAlignment" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Key Performance Indicators (KPIs)</label>
+                        <div class="input-group">
+                            <input type="text" id="kpiInput" class="form-control" placeholder="Add KPI" />
+                            <div class="input-group-append">
+                                <button type="button" id="addKpi" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#kpisModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="kpiList" class="mt-2">
+                            <!-- Existing KPIs will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Stakeholders</label>
+                        <div class="input-group">
+                            <input type="text" id="stakeholderInput" class="form-control" placeholder="Add stakeholder" />
+                            <div class="input-group-append">
+                                <button type="button" id="addStakeholder" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#stakeholdersModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="stakeholdersList" class="mt-2">
+                            <!-- Existing stakeholders will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Risks</label>
+                        <div class="input-group">
+                            <input type="text" id="riskInput" class="form-control" placeholder="Add risk" />
+                            <div class="input-group-append">
+                                <button type="button" id="addRisk" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#risksModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="risksList" class="mt-2">
+                            <!-- Existing risks will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dependencies</label>
+                        <div class="input-group">
+                            <input type="text" id="dependencyInput" class="form-control" placeholder="Add dependency" />
+                            <div class="input-group-append">
+                                <button type="button" id="addDependency" class="btn btn-outline-secondary">Add</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#dependenciesModal">
+                                    <i class="fas fa-list"></i> Manage
+                                </button>
+                            </div>
+                        </div>
+                        <div id="dependenciesList" class="mt-2">
+                            <!-- Existing dependencies will be populated via JavaScript -->
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPIs Modal -->
+    <div class="modal fade" id="kpisModal" tabindex="-1" role="dialog" aria-labelledby="kpisModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="kpisModalLabel">Manage KPIs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="kpisModalList">
+                        <!-- KPIs will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="kpiModalInput" class="form-control" placeholder="Add new KPI" />
+                        <div class="input-group-append">
+                            <button type="button" id="addKpiModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stakeholders Modal -->
+    <div class="modal fade" id="stakeholdersModal" tabindex="-1" role="dialog" aria-labelledby="stakeholdersModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="stakeholdersModalLabel">Manage Stakeholders</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="stakeholdersModalList">
+                        <!-- Stakeholders will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="stakeholderModalInput" class="form-control" placeholder="Add new stakeholder" />
+                        <div class="input-group-append">
+                            <button type="button" id="addStakeholderModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risks Modal -->
+    <div class="modal fade" id="risksModal" tabindex="-1" role="dialog" aria-labelledby="risksModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="risksModalLabel">Manage Risks</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="risksModalList">
+                        <!-- Risks will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="riskModalInput" class="form-control" placeholder="Add new risk" />
+                        <div class="input-group-append">
+                            <button type="button" id="addRiskModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div class="modal fade" id="dependenciesModal" tabindex="-1" role="dialog" aria-labelledby="dependenciesModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dependenciesModalLabel">Manage Dependencies</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group" id="dependenciesModalList">
+                        <!-- Dependencies will be added here -->
+                    </ul>
+                    <div class="input-group mt-3">
+                        <input type="text" id="dependencyModalInput" class="form-control" placeholder="Add new dependency" />
+                        <div class="input-group-append">
+                            <button type="button" id="addDependencyModal" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Initialize lists with existing data
+            let kpis = @Html.Raw(Json.Serialize(Model.KeyPerformanceIndicators ?? new List<string>()));
+            let stakeholders = @Html.Raw(Json.Serialize(Model.Stakeholders ?? new List<string>()));
+            let risks = @Html.Raw(Json.Serialize(Model.Risks ?? new List<string>()));
+            let dependencies = @Html.Raw(Json.Serialize(Model.Dependencies ?? new List<string>()));
+
+            // Functions to update UI displays
+            function updateKpiList() {
+                let html = '';
+                kpis.forEach((kpi, index) => {
+                    html += `<div class="badge badge-info mr-2 mb-2 p-2">${kpi}
+                        <a href="#" class="text-white ml-1 remove-kpi" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="KeyPerformanceIndicators[${index}]" value="${kpi}" />
+                    </div>`;
+                });
+                $('#kpiList').html(html);
+                updateKpisModal();
+            }
+
+            function updateStakeholdersList() {
+                let html = '';
+                stakeholders.forEach((stakeholder, index) => {
+                    html += `<div class="badge badge-primary mr-2 mb-2 p-2">${stakeholder}
+                        <a href="#" class="text-white ml-1 remove-stakeholder" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Stakeholders[${index}]" value="${stakeholder}" />
+                    </div>`;
+                });
+                $('#stakeholdersList').html(html);
+                updateStakeholdersModal();
+            }
+
+            function updateRisksList() {
+                let html = '';
+                risks.forEach((risk, index) => {
+                    html += `<div class="badge badge-danger mr-2 mb-2 p-2">${risk}
+                        <a href="#" class="text-white ml-1 remove-risk" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Risks[${index}]" value="${risk}" />
+                    </div>`;
+                });
+                $('#risksList').html(html);
+                updateRisksModal();
+            }
+
+            function updateDependenciesList() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<div class="badge badge-secondary mr-2 mb-2 p-2">${dependency}
+                        <a href="#" class="text-white ml-1 remove-dependency" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        <input type="hidden" name="Dependencies[${index}]" value="${dependency}" />
+                    </div>`;
+                });
+                $('#dependenciesList').html(html);
+                updateDependenciesModal();
+            }
+
+            function updateKpisModal() {
+                let html = '';
+                kpis.forEach((kpi, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${kpi}
+                        <button type="button" class="btn btn-sm btn-danger remove-kpi-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#kpisModalList').html(html);
+            }
+
+            function updateStakeholdersModal() {
+                let html = '';
+                stakeholders.forEach((stakeholder, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${stakeholder}
+                        <button type="button" class="btn btn-sm btn-danger remove-stakeholder-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#stakeholdersModalList').html(html);
+            }
+
+            function updateRisksModal() {
+                let html = '';
+                risks.forEach((risk, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${risk}
+                        <button type="button" class="btn btn-sm btn-danger remove-risk-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#risksModalList').html(html);
+            }
+
+            function updateDependenciesModal() {
+                let html = '';
+                dependencies.forEach((dependency, index) => {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${dependency}
+                        <button type="button" class="btn btn-sm btn-danger remove-dependency-modal" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </li>`;
+                });
+                $('#dependenciesModalList').html(html);
+            }
+
+            // Initial display
+            updateKpiList();
+            updateStakeholdersList();
+            updateRisksList();
+            updateDependenciesList();
+
+            // Add KPI from main form
+            $('#addKpi').click(function () {
+                const kpi = $('#kpiInput').val().trim();
+                if (kpi && !kpis.includes(kpi)) {
+                    kpis.push(kpi);
+                    updateKpiList();
+                    $('#kpiInput').val('');
+                }
+            });
+
+            // Add stakeholder from main form
+            $('#addStakeholder').click(function () {
+                const stakeholder = $('#stakeholderInput').val().trim();
+                if (stakeholder && !stakeholders.includes(stakeholder)) {
+                    stakeholders.push(stakeholder);
+                    updateStakeholdersList();
+                    $('#stakeholderInput').val('');
+                }
+            });
+
+            // Add risk from main form
+            $('#addRisk').click(function () {
+                const risk = $('#riskInput').val().trim();
+                if (risk && !risks.includes(risk)) {
+                    risks.push(risk);
+                    updateRisksList();
+                    $('#riskInput').val('');
+                }
+            });
+
+            // Add dependency from main form
+            $('#addDependency').click(function () {
+                const dependency = $('#dependencyInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyInput').val('');
+                }
+            });
+
+            // Add from modals
+            $('#addKpiModal').click(function () {
+                const kpi = $('#kpiModalInput').val().trim();
+                if (kpi && !kpis.includes(kpi)) {
+                    kpis.push(kpi);
+                    updateKpiList();
+                    $('#kpiModalInput').val('');
+                }
+            });
+
+            $('#addStakeholderModal').click(function () {
+                const stakeholder = $('#stakeholderModalInput').val().trim();
+                if (stakeholder && !stakeholders.includes(stakeholder)) {
+                    stakeholders.push(stakeholder);
+                    updateStakeholdersList();
+                    $('#stakeholderModalInput').val('');
+                }
+            });
+
+            $('#addRiskModal').click(function () {
+                const risk = $('#riskModalInput').val().trim();
+                if (risk && !risks.includes(risk)) {
+                    risks.push(risk);
+                    updateRisksList();
+                    $('#riskModalInput').val('');
+                }
+            });
+
+            $('#addDependencyModal').click(function () {
+                const dependency = $('#dependencyModalInput').val().trim();
+                if (dependency && !dependencies.includes(dependency)) {
+                    dependencies.push(dependency);
+                    updateDependenciesList();
+                    $('#dependencyModalInput').val('');
+                }
+            });
+
+            // Remove from main form
+            $(document).on('click', '.remove-kpi', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                kpis.splice(index, 1);
+                updateKpiList();
+            });
+
+            $(document).on('click', '.remove-stakeholder', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                stakeholders.splice(index, 1);
+                updateStakeholdersList();
+            });
+
+            $(document).on('click', '.remove-risk', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                risks.splice(index, 1);
+                updateRisksList();
+            });
+
+            $(document).on('click', '.remove-dependency', function (e) {
+                e.preventDefault();
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Remove from modals
+            $(document).on('click', '.remove-kpi-modal', function () {
+                const index = $(this).data('index');
+                kpis.splice(index, 1);
+                updateKpiList();
+            });
+
+            $(document).on('click', '.remove-stakeholder-modal', function () {
+                const index = $(this).data('index');
+                stakeholders.splice(index, 1);
+                updateStakeholdersList();
+            });
+
+            $(document).on('click', '.remove-risk-modal', function () {
+                const index = $(this).data('index');
+                risks.splice(index, 1);
+                updateRisksList();
+            });
+
+            $(document).on('click', '.remove-dependency-modal', function () {
+                const index = $(this).data('index');
+                dependencies.splice(index, 1);
+                updateDependenciesList();
+            });
+
+            // Handle enter key presses
+            $('#kpiInput, #kpiModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $(this).closest('.input-group').find('button:first').click();
+                }
+            });
+
+            $('#stakeholderInput, #stakeholderModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $(this).closest('.input-group').find('button:first').click();
+                }
+            });
+
+            $('#riskInput, #riskModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $(this).closest('.input-group').find('button:first').click();
+                }
+            });
+
+            $('#dependencyInput, #dependencyModalInput').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    $(this).closest('.input-group').find('button:first').click();
+                }
+            });
+        });
+    </script>
+}

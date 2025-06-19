@@ -1,0 +1,331 @@
+@model SIMEA.Models.OperationModel
+
+@{
+    ViewData["Title"] = "Operation Model Details";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Operation Model Details</h6>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit fa-sm"></i> Edit
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left fa-sm"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.OperationalProcess):</label>
+                                    <p>@Html.DisplayFor(model => model.OperationalProcess)</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.ProcessOwner):</label>
+                                    <p>@Html.DisplayFor(model => model.ProcessOwner)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Inputs:</label>
+                                    @if (Model.Inputs != null && Model.Inputs.Any())
+                                    {
+                                        <ul class="list-group">
+                                            @foreach (var input in Model.Inputs)
+                                            {
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-arrow-right mr-2 text-info"></i> @input
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No inputs defined</p>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Outputs:</label>
+                                    @if (Model.Outputs != null && Model.Outputs.Any())
+                                    {
+                                        <ul class="list-group">
+                                            @foreach (var output in Model.Outputs)
+                                            {
+                                                <li class="list-group-item">
+                                                    <i class="fas fa-arrow-right mr-2 text-success"></i> @output
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted">No outputs defined</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Key Activities</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.KeyActivities != null && Model.KeyActivities.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var activity in Model.KeyActivities)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-tasks mr-2 text-primary"></i> @activity
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No key activities defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Required Resources</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.ResourcesRequired != null && Model.ResourcesRequired.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var resource in Model.ResourcesRequired)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-cube mr-2 text-warning"></i> @resource
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No resources defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Performance Metrics</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.PerformanceMetrics != null && Model.PerformanceMetrics.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var metric in Model.PerformanceMetrics)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-chart-line mr-2 text-info"></i> @metric
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No performance metrics defined</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Challenges</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Challenges != null && Model.Challenges.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var challenge in Model.Challenges)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <i class="fas fa-exclamation-triangle mr-2 text-danger"></i> @challenge
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No challenges defined</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Operation Model Flow Diagram</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="model-flow-diagram p-3 text-center">
+                            <div class="diagram-container">
+                                <div class="process-flow">
+                                    <div class="diagram-box input-box">
+                                        <h6>Inputs</h6>
+                                        <div class="diagram-content">
+                                            @if (Model.Inputs != null && Model.Inputs.Any())
+                                            {
+                                                <ul class="list-unstyled">
+                                                    @foreach (var input in Model.Inputs.Take(3))
+                                                    {
+                                                        <li><i class="fas fa-arrow-right text-info"></i> @input</li>
+                                                    }
+                                                    @if (Model.Inputs.Count() > 3)
+                                                    {
+                                                        <li class="text-muted">+ @(Model.Inputs.Count() - 3) more</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No inputs</p>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="arrow-right">
+                                        <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="diagram-box process-box">
+                                        <h6>Process</h6>
+                                        <div class="diagram-content">
+                                            <p>@Model.OperationalProcess</p>
+                                            <small class="text-muted">Owner: @Model.ProcessOwner</small>
+                                        </div>
+                                    </div>
+                                    <div class="arrow-right">
+                                        <i class="fas fa-long-arrow-alt-right fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="diagram-box output-box">
+                                        <h6>Outputs</h6>
+                                        <div class="diagram-content">
+                                            @if (Model.Outputs != null && Model.Outputs.Any())
+                                            {
+                                                <ul class="list-unstyled">
+                                                    @foreach (var output in Model.Outputs.Take(3))
+                                                    {
+                                                        <li><i class="fas fa-arrow-right text-success"></i> @output</li>
+                                                    }
+                                                    @if (Model.Outputs.Count() > 3)
+                                                    {
+                                                        <li class="text-muted">+ @(Model.Outputs.Count() - 3) more</li>
+                                                    }
+                                                </ul>
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No outputs</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="resources-box mt-4">
+                                    <h6><i class="fas fa-cube text-warning"></i> Resources</h6>
+                                    <div class="small text-muted">
+                                        @if (Model.ResourcesRequired != null && Model.ResourcesRequired.Any())
+                                        {
+                                            @string.Join(", ", Model.ResourcesRequired.Take(3))
+                                            @if (Model.ResourcesRequired.Count() > 3)
+                                            {
+                                                <span>+ @(Model.ResourcesRequired.Count() - 3) more</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span>No resources defined</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Key Activities Flow</h6>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.KeyActivities != null && Model.KeyActivities.Any())
+                        {
+                            <div class="activity-flow">
+                                @foreach (var activity in Model.KeyActivities)
+                                {
+                                    <div class="activity-step d-flex align-items-center mb-2">
+                                        <div class="activity-number rounded-circle bg-primary text-white mr-3">
+                                            @(Model.KeyActivities.IndexOf(activity) + 1)
+                                        </div>
+                                        <div class="activity-content">
+                                            @activity
+                                        </div>
+                                    </div>
+                                    @if (Model.KeyActivities.IndexOf(activity) < Model.KeyActivities.Count - 1)
+                                    {
+                                        <div class="activity-connector ml-3 mb-2">
+                                            <i class="fas fa-arrow-down text-primary"></i>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No key activities defined</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary mr-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger mr-2">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

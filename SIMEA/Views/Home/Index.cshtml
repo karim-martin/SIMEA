@@ -1,0 +1,989 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityExtendUser> UserManager
+@{
+    ViewBag.Title = "Enterprise Architecture Dashboard";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    @{
+        var user = await UserManager.GetUserAsync(User);
+        var isInRoleEATeam = await UserManager.IsInRoleAsync(user, "EATeam");
+        var isInRoleRoot = await UserManager.IsInRoleAsync(user, "Root");
+        
+        if (isInRoleEATeam || isInRoleRoot)
+        {
+            <h3 class="heading-margin-top mydiv">Enterprise Architecture Dashboard</h3>
+            
+            <div class="row mt-xl-2">
+                <div class="col-xl-3 col-md-3 col-sm-3 mb-1">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <a class="nav-link" href="/Home/Index">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Business Architecture</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800">@ViewBag.BusinessArtifactsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-3 col-sm-3 mb-1">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <a class="nav-link" href="/Home/Index">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Application Architecture</div>
+                                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">@ViewBag.ApplicationArtifactsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-laptop-code fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-3 col-sm-3 mb-1">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <a class="nav-link" href="/Home/Index">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Data Architecture</div>
+                                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">@ViewBag.DataArtifactsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-database fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-3 col-sm-3 mb-1">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <a class="nav-link" href="/Home/Index">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Infrastructure Architecture</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800">@ViewBag.InfrastructureArtifactsCount</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-server fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-xl-2">
+                <div class="col-xl-3 col-md-3 col-sm-3 mb-1">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <a class="nav-link" href="/ArtifactLink/Index">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Artifact Links</div>
+                                        <div class="h6 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalArtifactLinks</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-link fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-3 col-sm-3 mb-1">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <a class="nav-link" href="/ArtifactLink/FullView">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">EA Visualization</div>
+                                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">View Diagram</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-project-diagram fa-2x text-gray-300"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-md-6 col-sm-6 mb-1">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Architecture Artifacts</div>
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col-auto">
+                                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">@ViewBag.TotalArtifactsCount</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="progress progress-sm mr-2">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: 100%" aria-valuenow="@ViewBag.TotalArtifactsCount" aria-valuemin="0" aria-valuemax="@ViewBag.TotalArtifactsCount"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-xl-2">
+                <div class="col-xl-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Architecture Domain Detail</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Business Architecture -->
+                                <div class="col-lg-3">
+                                    <div class="card mb-4">
+                                        <div class="card-header py-3 bg-primary text-white">
+                                            Business Architecture
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                <a href="/BusinessStrategy/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Business Strategy:</span> @ViewBag.BusinessStrategyCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/OperationModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Operation Model:</span> @ViewBag.OperationModelCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/OrganizationView/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Organization View:</span> @ViewBag.OrganizationViewCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/CapabilityMap/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Capability Map:</span> @ViewBag.CapabilityMapCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ProcessModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Process Model:</span> @ViewBag.ProcessModelCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/BusinessProductService/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Product/Service:</span> @ViewBag.BusinessProductServiceCount
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Application Architecture -->
+                                <div class="col-lg-3">
+                                    <div class="card mb-4">
+                                        <div class="card-header py-3 bg-success text-white">
+                                            Application Architecture
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                <a href="/ApplicationArchitectureFramework/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Application Framework:</span> @ViewBag.ApplicationFrameworkCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ApplicationBusinessRequirementsView/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">App Requirements:</span> @ViewBag.ApplicationBusinessRequirementCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ServiceCatalogue/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Service Catalogue:</span> @ViewBag.ServiceCatalogueCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ApplicationToApplicationCrossReference/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">App Cross-Reference:</span> @ViewBag.ApplicationCrossReferenceCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ApplicationSecurityModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">App Security:</span> @ViewBag.ApplicationSecurityCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ApplicationDataCrossReference/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">App-Data Cross-Ref:</span> @ViewBag.ApplicationDataCrossReferenceCount
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Data Architecture -->
+                                <div class="col-lg-3">
+                                    <div class="card mb-4">
+                                        <div class="card-header py-3 bg-info text-white">
+                                            Data Architecture
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                <a href="/DataGovernanceModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Data Governance:</span> @ViewBag.DataGovernanceCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/InformationHierarchyView/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Info Hierarchy:</span> @ViewBag.InformationHierarchyCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/InformationRequirementsView/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Info Requirements:</span> @ViewBag.InformationRequirementsCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/DataFlowModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Data Flow:</span> @ViewBag.DataFlowCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/LogicalDataModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Logical Data:</span> @ViewBag.LogicalDataCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/DataSecurityModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Data Security:</span> @ViewBag.DataSecurityCount
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Infrastructure Architecture -->
+                                <div class="col-lg-3">
+                                    <div class="card mb-4">
+                                        <div class="card-header py-3 bg-warning text-white">
+                                            Infrastructure Architecture
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                <a href="/InfrastructureBusinessRequirementsView/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Infra Requirements:</span> @ViewBag.InfrastructureBusinessRequirementCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/SystemToApplicationCrossReference/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">System-App Link:</span> @ViewBag.SystemToApplicationCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/ResourceNeedsModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Resource Needs:</span> @ViewBag.ResourceNeedsCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/SystemToBusinessCrossReference/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">System-Business Link:</span> @ViewBag.SystemToBusinessCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/InfrastructureSecurityModel/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">Infra Security:</span> @ViewBag.InfrastructureSecurityCount
+                                                </a>
+                                            </div>
+                                            <div class="mb-2">
+                                                <a href="/SystemDataCrossReference/Index" class="text-decoration-none">
+                                                    <span class="font-weight-bold">System-Data Link:</span> @ViewBag.SystemDataCount
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-xl-2">
+                <div class="col-xl-6 col-md-6 col-sm-6 mb-1">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Architecture Distribution</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="eaPieChart"></canvas>
+                            </div>
+                            <div class="mt-4 text-center small">
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-primary"></i> Business
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-success"></i> Application
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-info"></i> Data
+                                </span>
+                                <span class="mr-2">
+                                    <i class="fas fa-circle text-warning"></i> Infrastructure
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-md-6 col-sm-6 mb-1">
+                    <!-- Replace the existing buttons in the Actions card -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <a href="/ArtifactLink/Create" class="btn btn-primary btn-block">
+                                        <i class="fas fa-plus-circle mr-1"></i> Create New Link
+                                    </a>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <a href="/ArtifactLink/FullView" class="btn btn-success btn-block">
+                                        <i class="fas fa-project-diagram mr-1"></i> View Architecture
+                                    </a>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#exportEAReportModal">
+                                        <i class="fas fa-file-export mr-1"></i> Export EA Report
+                                    </button>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <button type="button" class="btn btn-warning btn-block" data-toggle="modal" data-target="#importEAArtifactsModal">
+                                        <i class="fas fa-file-import mr-1"></i> Import EA Artifacts
+                                    </button>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <a href="/Integration/ServiceNow" class="btn btn-primary btn-block">
+                                        <i class="fas fa-file-import mr-1"></i> Data Pull (ServiceNow)
+                                    </a>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <a href="/Integration/ServiceNow" class="btn btn-success btn-block">
+                                        <i class="fas fa-file-import mr-1"></i> Data Pull (Instana)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-6 text-center">
+                    <h1 class="heading-margin-top">Enterprise Architecture</h1>
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle mr-2"></i> You need appropriate permissions to access Enterprise Architecture tools.
+                    </div>
+                </div>
+            </div>
+        }
+        <!-- Export EA Report Modal -->
+        <div class="modal fade" id="exportEAReportModal" tabindex="-1" aria-labelledby="exportEAReportModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="exportEAReportModalLabel">Export Enterprise Architecture Report</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i> Select the type of report you wish to export. The report will be downloaded as an Excel file.
+                        </div>
+                        
+                        <form id="exportReportForm">
+                            <div class="form-group">
+                                <label for="reportType"><strong>Report Type</strong></label>
+                                <select class="form-control" id="reportType" name="reportType" required>
+                                    <option value="">-- Select Report Type --</option>
+                                    <optgroup label="Overview Reports">
+                                        <option value="full-ea-inventory">Full EA Inventory</option>
+                                        <option value="artifact-relationships">Artifact Relationships</option>
+                                        <option value="ea-metrics">EA Metrics and KPIs</option>
+                                    </optgroup>
+                                    <optgroup label="Domain Reports">
+                                        <option value="business-architecture">Business Architecture</option>
+                                        <option value="application-architecture">Application Architecture</option>
+                                        <option value="data-architecture">Data Architecture</option>
+                                        <option value="infrastructure-architecture">Infrastructure Architecture</option>
+                                    </optgroup>
+                                    <optgroup label="Specific Artifact Reports">
+                                        <option value="business-strategy">Business Strategy</option>
+                                        <option value="capability-map">Capability Map</option>
+                                        <option value="process-model">Process Model</option>
+                                        <option value="application-inventory">Application Inventory</option>
+                                        <option value="data-governance">Data Governance</option>
+                                        <option value="logical-data-model">Logical Data Model</option>
+                                        <option value="infrastructure-security">Infrastructure Security</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reportFormat"><strong>Report Format</strong></label>
+                                <select class="form-control" id="reportFormat" name="reportFormat" required>
+                                    <option value="excel">Excel (.xlsx)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="includeVisualizations" name="includeVisualizations">
+                                <label class="form-check-label" for="includeVisualizations">
+                                    Include visualizations (charts and diagrams) where applicable
+                                </label>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-info">
+                                    <i class="fas fa-download mr-1"></i> Download Report
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import EA Artifacts Modal -->
+        <div class="modal fade" id="importEAArtifactsModal" tabindex="-1" aria-labelledby="importEAArtifactsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-white">
+                        <h5 class="modal-title" id="importEAArtifactsModalLabel">Import Enterprise Architecture Artifacts</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Please ensure your import file follows the required template format for the selected artifact type. You can download template files from the template button below.
+                        </div>
+                        
+                        <form id="importArtifactsForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="artifactType"><strong>Artifact Type</strong></label>
+                                <select class="form-control" id="artifactType" name="artifactType" required>
+                                    <option value="">-- Select Artifact Type --</option>
+                                    <optgroup label="Business Architecture">
+                                        <option value="business-strategy">Business Strategy</option>
+                                        <option value="operation-model">Operation Model</option>
+                                        <option value="organization-view">Organization View</option>
+                                        <option value="capability-map">Capability Map</option>
+                                        <option value="process-model">Process Model</option>
+                                        <option value="business-product-service">Business Product/Service</option>
+                                    </optgroup>
+                                    <optgroup label="Application Architecture">
+                                        <option value="application-framework">Application Framework</option>
+                                        <option value="application-business-requirement">Application Requirements</option>
+                                        <option value="service-catalogue">Service Catalogue</option>
+                                        <option value="application-cross-reference">Application Cross Reference</option>
+                                        <option value="application-security">Application Security</option>
+                                        <option value="application-data-cross-reference">App-Data Cross Reference</option>
+                                    </optgroup>
+                                    <optgroup label="Data Architecture">
+                                        <option value="data-governance">Data Governance</option>
+                                        <option value="information-hierarchy">Information Hierarchy</option>
+                                        <option value="information-requirements">Information Requirements</option>
+                                        <option value="data-flow">Data Flow</option>
+                                        <option value="logical-data">Logical Data</option>
+                                        <option value="data-security">Data Security</option>
+                                    </optgroup>
+                                    <optgroup label="Infrastructure Architecture">
+                                        <option value="infrastructure-business-requirement">Infrastructure Requirements</option>
+                                        <option value="system-application">System to Application</option>
+                                        <option value="resource-needs">Resource Needs</option>
+                                        <option value="system-business">System to Business</option>
+                                        <option value="infrastructure-security">Infrastructure Security</option>
+                                        <option value="system-data">System Data</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="importFile"><strong>Upload File</strong></label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="importFile" name="importFile" accept=".xlsx,.xls" required>
+                                    <label class="custom-file-label" for="importFile">Choose file...</label>
+                                </div>
+                                <small class="form-text text-muted">Supported formats: Excel (.xlsx, .xls)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="updateExisting" name="updateExisting">
+                                    <label class="form-check-label" for="updateExisting">
+                                        Update existing artifacts if they exist (by ID or name)
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="skipHeaderRow" name="skipHeaderRow" checked>
+                                    <label class="form-check-label" for="skipHeaderRow">
+                                        First row contains headers
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="template-example">
+                                <h6 class="font-weight-bold">Example Template Format</h6>
+                                <p class="mb-2">Here's an example of how your import file should be structured for the selected artifact type:</p>
+                                
+                                <div class="table-responsive mb-3">
+                                    <!-- Business Strategy Template -->
+                                    <div id="business-strategy-template" class="template-table" style="display: none;">
+                                        <table class="table table-sm table-bordered table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Business Goal*</th>
+                                                    <th>Strategic Objective*</th>
+                                                    <th>Key Performance Indicators*</th>
+                                                    <th>Stakeholders*</th>
+                                                    <th>Timeframe*</th>
+                                                    <th>Vision Alignment*</th>
+                                                    <th>Risks</th>
+                                                    <th>Dependencies</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Increase Market Share</td>
+                                                    <td>Expand customer base by 15% within EMEA region</td>
+                                                    <td>Customer Acquisition Rate;Revenue Growth;Market Penetration %</td>
+                                                    <td>Sales;Marketing;Product;Executive Team</td>
+                                                    <td>2023-12-31</td>
+                                                    <td>Aligns with growth strategy focus on international markets</td>
+                                                    <td>Competition;Economic Factors</td>
+                                                    <td>CRM Implementation</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <!-- Application Framework Template -->
+                                    <div id="application-framework-template" class="template-table" style="display: none;">
+                                        <table class="table table-sm table-bordered table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Application Name*</th>
+                                                    <th>Description*</th>
+                                                    <th>Business Function*</th>
+                                                    <th>Technology Stack</th>
+                                                    <th>Integration Points</th>
+                                                    <th>Owner*</th>
+                                                    <th>Version*</th>
+                                                    <th>Deployment Environment*</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Customer Portal</td>
+                                                    <td>Web application for customer self-service</td>
+                                                    <td>Customer Service</td>
+                                                    <td>ASP.NET Core;Angular;SQL Server</td>
+                                                    <td>CRM System;Payment Gateway</td>
+                                                    <td>John Smith</td>
+                                                    <td>2.3.1</td>
+                                                    <td>Azure Production</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <!-- Data Governance Template -->
+                                    <div id="data-governance-template" class="template-table" style="display: none;">
+                                        <table class="table table-sm table-bordered table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Data Entity*</th>
+                                                    <th>Data Owner*</th>
+                                                    <th>Data Steward*</th>
+                                                    <th>Quality Metrics*</th>
+                                                    <th>Data Policies*</th>
+                                                    <th>Compliance Requirements*</th>
+                                                    <th>Data Lifecycle*</th>
+                                                    <th>Dependencies</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Customer Data</td>
+                                                    <td>Jane Wilson - CRM Manager</td>
+                                                    <td>Mark Johnson - Data Analyst</td>
+                                                    <td>Completeness;Accuracy;Uniqueness</td>
+                                                    <td>Retention Policy;Access Control</td>
+                                                    <td>GDPR;CCPA</td>
+                                                    <td>Creation through web form, 7-year retention, then anonymization</td>
+                                                    <td>Customer Identity System</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <!-- Infrastructure Security Template -->
+                                    <div id="infrastructure-security-template" class="template-table">
+                                        <table class="table table-sm table-bordered table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>System Name*</th>
+                                                    <th>Security Requirement*</th>
+                                                    <th>Compliance Standards*</th>
+                                                    <th>Vulnerabilities*</th>
+                                                    <th>Mitigation Strategies*</th>
+                                                    <th>Owner*</th>
+                                                    <th>Last Audit Date*</th>
+                                                    <th>Dependencies</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Web Application Server</td>
+                                                    <td>Must enforce TLS 1.2+, implement WAF</td>
+                                                    <td>ISO 27001;PCI-DSS</td>
+                                                    <td>XSS;CSRF;Outdated Libraries</td>
+                                                    <td>Regular Patching;Content Security Policy;Input Validation</td>
+                                                    <td>Robert Miller - Security Manager</td>
+                                                    <td>2023-08-15</td>
+                                                    <td>Load Balancer;Network Firewall</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Default Example Template -->
+                                    <div id="default-template" class="template-table" style="display: none;">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle mr-2"></i> Please select an artifact type to see a sample template.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info small">
+                                    <p class="mb-0"><strong>Notes:</strong></p>
+                                    <ul class="mb-0 pl-3">
+                                        <li>Fields marked with * are required</li>
+                                        <li>Use semicolons (;) to separate multiple values in a single field (e.g., for lists)</li>
+                                        <li>Dates should be in YYYY-MM-DD format</li>
+                                        <li>Download a template using the button below for the exact format</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Cancel</button>
+                                <a href="#" class="btn btn-primary mr-2" id="downloadTemplateBtn">
+                                    <i class="fas fa-file-download mr-1"></i> Download Template
+                                </a>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-upload mr-1"></i> Import Artifacts
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Only create chart if we're on the EA Team or Root page
+        @if (isInRoleEATeam || isInRoleRoot) {
+            <text>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Pie Chart
+                var ctx = document.getElementById("eaPieChart");
+                var eaPieChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Business", "Application", "Data", "Infrastructure"],
+                        datasets: [{
+                            data: [@ViewBag.BusinessArtifactsCount, @ViewBag.ApplicationArtifactsCount, @ViewBag.DataArtifactsCount, @ViewBag.InfrastructureArtifactsCount],
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e'],
+                            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a'],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            backgroundColor: "rgb(255,255,255)",
+                            bodyFontColor: "#858796",
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            xPadding: 15,
+                            yPadding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                        },
+                        legend: {
+                            display: false
+                        },
+                        cutoutPercentage: 60,
+                    },
+                });
+            });
+            </text>
+        }
+
+        $(document).ready(function() {
+            // Handle custom file input label
+            $('.custom-file-input').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                $(this).siblings('.custom-file-label').addClass('selected').html(fileName);
+            });
+            
+            // Handle the export form submission
+            $('#exportReportForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const reportType = $('#reportType').val();
+                const reportFormat = $('#reportFormat').val();
+                const includeVisualizations = $('#includeVisualizations').is(':checked');
+                
+                if (!reportType) {
+                    alert('Please select a report type');
+                    return;
+                }
+                
+                // Show loading indicator
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalBtnText = submitBtn.html();
+                submitBtn.html('<i class="fas fa-spinner fa-spin mr-1"></i> Generating report...');
+                submitBtn.attr('disabled', true);
+                
+                // Send AJAX request
+                $.ajax({
+                    url: '/Home/ExportEAReport',
+                    type: 'POST',
+                    data: {
+                        reportType: reportType,
+                        reportFormat: reportFormat,
+                        includeVisualizations: includeVisualizations
+                    },
+                    xhrFields: {
+                        responseType: 'blob' // Important for handling binary data (Excel)
+                    },
+                    success: function(data, status, xhr) {
+                        // Get the filename from the Content-Disposition header, or use a default name
+                        let filename = reportType + "_report.xlsx";
+                        const disposition = xhr.getResponseHeader('Content-Disposition');
+                        if (disposition && disposition.indexOf('attachment') !== -1) {
+                            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                            const matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) {
+                                filename = matches[1].replace(/['"]/g, '');
+                            }
+                        }
+                        
+                        // Create a download link and trigger it
+                        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = downloadUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        
+                        // Close the modal
+                        $('#exportEAReportModal').modal('hide');
+                        
+                        // Reset form and button
+                        submitBtn.html(originalBtnText);
+                        submitBtn.attr('disabled', false);
+                        $('#exportReportForm')[0].reset();
+                    },
+                    error: function(xhr, status, error) {
+                        submitBtn.html(originalBtnText);
+                        submitBtn.attr('disabled', false);
+                        alert('Export failed: ' + (xhr.responseText || 'Unknown error'));
+                    }
+                });
+            });
+            
+            // Handle import form submission
+            $('#importArtifactsForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const artifactType = $('#artifactType').val();
+                const file = $('#importFile')[0].files[0];
+                const updateExisting = $('#updateExisting').is(':checked');
+                const skipHeaderRow = $('#skipHeaderRow').is(':checked');
+                
+                if (!artifactType) {
+                    alert('Please select an artifact type');
+                    return;
+                }
+                
+                if (!file) {
+                    alert('Please select a file to import');
+                    return;
+                }
+                
+                // Check file extension
+                const extension = file.name.split('.').pop().toLowerCase();
+                if (extension !== 'xlsx' && extension !== 'xls') {
+                    alert('Only Excel files (.xlsx or .xls) are supported');
+                    return;
+                }
+                
+                // Create form data for upload
+                const formData = new FormData();
+                formData.append('artifactType', artifactType);
+                formData.append('importFile', file);
+                formData.append('updateExisting', updateExisting);
+                formData.append('skipHeaderRow', skipHeaderRow);
+                
+                // Show loading indicator
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalBtnText = submitBtn.html();
+                submitBtn.html('<i class="fas fa-spinner fa-spin mr-1"></i> Importing...');
+                submitBtn.attr('disabled', true);
+                
+                // Send AJAX request
+                $.ajax({
+                    url: '/Home/ImportEAArtifacts',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        submitBtn.html(originalBtnText);
+                        submitBtn.attr('disabled', false);
+                        
+                        if (response && response.success) {
+                            alert('Import successful! ' + response.message);
+                            $('#importEAArtifactsModal').modal('hide');
+                            
+                            // Refresh the page to show the imported data
+                            window.location.reload();
+                        } else {
+                            alert('Import failed: ' + (response.message || 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        submitBtn.html(originalBtnText);
+                        submitBtn.attr('disabled', false);
+                        
+                        let errorMessage = 'Import failed';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response && response.message) {
+                                errorMessage += ': ' + response.message;
+                            }
+                        } catch (e) {
+                            errorMessage += ': ' + error;
+                        }
+                        
+                        alert(errorMessage);
+                    }
+                });
+            });
+            
+            // Show appropriate template example based on selected artifact type
+            $('#artifactType').on('change', function() {
+                const selectedType = $(this).val();
+                
+                // Hide all templates first
+                $('.template-table').hide();
+                
+                // Show specific example based on selection
+                if (selectedType === 'business-strategy' || 
+                    selectedType === 'operation-model' || 
+                    selectedType === 'organization-view' || 
+                    selectedType === 'capability-map' || 
+                    selectedType === 'process-model' || 
+                    selectedType === 'business-product-service') {
+                    $('#business-strategy-template').show();
+                } else if (selectedType === 'application-framework' || 
+                           selectedType === 'application-business-requirement' || 
+                           selectedType === 'service-catalogue' || 
+                           selectedType === 'application-cross-reference' || 
+                           selectedType === 'application-security' || 
+                           selectedType === 'application-data-cross-reference') {
+                    $('#application-framework-template').show();
+                } else if (selectedType === 'data-governance' || 
+                           selectedType === 'information-hierarchy' || 
+                           selectedType === 'information-requirements' || 
+                           selectedType === 'data-flow' || 
+                           selectedType === 'logical-data' || 
+                           selectedType === 'data-security') {
+                    $('#data-governance-template').show();
+                } else if (selectedType === 'infrastructure-business-requirement' || 
+                           selectedType === 'system-application' || 
+                           selectedType === 'resource-needs' || 
+                           selectedType === 'system-business' || 
+                           selectedType === 'infrastructure-security' || 
+                           selectedType === 'system-data') {
+                    $('#infrastructure-security-template').show();
+                } else {
+                    $('#default-template').show();
+                }
+            });
+            
+            // Download template button functionality
+            $('#downloadTemplateBtn').on('click', function(e) {
+                e.preventDefault();
+                
+                const artifactType = $('#artifactType').val();
+                
+                if (!artifactType) {
+                    alert('Please select an artifact type first');
+                    return;
+                }
+                
+                // Show loading indicator
+                const btn = $(this);
+                const originalBtnText = btn.html();
+                btn.html('<i class="fas fa-spinner fa-spin mr-1"></i> Downloading...');
+                btn.attr('disabled', true);
+                
+                // Send request to download template
+                window.location.href = `/Home/DownloadTemplate?artifactType=${artifactType}`;
+                
+                // Reset button after a delay (since we're navigating away)
+                setTimeout(function() {
+                    btn.html(originalBtnText);
+                    btn.attr('disabled', false);
+                }, 1000);
+            });
+        });
+    </script>
+}

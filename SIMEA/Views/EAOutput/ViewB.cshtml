@@ -1,0 +1,705 @@
+@model SIMEA.Models.ViewModels.ApplicationPortfolioViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-success">Application Portfolio Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This dashboard provides a comprehensive view of all applications in the enterprise, their status, and key metrics.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Summary Stats -->
+    <div class="row">
+        <!-- Total Applications Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Applications</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.Applications?.Count ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-laptop-code fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Services</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.Services?.Count ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-cogs fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Dependencies Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Dependencies</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.AppDependencies?.Count ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-link fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Requirements Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Requirements</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.BusinessRequirements?.Count ?? 0)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Portfolio Distribution -->
+    <div class="row">
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application Portfolio Distribution</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Applications != null && Model.Applications.Any())
+                    {
+                        <div id="application-distribution-chart" style="height: 350px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No application data available
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application Dependencies</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.AppDependencies != null && Model.AppDependencies.Any())
+                    {
+                        <div id="dependency-network-chart" style="height: 350px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Portfolio Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Application Portfolio</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="applicationTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Application Name</th>
+                                    <th>Description</th>
+                                    <th>Business Function</th>
+                                    <th>Owner</th>
+                                    <th>Version</th>
+                                    <th>Environment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Applications != null && Model.Applications.Any())
+                                {
+                                    foreach (var app in Model.Applications)
+                                    {
+                                        <tr>
+                                            <td>@app.ApplicationName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(app.ApplicationDescription))
+                                                {
+                                                    @(app.ApplicationDescription.Length > 50 
+                                                        ? app.ApplicationDescription.Substring(0, 50) + "..." 
+                                                        : app.ApplicationDescription)
+                                                }
+                                            </td>
+                                            <td>@app.BusinessFunctionSupported</td>
+                                            <td>@app.Owner</td>
+                                            <td>@app.Version</td>
+                                            <td>@app.DeploymentEnvironment</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">No application data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services and Requirements -->
+    <div class="row">
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Services Catalog</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="servicesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Service Name</th>
+                                    <th>Owner</th>
+                                    <th>SLA</th>
+                                    <th>Availability</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Services != null && Model.Services.Any())
+                                {
+                                    foreach (var service in Model.Services)
+                                    {
+                                        <tr>
+                                            <td>@service.ServiceName</td>
+                                            <td>@service.ServiceOwner</td>
+                                            <td>@service.SLA</td>
+                                            <td>@service.Availability</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No service data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Business Requirements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="requirementsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Requirement ID</th>
+                                    <th>Description</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.BusinessRequirements != null && Model.BusinessRequirements.Any())
+                                {
+                                    foreach (var req in Model.BusinessRequirements)
+                                    {
+                                        <tr>
+                                            <td>@req.RequirementId</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(req.RequirementDescription))
+                                                {
+                                                    @(req.RequirementDescription.Length > 50 
+                                                        ? req.RequirementDescription.Substring(0, 50) + "..." 
+                                                        : req.RequirementDescription)
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(req.Priority == "High" ? "badge-danger" : 
+                                                    req.Priority == "Medium" ? "badge-warning" : 
+                                                    "badge-info")">
+                                                    @req.Priority
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(req.Status == "Completed" ? "badge-success" : 
+                                                    req.Status == "In Progress" ? "badge-primary" : 
+                                                    req.Status == "Not Started" ? "badge-secondary" :
+                                                    "badge-light")">
+                                                    @req.Status
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center">No requirement data available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            if ($('#applicationTable tbody tr').length > 1) {
+                $('#applicationTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            if ($('#servicesTable tbody tr').length > 1) {
+                $('#servicesTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#requirementsTable tbody tr').length > 1) {
+                $('#requirementsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            // Initialize Application Distribution Chart if element exists
+            var distributionChartElement = document.getElementById('application-distribution-chart');
+            if (distributionChartElement) {
+                var distributionChart = echarts.init(distributionChartElement);
+                
+                // Aggregate data by business function
+                var businessFunctions = {};
+                
+                @if (Model.Applications != null && Model.Applications.Any())
+                {
+                    <text>
+                    try {
+                        var applications = @Html.Raw(Json.Serialize(Model.Applications.Select(a => new { 
+                            Name = a.ApplicationName, 
+                            Function = string.IsNullOrEmpty(a.BusinessFunctionSupported) ? "Unspecified" : a.BusinessFunctionSupported 
+                        }))) || [];
+                        
+                        if (Array.isArray(applications)) {
+                            applications.forEach(function(app) {
+                                if (app && app.Function) {
+                                    if (!businessFunctions[app.Function]) {
+                                        businessFunctions[app.Function] = 0;
+                                    }
+                                    businessFunctions[app.Function]++;
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing application data:", e);
+                        businessFunctions = {'Error': 1};
+                    }
+                    </text>
+                }
+                
+                var businessFunctionData = [];
+                try {
+                    for (var func in businessFunctions) {
+                        if (func) {
+                            businessFunctionData.push({
+                                name: func,
+                                value: businessFunctions[func]
+                            });
+                        }
+                    }
+                    
+                    // If no data, add a placeholder
+                    if (businessFunctionData.length === 0) {
+                        businessFunctionData.push({
+                            name: 'No Data',
+                            value: 1
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error creating chart data:", e);
+                    businessFunctionData = [{name: 'Error', value: 1}];
+                }
+                
+                // Chart options
+                var distributionOption = {
+                    title: {
+                        text: 'Applications by Business Function',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c} ({d}%)'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        data: Object.keys(businessFunctions)
+                    },
+                    series: [
+                        {
+                            name: 'Business Function',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '16',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: false
+                            },
+                            data: businessFunctionData
+                        }
+                    ]
+                };
+                
+                try {
+                    // Apply options
+                    distributionChart.setOption(distributionOption);
+                } catch (e) {
+                    console.error("Error applying chart options:", e);
+                    distributionChartElement.innerHTML = '<div class="alert alert-danger text-center">' +
+                        '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                        'Error generating chart: ' + e.message +
+                        '</div>';
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    distributionChart.resize();
+                });
+            }
+            
+            // Initialize Dependency Network Chart if element exists
+            var networkChartElement = document.getElementById('dependency-network-chart');
+            if (networkChartElement) {
+                console.log("Initializing dependency network chart");
+                
+                // Process dependencies into nodes and links
+                var nodes = [];
+                var links = [];
+                var appNames = new Set();
+                
+                @if (Model.AppDependencies != null && Model.AppDependencies.Any())
+                {
+                    <text>
+                    try {
+                        console.log("Processing dependency data");
+                        var dependencies = @Html.Raw(Json.Serialize(Model.AppDependencies.Select(d => new { 
+                            Source = d.SourceApplication, 
+                            Target = d.TargetApplication,
+                            Type = d.IntegrationType
+                        }))) || [];
+                        
+                        console.log("Dependencies:", dependencies);
+                        
+                        if (Array.isArray(dependencies)) {
+                            // Collect all application names first
+                            dependencies.forEach(function(dep) {
+                                if (dep && dep.Source && dep.Target) {
+                                    appNames.add(dep.Source);
+                                    appNames.add(dep.Target);
+                                }
+                            });
+                            
+                            // Create nodes
+                            appNames.forEach(function(name) {
+                                if (name) {
+                                    nodes.push({
+                                        name: name,
+                                        symbolSize: 30,
+                                        category: 0
+                                    });
+                                }
+                            });
+                            
+                            // Create links
+                            dependencies.forEach(function(dep) {
+                                if (dep && dep.Source && dep.Target) {
+                                    links.push({
+                                        source: dep.Source,
+                                        target: dep.Target,
+                                        value: dep.Type || 'Dependency'
+                                    });
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing dependency data:", e);
+                    }
+                    </text>
+                }
+                
+                // Use the chart helper to handle empty data
+                handleEmptyChart(networkChartElement, nodes, function(networkChart) {
+                    // Network chart options
+                    var networkOption = {
+                        title: {
+                            text: 'Application Dependencies',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: function(params) {
+                                try {
+                                    if (params.dataType === 'edge') {
+                                        return (params.data.source || 'Unknown') + ' → ' + 
+                                            (params.data.target || 'Unknown') + '<br/>' + 
+                                            (params.data.value || 'Dependency');
+                                    }
+                                    return params.name || 'Unknown';
+                                } catch (e) {
+                                    return 'Error displaying tooltip';
+                                }
+                            }
+                        },
+                        legend: {
+                            show: false
+                        },
+                        series: [
+                            {
+                                type: 'graph',
+                                layout: 'force',
+                                data: nodes,
+                                links: links,
+                                categories: [{ name: 'Application' }],
+                                roam: true,
+                                label: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: '{b}'
+                                },
+                                lineStyle: {
+                                    color: 'source',
+                                    curveness: 0.3
+                                },
+                                emphasis: {
+                                    focus: 'adjacency',
+                                    lineStyle: {
+                                        width: 5
+                                    }
+                                },
+                                force: {
+                                    repulsion: 100,
+                                    edgeLength: 120
+                                }
+                            }
+                        ]
+                    };
+                    
+                    // Apply options
+                    networkChart.setOption(networkOption);
+                });
+            }
+            
+            // Fullscreen toggle for charts
+            document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                // Determine which chart to fullscreen based on which exists
+                var chartElement = document.getElementById('application-distribution-chart') || 
+                                   document.getElementById('dependency-network-chart');
+                
+                if (chartElement) {
+                    if (chartElement.classList.contains('fullscreen')) {
+                        chartElement.classList.remove('fullscreen');
+                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                        chartElement.style.height = '350px';
+                    } else {
+                        chartElement.classList.add('fullscreen');
+                        this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                        chartElement.style.height = '85vh';
+                    }
+                    
+                    // Resize chart after container size change
+                    setTimeout(function() {
+                        var chart = echarts.getInstanceByDom(chartElement);
+                        if (chart) {
+                            chart.resize();
+                        }
+                    }, 100);
+                } else {
+                    // Hide button if no charts
+                    this.style.display = 'none';
+                }
+            });
+            
+            // Export button action
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                // Determine which chart to export
+                var chartElement = document.getElementById('application-distribution-chart') || 
+                                   document.getElementById('dependency-network-chart');
+                
+                if (chartElement) {
+                    var chart = echarts.getInstanceByDom(chartElement);
+                    if (chart) {
+                        var dataURL = chart.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff'
+                        });
+                        
+                        // Create an invisible anchor element to trigger download
+                        var downloadLink = document.createElement('a');
+                        downloadLink.href = dataURL;
+                        downloadLink.download = 'application-portfolio.png';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    }
+                } else {
+                    // Hide button if no charts
+                    this.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}

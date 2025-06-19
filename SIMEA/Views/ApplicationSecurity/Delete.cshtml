@@ -1,0 +1,148 @@
+@model SIMEA.Models.ApplicationSecurityModel
+
+@{
+    ViewData["Title"] = "Delete Security Model";
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="card shadow mb-4 border-left-danger">
+            <div class="card-header py-3 bg-danger text-white">
+                <h6 class="m-0 font-weight-bold">Delete Application Security Model</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Warning:</strong> Are you sure you want to delete this security model? This action cannot be undone.
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h4 class="font-weight-bold text-danger">@Html.DisplayFor(model => model.ApplicationName)</h4>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <span class="badge badge-pill badge-secondary p-2">
+                                            <i class="fas fa-calendar-alt mr-1"></i> Last Audit: @(string.IsNullOrEmpty(Model.LastAuditDate) ? "Not audited" : Model.LastAuditDate)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="font-weight-bold">@Html.DisplayNameFor(model => model.SecurityRequirement):</label>
+                    <div class="p-3 bg-light rounded">
+                        @Html.DisplayFor(model => model.SecurityRequirement)
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">@Html.DisplayNameFor(model => model.Owner):</label>
+                            <p>@Html.DisplayFor(model => model.Owner)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Compliance Standards:</label>
+                            @if (Model.ComplianceStandards != null && Model.ComplianceStandards.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var standard in Model.ComplianceStandards)
+                                    {
+                                        <span class="badge badge-info p-2 mr-2 mb-2">@standard</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No compliance standards defined</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Dependencies:</label>
+                            @if (Model.Dependencies != null && Model.Dependencies.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var dependency in Model.Dependencies)
+                                    {
+                                        <span class="badge badge-secondary p-2 mr-2 mb-2">@dependency</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No dependencies defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Vulnerabilities:</label>
+                            @if (Model.Vulnerabilities != null && Model.Vulnerabilities.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var vulnerability in Model.Vulnerabilities)
+                                    {
+                                        <div class="mb-2">
+                                            <i class="fas fa-exclamation-triangle text-danger mr-2"></i> @vulnerability
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-success">No vulnerabilities identified</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Mitigation Strategies:</label>
+                            @if (Model.MitigationStrategies != null && Model.MitigationStrategies.Any())
+                            {
+                                <div class="p-3 bg-light rounded">
+                                    @foreach (var strategy in Model.MitigationStrategies)
+                                    {
+                                        <div class="mb-2">
+                                            <i class="fas fa-shield-alt text-success mr-2"></i> @strategy
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No mitigation strategies defined</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+                <form asp-action="Delete" onsubmit="return confirm('Are you absolutely sure you want to delete this security model?');">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

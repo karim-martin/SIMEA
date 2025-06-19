@@ -1,0 +1,609 @@
+@model SIMEA.Models.ViewModels.CapabilityApplicationMappingViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_LayoutAcc.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@Model.Title</h1>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" id="toggleFullscreen">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <a href="#" class="btn btn-sm btn-primary" id="exportBtn">
+                <i class="fas fa-download fa-sm text-white-50"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Add EA Output Metadata -->
+    <partial name="_EAOutputMetadata" model="Model" />
+
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Overview</h6>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i> This view maps business capabilities to the applications that support them, showing the level of support provided.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Heat Map Visualization -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Capability Support Heat Map</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Mappings != null && Model.Mappings.Any() && Model.Capabilities != null && Model.Capabilities.Any() && Model.Applications != null && Model.Applications.Any())
+                    {
+                        <div id="capability-heatmap" style="height: 500px;"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i> No Data
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapping Filter Controls -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Filter by Support Level</h6>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group mb-3" role="group">
+                        <button type="button" class="btn btn-outline-primary active" data-support="all">All</button>
+                        <button type="button" class="btn btn-outline-success" data-support="Full">Full</button>
+                        <button type="button" class="btn btn-outline-warning" data-support="Partial">Partial</button>
+                        <button type="button" class="btn btn-outline-danger" data-support="None">None</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Legend</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <span class="badge badge-success badge-pill mr-1">Full</span>
+                            <span class="small">Complete capability support</span>
+                        </div>
+                        <div>
+                            <span class="badge badge-warning badge-pill mr-1">Partial</span>
+                            <span class="small">Partial capability support</span>
+                        </div>
+                        <div>
+                            <span class="badge badge-danger badge-pill mr-1">None</span>
+                            <span class="small">No capability support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capability-Application Mapping Table -->
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Capability to Application Mapping</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="mappingTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Capability</th>
+                                    <th>Application</th>
+                                    <th>Support Level</th>
+                                    <th>Description</th>
+                                    <th>Mapped On</th>
+                                    <th>Mapped By</th>
+                                    <th>Review Due</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var mapping in Model.Mappings)
+                                {
+                                    <tr>
+                                        <td>@mapping.CapabilityName</td>
+                                        <td>@mapping.ApplicationName</td>
+                                        <td>
+                                            <span class="badge @GetSupportLevelBadgeClass(mapping.SupportLevel)">
+                                                @mapping.SupportLevel
+                                            </span>
+                                        </td>
+                                        <td>@mapping.Description</td>
+                                        <td>@mapping.MappingDate.ToString("yyyy-MM-dd")</td>
+                                        <td>@(string.IsNullOrEmpty(mapping.MappedBy) ? "System" : mapping.MappedBy)</td>
+                                        <td>
+                                            @if (mapping.ReviewDate.HasValue)
+                                            {
+                                                var dueDays = (mapping.ReviewDate.Value - DateTime.Now).TotalDays;
+                                                if (dueDays < 0)
+                                                {
+                                                    <span class="text-danger">
+                                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                                        Overdue (@Math.Abs((int)dueDays) days)
+                                                    </span>
+                                                }
+                                                else if (dueDays < 30)
+                                                {
+                                                    <span class="text-warning">
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        Due soon (@((int)dueDays) days)
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@mapping.ReviewDate.Value.ToString("yyyy-MM-dd")</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not scheduled</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capabilities and Applications -->
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Business Capabilities</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="capabilitiesTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Capability</th>
+                                    <th>Description</th>
+                                    <th>Maturity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Capabilities != null && Model.Capabilities.Any())
+                                {
+                                    foreach (var capability in Model.Capabilities)
+                                    {
+                                        <tr>
+                                            <td>@capability.CapabilityName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(capability.CapabilityDescription))
+                                                {
+                                                    @(capability.CapabilityDescription.Length > 50 
+                                                        ? capability.CapabilityDescription.Substring(0, 50) + "..." 
+                                                        : capability.CapabilityDescription)
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-pill 
+                                                    @(capability.MaturityLevel == "Advanced" ? "badge-success" : 
+                                                    capability.MaturityLevel == "Intermediate" ? "badge-primary" : 
+                                                    "badge-warning")">
+                                                    @capability.MaturityLevel
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No capabilities available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Applications</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="applicationsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Application</th>
+                                    <th>Description</th>
+                                    <th>Owner</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Applications != null && Model.Applications.Any())
+                                {
+                                    foreach (var app in Model.Applications)
+                                    {
+                                        <tr>
+                                            <td>@app.ApplicationName</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(app.ApplicationDescription))
+                                                {
+                                                    @(app.ApplicationDescription.Length > 50 
+                                                        ? app.ApplicationDescription.Substring(0, 50) + "..." 
+                                                        : app.ApplicationDescription)
+                                                }
+                                            </td>
+                                            <td>@app.Owner</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center">No applications available</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables if there's data
+            var mappingTable, capabilitiesTable, applicationsTable;
+            
+            if ($('#mappingTable tbody tr').length > 1) {
+                mappingTable = $('#mappingTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 10,
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf'
+                    ]
+                });
+            }
+            
+            if ($('#capabilitiesTable tbody tr').length > 1) {
+                capabilitiesTable = $('#capabilitiesTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            if ($('#applicationsTable tbody tr').length > 1) {
+                applicationsTable = $('#applicationsTable').DataTable({
+                    "responsive": true,
+                    "pageLength": 5
+                });
+            }
+            
+            // Support Level filter buttons
+            $('.btn-group [data-support]').click(function() {
+                $('.btn-group [data-support]').removeClass('active');
+                $(this).addClass('active');
+                
+                var supportLevel = $(this).data('support');
+                
+                if (mappingTable) {
+                    if (supportLevel === 'all') {
+                        mappingTable.column(2).search('').draw();
+                    } else {
+                        mappingTable.column(2).search(supportLevel).draw();
+                    }
+                } else {
+                    // Fallback for when DataTables isn't initialized
+                    if (supportLevel === 'all') {
+                        $('.mapping-row').show();
+                    } else {
+                        $('.mapping-row').hide();
+                        $('.mapping-row[data-support="' + supportLevel + '"]').show();
+                    }
+                }
+            });
+            
+            // Initialize Capability Heat Map if element exists
+            var heatmapElement = document.getElementById('capability-heatmap');
+            if (heatmapElement && @(Model.Mappings != null && Model.Mappings.Any() ? "true" : "false")) {
+                console.log("Initializing capability heat map");
+                var heatmapChart = echarts.init(heatmapElement, null, { renderer: 'canvas' });
+                
+                // Process data for the heatmap
+                var capabilities = [];
+                var applications = [];
+                var heatmapData = [];
+                
+                @if (Model.Mappings != null && Model.Mappings.Any())
+                {
+                    <text>
+                    try {
+                        var mappings = @Html.Raw(Json.Serialize(Model.Mappings.Select(m => new { 
+                            Capability = m.CapabilityName, 
+                            Application = m.ApplicationName,
+                            Support = m.SupportLevel
+                        }))) || [];
+                        
+                        if (Array.isArray(mappings)) {
+                            // Get unique capabilities and applications
+                            capabilities = [...new Set(mappings.filter(m => m && m.Capability).map(m => m.Capability))];
+                            applications = [...new Set(mappings.filter(m => m && m.Application).map(m => m.Application))];
+                            
+                            // Create heatmap data
+                            mappings.forEach(function(mapping) {
+                                if (mapping && mapping.Capability && mapping.Application) {
+                                    var capabilityIndex = capabilities.indexOf(mapping.Capability);
+                                    var applicationIndex = applications.indexOf(mapping.Application);
+                                    
+                                    if (capabilityIndex >= 0 && applicationIndex >= 0) {
+                                        // Support level value: Full = 2, Partial = 1, None = 0
+                                        var supportValue = mapping.Support === 'Full' ? 2 : 
+                                                          mapping.Support === 'Partial' ? 1 : 0;
+                                        
+                                        heatmapData.push([applicationIndex, capabilityIndex, supportValue]);
+                                    }
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error processing data for capability heatmap:", e);
+                    }
+                    </text>
+                }
+                
+                // Chart options
+                var option = {
+                    title: {
+                        text: 'Capability Support by Application',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        position: 'top',
+                        formatter: function(params) {
+                            try {
+                                var application = applications[params.data[0]];
+                                var capability = capabilities[params.data[1]];
+                                var support = ['None', 'Partial', 'Full'][params.data[2]];
+                                
+                                return (application || 'Unknown') + ' → ' + (capability || 'Unknown') + '<br>Support: ' + (support || 'Unknown');
+                            } catch (e) {
+                                return 'Error displaying tooltip';
+                            }
+                        }
+                    },
+                    grid: {
+                        height: '60%',
+                        top: '10%',
+                        left: '15%',
+                        right: '10%',
+                        bottom: '20%'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: applications,
+                        splitArea: {
+                            show: true
+                        },
+                        axisLabel: {
+                            interval: 0,
+                            rotate: 45,
+                            formatter: function(value) {
+                                if (value.length > 15) {
+                                    return value.substring(0, 12) + '...';
+                                }
+                                return value;
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: capabilities,
+                        splitArea: {
+                            show: true
+                        },
+                        axisLabel: {
+                            formatter: function(value) {
+                                if (value.length > 20) {
+                                    return value.substring(0, 17) + '...';
+                                }
+                                return value;
+                            }
+                        }
+                    },
+                    visualMap: {
+                        min: 0,
+                        max: 2,
+                        calculable: true,
+                        orient: 'horizontal',
+                        left: 'center',
+                        bottom: '5%',
+                        pieces: [
+                            {value: 0, color: '#e74a3b'},
+                            {value: 1, color: '#f6c23e'},
+                            {value: 2, color: '#1cc88a'}
+                        ],
+                        textStyle: {
+                            color: '#666'
+                        },
+                        formatter: function(value) {
+                            return ['None', 'Partial', 'Full'][value];
+                        }
+                    },
+                    series: [{
+                        name: 'Support Level',
+                        type: 'heatmap',
+                        data: heatmapData,
+                        label: {
+                            show: false
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }]
+                };
+                
+                // Apply options
+                heatmapChart.setOption(option);
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    heatmapChart.resize();
+                });
+                
+                // Fullscreen toggle
+                document.getElementById('toggleFullscreen').addEventListener('click', function() {
+                    if (heatmapElement.classList.contains('fullscreen')) {
+                        heatmapElement.classList.remove('fullscreen');
+                        this.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                        heatmapElement.style.height = '500px';
+                    } else {
+                        heatmapElement.classList.add('fullscreen');
+                        this.innerHTML = '<i class="fas fa-compress"></i> Exit Fullscreen';
+                        heatmapElement.style.height = '85vh';
+                    }
+                    
+                    // Resize chart after container size change
+                    setTimeout(function() {
+                        heatmapChart.resize();
+                    }, 100);
+                });
+                
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', function() {
+                    var dataURL = heatmapChart.getDataURL({
+                        pixelRatio: 2,
+                        backgroundColor: '#fff'
+                    });
+                    
+                    // Create an invisible anchor element to trigger download
+                    var downloadLink = document.createElement('a');
+                    downloadLink.href = dataURL;
+                    downloadLink.download = 'capability-mapping.png';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+            } else {
+                // Hide buttons if no chart
+                document.getElementById('toggleFullscreen').style.display = 'none';
+                document.getElementById('exportBtn').style.display = 'none';
+            }
+        });
+    </script>
+    
+    <style>
+        .fullscreen {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+        
+        .badge {
+            font-size: 85%;
+            padding: 0.4em 0.6em;
+        }
+        
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+        
+        .btn-outline-primary.active {
+            background-color: #4e73df;
+            color: white;
+        }
+        
+        .table-responsive {
+            min-height: 200px;
+        }
+        
+        /* DataTables styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #4e73df !important;
+            color: white !important;
+            border: none;
+        }
+        
+        .dt-buttons button {
+            background-color: #f8f9fc !important;
+            border-color: #d1d3e2 !important;
+            color: #6e707e !important;
+        }
+        
+        .dt-buttons button:hover {
+            background-color: #eaecf4 !important;
+        }
+    </style>
+}
+
+@functions {
+    public string GetSupportLevelBadgeClass(string supportLevel)
+    {
+        switch (supportLevel)
+        {
+            case "Full":
+                return "badge-success";
+            case "Partial":
+                return "badge-warning";
+            case "None":
+                return "badge-danger";
+            default:
+                return "badge-secondary";
+        }
+    }
+}
